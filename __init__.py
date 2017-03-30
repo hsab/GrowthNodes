@@ -18,23 +18,21 @@ import sys
 bpy.types.Scene.StartFrame = bpy.props.IntProperty(
         name = "StartFrame", 
         description = "StartFrame",
+        default = 1,
         min = 1)
 
 bpy.types.Scene.EndFrame = bpy.props.IntProperty(
         name = "EndFrame", 
         description = "EndFrame",
+        default = 2,
         min = 2)
 
 bpy.types.Scene.SubFrames = bpy.props.IntProperty(
         name = "SubFrames", 
         description = "SubFrames",
+        default = 1,
         min = 1)
 
-def ScenePropertySetup():
-    if 'StartFrame' not in bpy.context.scene: 
-            bpy.context.scene['StartFrame'] = 1
-            bpy.context.scene['EndFrame'] = 60
-            bpy.context.scene['SubFrames'] = 1
 
 
 class MyCustomNode(bpy.types.Node):
@@ -124,7 +122,6 @@ class UMOGNodeTree(bpy.types.NodeTree):
     def __init__(self):
         self.refs = UMOGReferenceHolder()
         #if the current scene has parameters do nothing otherwise adde the global start and end frames
-        ScenePropertySetup()
         
 
 def drawMenu(self, context):
