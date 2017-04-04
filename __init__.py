@@ -16,22 +16,22 @@ import bpy
 import sys
 
 bpy.types.Scene.StartFrame = bpy.props.IntProperty(
-        name = "StartFrame", 
-        description = "StartFrame",
-        default = 1,
-        min = 1)
+    name = "StartFrame", 
+    description = "StartFrame",
+    default = 1,
+    min = 1)
 
 bpy.types.Scene.EndFrame = bpy.props.IntProperty(
-        name = "EndFrame", 
-        description = "EndFrame",
-        default = 2,
-        min = 2)
+    name = "EndFrame", 
+    description = "EndFrame",
+    default = 2,
+    min = 2)
 
 bpy.types.Scene.SubFrames = bpy.props.IntProperty(
-        name = "SubFrames", 
-        description = "SubFrames",
-        default = 1,
-        min = 1)
+    name = "SubFrames", 
+    description = "SubFrames",
+    default = 1,
+    min = 1)
 
 class MyCustomSocket(bpy.types.NodeSocket):
     # Description string
@@ -56,7 +56,7 @@ class HelloWorldPanel(bpy.types.Panel):
     bl_category = "UMOG"
 
     def draw(self, context):
-        self.layout.operator("mesh.add_cube_sample", icon='RENDER_RESULT', text="Bake Mesh(es)")
+        self.layout.operator("umog.bake_meshes", icon='RENDER_RESULT', text="Bake Mesh(es)")
         self.layout.prop(bpy.context.scene, 'StartFrame')
         self.layout.prop(bpy.context.scene, 'EndFrame')
         self.layout.prop(bpy.context.scene, 'SubFrames')
@@ -71,12 +71,9 @@ class UMOGNode(bpy.types.Node):
     @classmethod
     def poll(cls, nodeTree):
         return nodeTree.bl_idname == "umog_UMOGNodeTree"
-    def create(self):
-        pass
-    
+
     def init(self, context):
         print('umog node base init')
-        self.create()
 			
 class UMOGReferenceHolder:
     def __init__(self):
@@ -96,6 +93,16 @@ class addCubeSample(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.mesh.primitive_cube_add()
         return {"FINISHED"}
+    
+class bakeMeshes(bpy.types.Operator):
+    bl_idname = 'umog.bake_meshes'
+    bl_label = 'Bake Mesh(es)'
+    bl_options = {"REGISTER", "UNDO"}
+ 
+    def execute(self, context):
+        print(bpy.context.active_node)
+        print(bpy.context.selected_nodes)
+        return {"FINISHED"}
 			
 class UMOGMeshInputNode(UMOGNode):
     bl_idname = "umog_MeshInputNode"
@@ -108,6 +115,19 @@ class UMOGMeshInputNode(UMOGNode):
         super().init(context)
 
 class UMOGNodeTree(bpy.types.NodeTree):
+    """
+    UMOG Node Tree
+
+    Args:
+        param1: This is the first param.
+        param2: This is a second param.
+
+    Returns:
+        This is a description of what is returned.
+
+    Raises:
+        KeyError: Raises an exception.
+    """
     bl_idname = "umog_UMOGNodeTree"
     bl_label = "UMOG"
     bl_icon = "SCULPTMODE_HLT"
@@ -115,6 +135,11 @@ class UMOGNodeTree(bpy.types.NodeTree):
     def __init__(self):
         self.refs = UMOGReferenceHolder()
         #if the current scene has parameters do nothing otherwise adde the global start and end frames
+        print('initializing umog node tree')
+        super().__init__()
+        
+    def execute(self):
+        print('executing node tree');
         
 
 def drawMenu(self, context):
@@ -134,7 +159,7 @@ def insertNode(layout, type, text, settings = {}, icon = "NONE"):
             item.value = value
     return operator
 	
-#todo creat the menu class
+#todo create the menu class
 class UMOGMeshMenu(bpy.types.Menu):
     bl_idname = "umog_mesh_menu"
     bl_label = "Mesh Menu"
@@ -146,6 +171,7 @@ class UMOGMeshMenu(bpy.types.Menu):
 
 def register():
     print("begin resitration")
+    # see for types to register https://docs.blender.org/api/2.78b/bpy.utils.html?highlight=register_class#bpy.utils.register_class
     bpy.types.NODE_MT_add.append(drawMenu)
     bpy.utils.register_class(HelloWorldPanel)
     bpy.utils.register_class(UMOGNodeTree)
@@ -153,7 +179,7 @@ def register():
 
 def unregister():
     bpy.types.NODE_MT_add.remove(drawMenu)
+    bpy.utils.unregister_class(HelloWorldPanel)
+    bpy.utils.unregister_class(UMOGNodeTree)
     bpy.utils.unregister_module(__name__)
 	
-if __name__ == "__main__":
-	register()
