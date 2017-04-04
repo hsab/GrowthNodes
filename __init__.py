@@ -33,21 +33,20 @@ bpy.types.Scene.SubFrames = bpy.props.IntProperty(
         default = 1,
         min = 1)
 
-
-
-class MyCustomNode(bpy.types.Node):
-    @classmethod
-    def poll(cls, tree):
-            #avalible in all trees
-            return true
+class MyCustomSocket(bpy.types.NodeSocket):
     # Description string
-    #'''A custom node'''
-    # Optional identifier string. If not explicitly defined, the python class name is used.
-    bl_idname = 'CustomNodeType'
+    '''Custom node socket type'''
+    bl_idname = 'CustomSocketType'
     # Label for nice name display
-    bl_label = 'Custom Node'
-    # Icon identifier
-    bl_icon = 'SOUND'
+    bl_label = 'Custom Node Socket'
+    # Socket color
+    bl_color = (1.0, 0.4, 0.216, 0.5)
+
+    def draw(self, context, layout, node, x):
+        layout.label(self.name)
+
+    def draw_color(self, context, node):
+        return (1,1,1,1)
 
 class HelloWorldPanel(bpy.types.Panel):
     bl_idname = "panel.panel3"
@@ -57,10 +56,10 @@ class HelloWorldPanel(bpy.types.Panel):
     bl_category = "UMOG"
 
     def draw(self, context):
-            self.layout.operator("mesh.add_cube_sample", icon='RENDER_RESULT', text="Bake Mesh(es)")
-            self.layout.prop(bpy.context.scene, 'StartFrame')
-            self.layout.prop(bpy.context.scene, 'EndFrame')
-            self.layout.prop(bpy.context.scene, 'SubFrames')
+        self.layout.operator("mesh.add_cube_sample", icon='RENDER_RESULT', text="Bake Mesh(es)")
+        self.layout.prop(bpy.context.scene, 'StartFrame')
+        self.layout.prop(bpy.context.scene, 'EndFrame')
+        self.layout.prop(bpy.context.scene, 'SubFrames')
 
 class UMOGNode(bpy.types.Node):
     bl_width_min = 10
@@ -71,12 +70,13 @@ class UMOGNode(bpy.types.Node):
     
     @classmethod
     def poll(cls, nodeTree):
-            return nodeTree.bl_idname == "umog_UMOGNodeTree"
+        return nodeTree.bl_idname == "umog_UMOGNodeTree"
     def create(self):
-            pass
+        pass
     
     def init(self, context):
-            self.create()
+        print('umog node base init')
+        self.create()
 			
 class UMOGReferenceHolder:
     def __init__(self):
@@ -101,18 +101,11 @@ class UMOGMeshInputNode(UMOGNode):
     bl_idname = "umog_MeshInputNode"
     bl_label = "UMOG Mesh Input Node"
 
-    def create(self):
-            self.newInput("BMesh", "BMesh", "bm")
-
-            self.newOutput("Vector List", "Vertex Locations", "vertexLocations")
-            self.newOutput("Edge Indices List", "Edge Indices", "edgeIndices")
-            self.newOutput("Polygon Indices List", "Polygon Indices", "polygonIndices")
-            self.newOutput("Vertex List", "Vertices", "vertices")
-            self.newOutput("Polygon List", "Polygons", "polygons")
-            
-
-
-
+    def init(self,context):
+        print('initializing umog node')
+        self.inputs.new("CustomSocketType", "My Input")
+        self.outputs.new("CustomSocketType", "My Output")
+        super().init(context)
 
 class UMOGNodeTree(bpy.types.NodeTree):
     bl_idname = "umog_UMOGNodeTree"
@@ -154,7 +147,6 @@ class UMOGMeshMenu(bpy.types.Menu):
 def register():
     print("begin resitration")
     bpy.types.NODE_MT_add.append(drawMenu)
-    bpy.utils.register_class(MyCustomNode)
     bpy.utils.register_class(HelloWorldPanel)
     bpy.utils.register_class(UMOGNodeTree)
     bpy.utils.register_module(__name__)
