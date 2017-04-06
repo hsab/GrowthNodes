@@ -1,7 +1,7 @@
 bl_info = {
     "name": "UMOG",
     "author": "Hirad Sabaghian, Micah Johnston, Marsh Poulson, Jacob Luke",
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "blender": (2, 78, 0),
     "location": "Node Editor > UMOG",
     "description": "Mesh Manipulation Tools",
@@ -10,7 +10,6 @@ bl_info = {
     "tracker_url": "",
     "category": "Mesh"
 }
-
 
 import bpy
 import sys
@@ -41,7 +40,7 @@ class MyCustomSocket(bpy.types.NodeSocket):
     bl_label = 'Custom Node Socket'
     # Socket color
     bl_color = (1.0, 0.4, 0.216, 0.5)
-
+    
     def draw(self, context, layout, node, x):
         layout.label(self.name)
 
@@ -64,6 +63,7 @@ class HelloWorldPanel(bpy.types.Panel):
 class UMOGNode(bpy.types.Node):
     bl_width_min = 10
     bl_width_max = 5000
+
     _IsUMOGNode = True
     
     bl_label = "UMOGNode"
@@ -71,7 +71,7 @@ class UMOGNode(bpy.types.Node):
     @classmethod
     def poll(cls, nodeTree):
         return nodeTree.bl_idname == "umog_UMOGNodeTree"
-
+    
     def init(self, context):
         print('umog node base init')
 			
@@ -102,6 +102,7 @@ class bakeMeshes(bpy.types.Operator):
     def execute(self, context):
         print(bpy.context.active_node)
         print(bpy.context.selected_nodes)
+        bpy.context.active_node.execute()
         return {"FINISHED"}
 			
 class UMOGMeshInputNode(UMOGNode):
@@ -113,6 +114,36 @@ class UMOGMeshInputNode(UMOGNode):
         self.inputs.new("CustomSocketType", "My Input")
         self.outputs.new("CustomSocketType", "My Output")
         super().init(context)
+
+class UMOGNoiseGenerationNode(UMOGNode):
+    bl_idname = "umog_NoiseGenerationNode"
+    bl_label = "UMOG Noise Generation Node"
+    
+    def init(self, context):
+        print('initializing umog noise node')
+        self.inputs.new("NodeSocketInt", "X")
+        self.inputs.new("NodeSocketInt", "Y")
+        self.inputs.new("NodeSocketInt", "Z")
+        self.outputs.new("NodeSocketInt", "Output")
+        super().init(context)
+
+class PrintNode(UMOGNode):
+    bl_idname = "umog_PrintNode"
+    bl_label = "Print Node"
+    
+    def init(self, context):
+        print('initializing umog print node')
+        self.inputs.new("NodeSocketString", "Print String")
+        super().init(context)
+
+    def execute(self):
+        """if self.inputs['Print String'].is_linked:
+            input_String = "NOTHING ENTERED"
+        else:
+            input_String = self.inputs['Print String']
+            
+        print(input_String)"""
+        print("THIS PRINT WORKS")
 
 class UMOGNodeTree(bpy.types.NodeTree):
     """
@@ -167,7 +198,8 @@ class UMOGMeshMenu(bpy.types.Menu):
     def draw(self, context):
             layout = self.layout
             insertNode(layout, "umog_MeshInputNode", "Input Mesh")
-
+            insertNode(layout, "umog_PrintNode", "Print")
+            insertNode(layout, "umog_NoiseGenerationNode", "Noise Generator")
 
 def register():
     print("begin resitration")
