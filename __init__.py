@@ -104,7 +104,7 @@ class GetObjectSocket(NodeSocket):
 
 ################################
 # START: Nodes for Firday
-class GetObjectNode(UMOGNode):
+class GetObjectNode(bpy.types.Node):
     bl_idname = "umog_GetObjectNode"
     bl_label = "Get Object Node"
     
@@ -118,7 +118,6 @@ class GetObjectNode(UMOGNode):
 
     def init(self, context):
         self.outputs.new("GetObjectSocketType", "Output")
-        super().init(context)
  
     def draw_buttons(self, context, layout):
         layout.prop(self, "SceneObjectsEnum")
@@ -129,7 +128,7 @@ class GetObjectNode(UMOGNode):
     def execute(self):
         pass
 
-class GetTextureNode(UMOGNode):
+class GetTextureNode(bpy.types.Node):
     bl_idname = "umog_GetTextureNode"
     bl_label = "Get Texture Node"
         
@@ -143,7 +142,6 @@ class GetTextureNode(UMOGNode):
 
     def init(self, context):
         self.outputs.new("GetTextureSocketType", "Output")
-        super().init(context)
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "SceneTexturesEnum")
@@ -155,7 +153,7 @@ class GetTextureNode(UMOGNode):
     def execute(self):
         pass
 
-class ModiferSubdivNode(UMOGNode):
+class ModiferSubdivNode(bpy.types.Node):
     bl_idname = "umog_SubdivModifier"
     bl_label = "Subdivision Modifier"
     
@@ -164,7 +162,6 @@ class ModiferSubdivNode(UMOGNode):
     
     def init(self, context):
         self.inputs.new("GetObjectSocketType", "Input")
-        super().init(context)
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "subdivPreviewCount", text="Preview")
@@ -188,7 +185,7 @@ class ModiferSubdivNode(UMOGNode):
         if self.inputs["Input"].is_linked:
             print("From Displace Exe", self.inputs["Input"].links[0].from_socket.SelectObjectProp)
 
-class ModiferDisplaceNode(UMOGNode):
+class ModiferDisplaceNode(bpy.types.Node):
     bl_idname = "umog_ModifierDisplace"
     bl_label = "Displace Modifier"
     
@@ -196,7 +193,6 @@ class ModiferDisplaceNode(UMOGNode):
         self.inputs.new("GetObjectSocketType", "Input")
         self.inputs.new("GetObjectSocketType", "Reference Object")
         self.inputs.new("GetTextureSocketType", "Texture")
-        super().init(context)
     
     def update(self):
         if self.inputs["Input"].is_linked:
