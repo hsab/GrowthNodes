@@ -56,6 +56,7 @@ class HelloWorldPanel(bpy.types.Panel):
 
     def draw(self, context):
         self.layout.operator("umog.bake_meshes", icon='RENDER_RESULT', text="Bake Mesh(es)")
+        self.layout.operator("umog.add_keyframe_sample", icon='RENDER_ANIMATION', text="Render Animation")
         self.layout.prop(bpy.context.scene, 'StartFrame')
         self.layout.prop(bpy.context.scene, 'EndFrame')
         self.layout.prop(bpy.context.scene, 'SubFrames')
@@ -104,6 +105,19 @@ class bakeMeshes(bpy.types.Operator):
         print(bpy.context.selected_nodes)
         bpy.context.active_node.execute()
         return {"FINISHED"}
+
+class addKeyframeSample(bpy.types.Operator):
+    bl_idname = 'umog.add_keyframe_sample'
+    bl_label = 'Add Keyframe'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        obj = bpy.context.object
+        obj.location[2] = 0.0
+        obj.keyframe_insert(data_path="location", frame=10.0, index=2)
+        obj.location[2] = 1.0
+        obj.keyframe_insert(data_path="location", frame=20.0, index=2)
+        return {'FINISHED'}
 			
 class UMOGMeshInputNode(UMOGNode):
     bl_idname = "umog_MeshInputNode"
