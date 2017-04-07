@@ -1,231 +1,174 @@
-bl_info = {
-    "name": "UMOG",
-    "author": "Hirad Sabaghian, Micah Johnston, Marsh Poulson, Jacob Luke",
-    "version": (0, 0, 2),
-    "blender": (2, 78, 0),
-    "location": "Node Editor > UMOG",
-    "description": "Mesh Manipulation Tools",
-    "warning": "prealpha",
-    "wiki_url": "",
-    "tracker_url": "",
-    "category": "Mesh"
-}
-
 import bpy
-import sys
+from bpy.types import NodeTree, Node, NodeSocket
 
-bpy.types.Scene.StartFrame = bpy.props.IntProperty(
-    name = "StartFrame", 
-    description = "StartFrame",
-    default = 1,
-    min = 1)
+# Implementation of custom nodes from Python
 
-bpy.types.Scene.EndFrame = bpy.props.IntProperty(
-    name = "EndFrame", 
-    description = "EndFrame",
-    default = 2,
-    min = 2)
 
-bpy.types.Scene.SubFrames = bpy.props.IntProperty(
-    name = "SubFrames", 
-    description = "SubFrames",
-    default = 1,
-    min = 1)
+# Derived from the NodeTree base type, similar to Menu, Operator, Panel, etc.
+class MyCustomTree(NodeTree):
+    # Description string
+    '''A custom node tree type that will show up in the node editor header'''
+    # Optional identifier string. If not explicitly defined, the python class name is used.
+    bl_idname = 'CustomTreeType'
+    # Label for nice name display
+    bl_label = 'Custom Node Tree'
+    # Icon identifier
+    bl_icon = 'NODETREE'
 
-class MyCustomSocket(bpy.types.NodeSocket):
+
+# Custom socket type
+class MyCustomSocket(NodeSocket):
     # Description string
     '''Custom node socket type'''
+    # Optional identifier string. If not explicitly defined, the python class name is used.
     bl_idname = 'CustomSocketType'
     # Label for nice name display
     bl_label = 'Custom Node Socket'
-    # Socket color
-    bl_color = (1.0, 0.4, 0.216, 0.5)
-    
-    def draw(self, context, layout, node, x):
-        layout.label(self.name)
 
-    def draw_color(self, context, node):
-        return (1,1,1,1)
+    # Enum items list
+    my_items = [
+        ("DOWN", "Down", "Where your feet are"),
+        ("UP", "Up", "Where your head should be"),
+        ("LEFT", "Left", "Not right"),
+        ("RIGHT", "Right", "Not left")
+    ]
 
-class HelloWorldPanel(bpy.types.Panel):
-    bl_idname = "panel.panel3"
-    bl_label = "UMOG"
-    bl_space_type = "NODE_EDITOR"
-    bl_region_type = "TOOLS"
-    bl_category = "UMOG"
+    myEnumProperty = bpy.props.EnumProperty(name="Direction", description="Just an example", items=my_items, default='UP')
 
-    def draw(self, context):
-        self.layout.operator("umog.bake_meshes", icon='RENDER_RESULT', text="Bake Mesh(es)")
-        self.layout.operator("umog.add_keyframe_sample", icon='RENDER_ANIMATION', text="Render Animation")
-        self.layout.prop(bpy.context.scene, 'StartFrame')
-        self.layout.prop(bpy.context.scene, 'EndFrame')
-        self.layout.prop(bpy.context.scene, 'SubFrames')
-
-class UMOGNode(bpy.types.Node):
-    bl_width_min = 10
-    bl_width_max = 5000
-
-    _IsUMOGNode = True
-    
-    bl_label = "UMOGNode"
-    
-    @classmethod
-    def poll(cls, nodeTree):
-        return nodeTree.bl_idname == "umog_UMOGNodeTree"
-    
-    def init(self, context):
-        print('umog node base init')
-			
-class UMOGReferenceHolder:
-    def __init__(self):
-        self.references = {}
-        
-    def getRef(self, key):
-        return references[key]
-    
-    def addRef(self, key, obj):
-        references[key] = obj
-
-class addCubeSample(bpy.types.Operator):
-    bl_idname = 'mesh.add_cube_sample'
-    bl_label = 'Add Cube'
-    bl_options = {"REGISTER", "UNDO"}
- 
-    def execute(self, context):
-        bpy.ops.mesh.primitive_cube_add()
-        return {"FINISHED"}
-    
-class bakeMeshes(bpy.types.Operator):
-    bl_idname = 'umog.bake_meshes'
-    bl_label = 'Bake Mesh(es)'
-    bl_options = {"REGISTER", "UNDO"}
- 
-    def execute(self, context):
-        print(bpy.context.active_node)
-        print(bpy.context.selected_nodes)
-        bpy.context.active_node.execute()
-        return {"FINISHED"}
-
-class addKeyframeSample(bpy.types.Operator):
-    bl_idname = 'umog.add_keyframe_sample'
-    bl_label = 'Add Keyframe'
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        obj = bpy.context.object
-        obj.location[2] = 0.0
-        obj.keyframe_insert(data_path="location", frame=10.0, index=2)
-        obj.location[2] = 1.0
-        obj.keyframe_insert(data_path="location", frame=20.0, index=2)
-        return {'FINISHED'}
-			
-class UMOGMeshInputNode(UMOGNode):
-    bl_idname = "umog_MeshInputNode"
-    bl_label = "UMOG Mesh Input Node"
-
-    def init(self,context):
-        print('initializing umog node')
-        self.inputs.new("CustomSocketType", "My Input")
-        self.outputs.new("CustomSocketType", "My Output")
-        super().init(context)
-
-class UMOGNoiseGenerationNode(UMOGNode):
-    bl_idname = "umog_NoiseGenerationNode"
-    bl_label = "UMOG Noise Generation Node"
-    
-    def init(self, context):
-        print('initializing umog noise node')
-        self.inputs.new("NodeSocketInt", "X")
-        self.inputs.new("NodeSocketInt", "Y")
-        self.inputs.new("NodeSocketInt", "Z")
-        self.outputs.new("NodeSocketInt", "Output")
-        super().init(context)
-
-class PrintNode(UMOGNode):
-    bl_idname = "umog_PrintNode"
-    bl_label = "Print Node"
-    
-    def init(self, context):
-        print('initializing umog print node')
-        self.inputs.new("NodeSocketString", "Print String")
-        super().init(context)
-
-    def execute(self):
-        """if self.inputs['Print String'].is_linked:
-            input_String = "NOTHING ENTERED"
+    # Optional function for drawing the socket input value
+    def draw(self, context, layout, node, text):
+        if self.is_output or self.is_linked:
+            layout.label(text)
         else:
-            input_String = self.inputs['Print String']
-            
-        print(input_String)"""
-        print("THIS PRINT WORKS")
+            layout.prop(self, "myEnumProperty", text=text)
 
-class UMOGNodeTree(bpy.types.NodeTree):
-    """
-    UMOG Node Tree
+    # Socket color
+    def draw_color(self, context, node):
+        return (1.0, 0.4, 0.216, 0.5)
 
-    Args:
-        param1: This is the first param.
-        param2: This is a second param.
 
-    Returns:
-        This is a description of what is returned.
+# Mix-in class for all custom nodes in this tree type.
+# Defines a poll function to enable instantiation.
+class MyCustomTreeNode:
+    @classmethod
+    def poll(cls, ntree):
+        return ntree.bl_idname == 'CustomTreeType'
 
-    Raises:
-        KeyError: Raises an exception.
-    """
-    bl_idname = "umog_UMOGNodeTree"
-    bl_label = "UMOG"
-    bl_icon = "SCULPTMODE_HLT"
-    
-    def __init__(self):
-        self.refs = UMOGReferenceHolder()
-        #if the current scene has parameters do nothing otherwise adde the global start and end frames
-        print('initializing umog node tree')
-        super().__init__()
-        
-    def execute(self):
-        print('executing node tree');
-        
 
-def drawMenu(self, context):
-    if context.space_data.tree_type != "umog_UMOGNodeTree": return
-    
-    layout = self.layout
-    layout.operator_context = "INVOKE_DEFAULT"
-    layout.menu("umog_mesh_menu", text="Mesh", icon = "MESH_DATA")
-# from animation nodes
-def insertNode(layout, type, text, settings = {}, icon = "NONE"):
-    operator = layout.operator("node.add_node", text = text, icon = icon)
-    operator.type = type
-    operator.use_transform = True
-    for name, value in settings.items():
-            item = operator.settings.add()
-            item.name = name
-            item.value = value
-    return operator
-	
-#todo create the menu class
-class UMOGMeshMenu(bpy.types.Menu):
-    bl_idname = "umog_mesh_menu"
-    bl_label = "Mesh Menu"
-    
-    def draw(self, context):
-            layout = self.layout
-            insertNode(layout, "umog_MeshInputNode", "Input Mesh")
-            insertNode(layout, "umog_PrintNode", "Print")
-            insertNode(layout, "umog_NoiseGenerationNode", "Noise Generator")
+# Derived from the Node base type.
+class MyCustomNode(Node, MyCustomTreeNode):
+    # === Basics ===
+    # Description string
+    '''A custom node'''
+    # Optional identifier string. If not explicitly defined, the python class name is used.
+    bl_idname = 'CustomNodeType'
+    # Label for nice name display
+    bl_label = 'Custom Node'
+    # Icon identifier
+    bl_icon = 'SOUND'
+
+    # === Custom Properties ===
+    # These work just like custom properties in ID data blocks
+    # Extensive information can be found under
+    # http://wiki.blender.org/index.php/Doc:2.6/Manual/Extensions/Python/Properties
+    myStringProperty = bpy.props.StringProperty()
+    myFloatProperty = bpy.props.FloatProperty(default=3.1415926)
+
+    # === Optional Functions ===
+    # Initialization function, called when a new node is created.
+    # This is the most common place to create the sockets for a node, as shown below.
+    # NOTE: this is not the same as the standard __init__ function in Python, which is
+    #       a purely internal Python method and unknown to the node system!
+    def init(self, context):
+        self.inputs.new('CustomSocketType', "Hello")
+        self.inputs.new('NodeSocketFloat', "World")
+        self.inputs.new('NodeSocketVector', "!")
+
+        self.outputs.new('NodeSocketColor', "How")
+        self.outputs.new('NodeSocketColor', "are")
+        self.outputs.new('NodeSocketFloat', "you")
+
+    # Copy function to initialize a copied node from an existing one.
+    def copy(self, node):
+        print("Copying from node ", node)
+
+    # Free function to clean up on removal.
+    def free(self):
+        print("Removing node ", self, ", Goodbye!")
+
+    # Additional buttons displayed on the node.
+    def draw_buttons(self, context, layout):
+        layout.label("Node settings")
+        layout.prop(self, "myFloatProperty")
+
+    # Detail buttons in the sidebar.
+    # If this function is not defined, the draw_buttons function is used instead
+    def draw_buttons_ext(self, context, layout):
+        layout.prop(self, "myFloatProperty")
+        # myStringProperty button will only be visible in the sidebar
+        layout.prop(self, "myStringProperty")
+
+    # Optional: custom label
+    # Explicit user label overrides this, but here we can define a label dynamically
+    def draw_label(self):
+        return "I am a custom node"
+
+
+### Node Categories ###
+# Node categories are a python system for automatically
+# extending the Add menu, toolbar panels and search operator.
+# For more examples see release/scripts/startup/nodeitems_builtins.py
+
+import nodeitems_utils
+from nodeitems_utils import NodeCategory, NodeItem
+
+
+# our own base class with an appropriate poll function,
+# so the categories only show up in our own tree type
+class MyNodeCategory(NodeCategory):
+    @classmethod
+    def poll(cls, context):
+        return context.space_data.tree_type == 'CustomTreeType'
+
+# all categories in a list
+node_categories = [
+    # identifier, label, items list
+    MyNodeCategory("SOMENODES", "Some Nodes", items=[
+        # our basic node
+        NodeItem("CustomNodeType"),
+        ]),
+    MyNodeCategory("OTHERNODES", "Other Nodes", items=[
+        # the node item can have additional settings,
+        # which are applied to new nodes
+        # NB: settings values are stored as string expressions,
+        # for this reason they should be converted to strings using repr()
+        NodeItem("CustomNodeType", label="Node A", settings={
+            "myStringProperty": repr("Lorem ipsum dolor sit amet"),
+            "myFloatProperty": repr(1.0),
+            }),
+        NodeItem("CustomNodeType", label="Node B", settings={
+            "myStringProperty": repr("consectetur adipisicing elit"),
+            "myFloatProperty": repr(2.0),
+            }),
+        ]),
+    ]
+
 
 def register():
-    print("begin resitration")
-    # see for types to register https://docs.blender.org/api/2.78b/bpy.utils.html?highlight=register_class#bpy.utils.register_class
-    bpy.types.NODE_MT_add.append(drawMenu)
-    bpy.utils.register_class(HelloWorldPanel)
-    bpy.utils.register_class(UMOGNodeTree)
-    bpy.utils.register_module(__name__)
+    bpy.utils.register_class(MyCustomTree)
+    bpy.utils.register_class(MyCustomSocket)
+    bpy.utils.register_class(MyCustomNode)
+
+    nodeitems_utils.register_node_categories("CUSTOM_NODES", node_categories)
+
 
 def unregister():
-    bpy.types.NODE_MT_add.remove(drawMenu)
-    bpy.utils.unregister_class(HelloWorldPanel)
-    bpy.utils.unregister_class(UMOGNodeTree)
-    bpy.utils.unregister_module(__name__)
-	
+    nodeitems_utils.unregister_node_categories("CUSTOM_NODES")
+
+    bpy.utils.unregister_class(MyCustomTree)
+    bpy.utils.unregister_class(MyCustomSocket)
+    bpy.utils.unregister_class(MyCustomNode)
+
+
+if __name__ == "__main__":
+    register()
