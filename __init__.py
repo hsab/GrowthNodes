@@ -14,6 +14,21 @@ bl_info = {
 import bpy
 import sys
 from bpy.types import NodeTree, Node, NodeSocket
+
+
+#begining of code for debugging
+#https://wiki.blender.org/index.php/Dev:Doc/Tools/Debugging/Python_Eclipse
+#make this match your current installation
+PYDEV_SOURCE_DIR = "/usr/lib/eclipse/plugins/org.python.pydev_5.6.0.201703221358/pysrc"
+import sys
+if PYDEV_SOURCE_DIR not in sys.path:
+    sys.path.append(PYDEV_SOURCE_DIR)
+import pydevd
+#end code for debugging
+
+#will create a breakpoint
+#pydevd.settrace()
+
 ###############################
 #START: PROPERTIES
 
@@ -318,6 +333,8 @@ class UMOG_OT_SelectTexture(bpy.types.Operator):
     collection = bpy.props.CollectionProperty(type=MyItem)
     collection_index = bpy.props.IntProperty()
 
+    pnode = bpy.props.StringProperty()
+    
     def check(self, context):
         return True
 
@@ -330,9 +347,8 @@ class UMOG_OT_SelectTexture(bpy.types.Operator):
 
     def execute(self, context):
         print("texture selected: " + self.collection[self.collection_index].name)
-        print(bpy.context.active_node)
         try:
-            bpy.context.active_node.texture = self.collection[self.collection_index].name
+            bpy.context.space_data.edit_tree.nodes[self.pnode].texture = self.collection[self.collection_index].name
             print("set property of active node")
         except:
             pass
@@ -400,8 +416,11 @@ class GetTextureNode(UMOGNode):
         super().init(context)
 
     def draw_buttons(self, context, layout):
-        layout.operator("umog.select_texture", text = "Select Texture")
-        layout.template_preview(bpy.data.textures[self.texture])
+        layout.operator("umog.select_texture", text = "Select Texture").pnode = self.name
+        try:
+            layout.template_preview(bpy.data.textures[self.texture])
+        except:
+            pass
 
     def update(self):
         pass
