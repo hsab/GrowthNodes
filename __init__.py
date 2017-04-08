@@ -401,6 +401,7 @@ class GetTextureNode(UMOGNode):
 
     def draw_buttons(self, context, layout):
         layout.operator("umog.select_texture", text = "Select Texture")
+        layout.template_preview(bpy.data.textures[self.texture])
 
     def update(self):
         pass
