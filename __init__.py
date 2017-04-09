@@ -282,6 +282,14 @@ class UMOGNode(bpy.types.Node):
     
     def init(self, context):
         print('umog node base init')
+    #this will be called when the node is executed by bake meshes
+    def execute(self):
+        pass
+        
+class UMOGOutputNode(UMOGNode):
+    _OutputNode = True
+    def init(self, context):
+        super().init(context)
             
 class UMOGReferenceHolder:
     def __init__(self):
@@ -301,16 +309,44 @@ class addCubeSample(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.mesh.primitive_cube_add()
         return {"FINISHED"}
-    
+
 class bakeMeshes(bpy.types.Operator):
     bl_idname = 'umog.bake_meshes'
     bl_label = 'Bake Mesh(es)'
     bl_options = {"REGISTER", "UNDO"}
  
     def execute(self, context):
-        print(bpy.context.active_node)
-        print(bpy.context.selected_nodes)
-        bpy.context.active_node.execute()
+        start_nodes = []
+        #initialize NodePriority to -1 for non output and 0 for output nodes
+        nn2p = {}
+        for node in bpy.context.space_data.edit_tree.nodes:
+            try:
+                if node._OutputNode:
+                    nn2p[node.name] = 0
+                    start_nodes.append(node)
+            except:
+                nn2p[node.name] = -1
+        
+        #now using the start nodes
+        while len(start_nodes) != 0:
+            next_nodes = []
+            for node in start_nodes:
+                for ln in node.inputs:
+                    try:
+                        ln = ln.links[0].from_node
+                        if nn2p[ln.name] == -1:
+                            nn2p[ln.name] = nn2p[node.name] +1
+                            next_nodes.append(ln)
+                    except:
+                        pass
+            start_nodes = next_nodes
+        #sort the nodes by NodePriority
+        sorted_nodes = sorted(bpy.context.space_data.edit_tree.nodes, key=lambda node:nn2p[node.name])
+        #highest numbered nodes should be first
+        sorted_nodes.reverse()
+        
+        for node in sorted_nodes:
+            node.execute()
         return {"FINISHED"}
 
 class addKeyframeSample(bpy.types.Operator):
@@ -367,12 +403,15 @@ class UMOG_OT_SelectTexture(bpy.types.Operator):
 class UMOGMeshInputNode(UMOGNode):
     bl_idname = "umog_MeshInputNode"
     bl_label = "UMOG Mesh Input Node"
-
+        
     def init(self,context):
         print('initializing umog node')
-        self.inputs.new("CustomSocketType", "My Input")
-        self.outputs.new("CustomSocketType", "My Output")
+        self.inputs.new("GetObjectSocketType", "My Input")
+        self.outputs.new("GetObjectSocketType", "My Output")
         super().init(context)
+        
+    def execute(self):
+        print("input node execution")
 
 class UMOGNoiseGenerationNode(UMOGNode):
     bl_idname = "umog_NoiseGenerationNode"
@@ -385,8 +424,11 @@ class UMOGNoiseGenerationNode(UMOGNode):
         self.inputs.new("NodeSocketInt", "Z")
         self.outputs.new("NodeSocketInt", "Output")
         super().init(context)
+        
+    def execute(self):
+        print("noise node execution")
 
-class PrintNode(UMOGNode):
+class PrintNode(UMOGOutputNode):
     bl_idname = "umog_PrintNode"
     bl_label = "Print Node"
     
@@ -424,9 +466,9 @@ class GetTextureNode(UMOGNode):
 
     def update(self):
         pass
-            
+    
     def execute(self):
-        pass
+        print("get texture node execution")
     
 #class Mat3Node(UMOGNode):
     #bl_idname = "umog_Mat3Node"
