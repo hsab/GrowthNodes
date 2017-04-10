@@ -14,6 +14,7 @@ bl_info = {
 import bpy
 import sys
 from bpy.types import NodeTree, Node, NodeSocket
+import mathutils
 
 
 #begining of code for debugging
@@ -49,28 +50,6 @@ bpy.types.Scene.SubFrames = bpy.props.IntProperty(
     description = "SubFrames",
     default = 1,
     min = 1)
-
-class Mat3(bpy.types.PropertyGroup):
-    mat00 = bpy.props.FloatProperty(default = 1.0)
-    mat01 = bpy.props.FloatProperty()
-    mat02 = bpy.props.FloatProperty()
-    mat10 = bpy.props.FloatProperty() 
-    mat11 = bpy.props.FloatProperty(default = 1.0) 
-    mat12 = bpy.props.FloatProperty() 
-    mat20 = bpy.props.FloatProperty()
-    mat21 = bpy.props.FloatProperty()
-    mat22 = bpy.props.FloatProperty(default = 1.0)
-    
-    def draw(self, context, layout):
-        layout.prop(self, "mat00")
-        layout.prop(self, "mat01")
-        layout.prop(self, "mat02")
-        layout.prop(self, "mat10")
-        layout.prop(self, "mat11")
-        layout.prop(self, "mat12")
-        layout.prop(self, "mat20")
-        layout.prop(self, "mat21")
-        layout.prop(self, "mat22")
         
 
 #END: PROPERTIES
@@ -137,7 +116,7 @@ class GetObjectSocket(NodeSocket):
 #        else:
         layout.label(text=text)
 
-    # Socket color
+    # Socket colorblender python Property
     def draw_color(self, context, node):
         return (1.0, 0.4, 0.216, 0.5)
     
@@ -468,27 +447,29 @@ class GetTextureNode(UMOGNode):
         pass
     
     def execute(self):
-        print("get texture node execution")
+        print("get texture node execution, texture: " + self.texture)
     
-#class Mat3Node(UMOGNode):
-    #bl_idname = "umog_Mat3Node"
-    #bl_label = "Matrix"
+class Mat3Node(UMOGNode):
+    bl_idname = "umog_Mat3Node"
+    bl_label = "Matrix"
 
-    #matrix = bpy.props.PointerProperty(type=Mat3)
+    #matrix = bpy.props.FloatVectorProperty(size = 16,subtype='MATRIX', default = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1))
+    matrix = bpy.props.FloatVectorProperty(size = 16, default = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1))
+    
+    
+    def init(self, context):
+        self.outputs.new("Mat3SocketType", "Output")
+        self.inputs.new("Mat3SocketType", "Input")
+        super().init(context)
 
-    #def init(self, context):
-        #self.outputs.new("Mat3SocketType", "Output")
-        #self.inputs.new("Mat3SocketType", "Input")
-        #super().init(context)
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'matrix')
 
-    #def draw_buttons(self, context, layout):
-        #self.matrix.draw(context, layout)
-
-    #def update(self):
-        #pass
             
-    #def execute(self):
-        #pass
+    def execute(self):
+        print('begin matrix')
+        for elem in self.matrix:
+            print(elem)
     
 #END: UMOG_NODES
 
@@ -547,7 +528,6 @@ def register():
     bpy.types.NODE_MT_add.append(drawMenu)
     bpy.utils.register_class(HelloWorldPanel)
     bpy.utils.register_class(UMOGNodeTree)
-    bpy.utils.register_class(Mat3)
     bpy.utils.register_module(__name__)
 
 def unregister():
