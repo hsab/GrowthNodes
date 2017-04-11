@@ -16,6 +16,8 @@ import sys
 from bpy.types import NodeTree, Node, NodeSocket
 import mathutils
 
+import numpy as np
+
 
 #begining of code for debugging
 #https://wiki.blender.org/index.php/Dev:Doc/Tools/Debugging/Python_Eclipse
@@ -51,6 +53,11 @@ bpy.types.Scene.SubFrames = bpy.props.IntProperty(
     default = 1,
     min = 1)
         
+bpy.types.Scene.TextureResolution = bpy.props.IntProperty(
+    name = "TextureResolution", 
+    description = "TextureResolution",
+    default = 256,
+    min = 64)
 
 #END: PROPERTIES
 ################################
@@ -70,6 +77,7 @@ class HelloWorldPanel(bpy.types.Panel):
         self.layout.prop(bpy.context.scene, 'StartFrame')
         self.layout.prop(bpy.context.scene, 'EndFrame')
         self.layout.prop(bpy.context.scene, 'SubFrames')
+        self.layout.prop(bpy.context.scene, 'TextureResolution')
 
 # END: PANEL
 ################################
@@ -168,7 +176,7 @@ class Mat3Socket(NodeSocket):
     #def update(self):
         #pass
             
-    #def execute(self):
+    #def execute(self, refholder):
         #pass
 
 #class ModiferSubdivNode(bpy.types.Node):
@@ -199,7 +207,7 @@ class Mat3Socket(NodeSocket):
                 #bpy.data.objects[objectName].modifiers["Subsurf"].render_levels = self.subdivRenderCount
 
             
-    #def execute(self):
+    #def execute(self, refholder):
         #if self.inputs["Input"].is_linked:
             #print("From Displace Exe", self.inputs["Input"].links[0].from_socket.SelectObjectProp)
 
@@ -233,7 +241,7 @@ class Mat3Socket(NodeSocket):
             #if "Displace" in bpy.data.objects[objectName].modifiers:
                 #bpy.data.objects[objectName].modifiers["Displace"].texture_coords_object = bpy.data.objects[referenceName]
 
-    #def execute(self):
+    #def execute(self, refholder):
         #if self.inputs["Input"].is_linked:
             #print("From Displace Exe", self.inputs["Input"].links[0].from_socket.SelectObjectProp)
 
@@ -262,7 +270,12 @@ class UMOGNode(bpy.types.Node):
     def init(self, context):
         print('umog node base init')
     #this will be called when the node is executed by bake meshes
-    def execute(self):
+    #will be called each iteration
+    def execute(self, refholder):
+        pass
+    #will be called once before the node will be executed by bake meshes
+    #refholder is passed to this so it can register any objects that need it
+    def preExecute(self, refholder):
         pass
         
 class UMOGOutputNode(UMOGNode):
@@ -273,12 +286,30 @@ class UMOGOutputNode(UMOGNode):
 class UMOGReferenceHolder:
     def __init__(self):
         self.references = {}
+        #maps texture names to integers
+        self.ntindex =0
+        self.tdict = {}
+        self.np2dtextures= {}
+    def getRefForTexture2d(self, name):
+        if name in self.tdict:
+            return self.tdict[name]
+        oldidx = self.ntindex
+        self.ntindex += 1
+        #setup the empty texture array
+        tr = bpy.context.scene.TextureResolution
+        self.np2dtextures[oldidx] = np.zeros((tr,tr,4))
+        self.tdict[name] = oldidx
+        #now fill in the values
+        self.fillTexture(oldidx, name)
+        return oldidx
         
-    def getRef(self, key):
-        return references[key]
-    
-    def addRef(self, key, obj):
-        references[key] = obj
+    def fillTexture(self, index, name):
+        tr = bpy.context.scene.TextureResolution
+        trh = tr/2
+        for i in range(0, tr):
+            for j in range(0, tr):
+                x, y = (i-trh)/trh, (j-trh)/trh
+                self.np2dtextures[index][i,j] = bpy.data.textures[name].evaluate((x,y,0.0))  
 
 class addCubeSample(bpy.types.Operator):
     bl_idname = 'mesh.add_cube_sample'
@@ -324,8 +355,15 @@ class bakeMeshes(bpy.types.Operator):
         #highest numbered nodes should be first
         sorted_nodes.reverse()
         
+        refholder = UMOGReferenceHolder()
+        
         for node in sorted_nodes:
-            node.execute()
+            node.preExecute(refholder)
+        for frames in range(bpy.context.scene.StartFrame, bpy.context.scene.EndFrame):
+            for subframes in range(0, bpy.context.scene.SubFrames):
+                for node in sorted_nodes:
+                    node.execute(refholder)
+                    #consider at what point to do the end of frame calls
         return {"FINISHED"}
 
 class addKeyframeSample(bpy.types.Operator):
@@ -389,7 +427,7 @@ class UMOGMeshInputNode(UMOGNode):
         self.outputs.new("GetObjectSocketType", "My Output")
         super().init(context)
         
-    def execute(self):
+    def execute(self, refholder):
         print("input node execution")
 
 class UMOGNoiseGenerationNode(UMOGNode):
@@ -404,7 +442,7 @@ class UMOGNoiseGenerationNode(UMOGNode):
         self.outputs.new("NodeSocketInt", "Output")
         super().init(context)
         
-    def execute(self):
+    def execute(self, refholder):
         print("noise node execution")
 
 class PrintNode(UMOGOutputNode):
@@ -416,7 +454,7 @@ class PrintNode(UMOGOutputNode):
         self.inputs.new("NodeSocketString", "Print String")
         super().init(context)
 
-    def execute(self):
+    def execute(self, refholder):
         """if self.inputs['Print String'].is_linked:
             input_String = "NOTHING ENTERED"
         else:
@@ -431,6 +469,8 @@ class GetTextureNode(UMOGNode):
     bl_label = "Get Texture Node"
 
     texture = bpy.props.StringProperty()
+    
+    texture_index = bpy.props.IntProperty()
 
     def init(self, context):
         self.outputs.new("GetTextureSocketType", "Output")
@@ -446,8 +486,14 @@ class GetTextureNode(UMOGNode):
     def update(self):
         pass
     
-    def execute(self):
+    def execute(self, refholder):
         print("get texture node execution, texture: " + self.texture)
+        print(refholder.np2dtextures[self.texture_index])
+        
+        
+    def preExecute(self, refholder):
+        #consider saving the result from this
+        self.texture_index = refholder.getRefForTexture2d(self.texture)
     
 class Mat3Node(UMOGNode):
     bl_idname = "umog_Mat3Node"
@@ -466,7 +512,7 @@ class Mat3Node(UMOGNode):
         layout.prop(self, 'matrix')
 
             
-    def execute(self):
+    def execute(self, refholder):
         print('begin matrix')
         for elem in self.matrix:
             print(elem)
@@ -485,7 +531,7 @@ class UMOGNodeTree(bpy.types.NodeTree):
         print('initializing umog node tree')
         super().__init__()
         
-    def execute(self):
+    def execute(self, refholder):
         print('executing node tree');
         
 
