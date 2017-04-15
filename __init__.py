@@ -306,6 +306,14 @@ class UMOGReferenceHolder:
         #now fill in the values
         self.fillTexture(oldidx, name)
         return oldidx
+    #returns the index of an initialized 
+    def createRefForTexture2d(self):
+        oldidx = self.ntindex
+        self.ntindex += 1
+        #setup the empty texture array
+        tr = bpy.context.scene.TextureResolution
+        self.np2dtextures[oldidx] = np.zeros((tr,tr,4))
+        return oldidx
         
     def fillTexture(self, index, name):
         tr = bpy.context.scene.TextureResolution
