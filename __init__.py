@@ -22,11 +22,15 @@ import numpy as np
 #begining of code for debugging
 #https://wiki.blender.org/index.php/Dev:Doc/Tools/Debugging/Python_Eclipse
 #make this match your current installation
-PYDEV_SOURCE_DIR = "/usr/lib/eclipse/plugins/org.python.pydev_5.6.0.201703221358/pysrc"
-import sys
-if PYDEV_SOURCE_DIR not in sys.path:
-    sys.path.append(PYDEV_SOURCE_DIR)
-import pydevd
+try:
+    PYDEV_SOURCE_DIR = "/usr/lib/eclipse/plugins/org.python.pydev_5.6.0.201703221358/pysrc"
+    import sys
+    if PYDEV_SOURCE_DIR not in sys.path:
+        sys.path.append(PYDEV_SOURCE_DIR)
+    import pydevd
+    print("debugging enabled")
+except:
+    print("no debugging enabled")
 #end code for debugging
 
 #will create a breakpoint
@@ -309,7 +313,13 @@ class UMOGReferenceHolder:
         for i in range(0, tr):
             for j in range(0, tr):
                 x, y = (i-trh)/trh, (j-trh)/trh
-                self.np2dtextures[index][i,j] = bpy.data.textures[name].evaluate((x,y,0.0))  
+                self.np2dtextures[index][i,j] = bpy.data.textures[name].evaluate((x,y,0.0))
+                
+    #used to generate intermediate or output references
+    def getNewRef(self):
+        oldidx = self.ntindex
+        self.ntindex += 1
+        return oldidx
 
 class addCubeSample(bpy.types.Operator):
     bl_idname = 'mesh.add_cube_sample'
@@ -580,6 +590,5 @@ def unregister():
     bpy.types.NODE_MT_add.remove(drawMenu)
     bpy.utils.unregister_class(HelloWorldPanel)
     bpy.utils.unregister_class(UMOGNodeTree)
-    bpy.utils.unregister_class(Mat3)
     bpy.utils.unregister_module(__name__)
     
