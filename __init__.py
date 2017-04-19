@@ -79,6 +79,7 @@ class UMOGMeshMenu(bpy.types.Menu):
             insertNode(layout, "umog_GetTextureNode", "Texture")
             insertNode(layout, "umog_NoiseGenerationNode", "Noise Generator")
             insertNode(layout, "umog_Mat3Node", "Matrix 3x3")
+            insertNode(layout, "umog_SculptNode", "Sculpt Node")
 
 def register():
     print("begin resitration")
