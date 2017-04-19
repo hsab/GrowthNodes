@@ -1,7 +1,7 @@
 bl_info = {
     "name": "UMOG",
     "author": "Hirad Sabaghian, Micah Johnston, Marsh Poulson, Jacob Luke",
-    "version": (0, 0, 2),
+    "version": (0, 1, 0),
     "blender": (2, 78, 0),
     "location": "Node Editor > UMOG",
     "description": "Mesh Manipulation Tools",
@@ -154,103 +154,6 @@ class Mat3Socket(NodeSocket):
     def draw_color(self, context, node):
         return (0.0, 0.0, 1.0, 0.5)
 # END: Sockets
-################################
-
-
-################################
-# START: Nodes for Firday
-#class GetObjectNode(bpy.types.Node):
-    #bl_idname = "umog_GetObjectNode"
-    #bl_label = "Get Object Node"
-    
-    ## Enum items list
-    #my_items = []
-    
-    #for ob in bpy.data.objects:
-        #my_items.append((ob.name, ob.name, "Type is: " + ob.type))
-
-    #SceneObjectsEnum = bpy.props.EnumProperty(name="Objects", description="Scene objects", items=my_items) 
-
-    #def init(self, context):
-        #self.outputs.new("GetObjectSocketType", "Output")
- 
-    #def draw_buttons(self, context, layout):
-        #layout.prop(self, "SceneObjectsEnum")
-    
-    #def update(self):
-        #pass
-            
-    #def execute(self, refholder):
-        #pass
-
-#class ModiferSubdivNode(bpy.types.Node):
-    #bl_idname = "umog_SubdivModifier"
-    #bl_label = "Subdivision Modifier"
-    
-    #subdivPreviewCount = bpy.props.IntProperty(default=1)
-    #subdivRenderCount = bpy.props.IntProperty(default=1)
-    
-    #def init(self, context):
-        #self.inputs.new("GetObjectSocketType", "Input")
-
-    #def draw_buttons(self, context, layout):
-        #layout.prop(self, "subdivPreviewCount", text="Preview")
-        #layout.prop(self, "subdivRenderCount", text="Render")
-
-    #def update(self):
-        #if self.inputs["Input"].is_linked:
-            #print("From Subdiv Update", self.inputs["Input"].links[0].from_node.SceneObjectsEnum)
-            #objectName = self.inputs["Input"].links[0].from_node.SceneObjectsEnum
-            #bpy.context.scene.objects.active = bpy.data.objects[objectName]
-            #if "Subsurf" not in bpy.context.object.modifiers:
-                #bpy.ops.object.modifier_add(type='SUBSURF')
-                #bpy.ops.object.modifier_move_up(modifier='SUBSURF')
-            #if "Subsurf" in bpy.context.object.modifiers:
-                #bpy.ops.object.modifier_move_up(modifier='Subsurf')
-                #bpy.data.objects[objectName].modifiers["Subsurf"].levels = self.subdivPreviewCount
-                #bpy.data.objects[objectName].modifiers["Subsurf"].render_levels = self.subdivRenderCount
-
-            
-    #def execute(self, refholder):
-        #if self.inputs["Input"].is_linked:
-            #print("From Displace Exe", self.inputs["Input"].links[0].from_socket.SelectObjectProp)
-
-#class ModiferDisplaceNode(bpy.types.Node):
-    #bl_idname = "umog_ModifierDisplace"
-    #bl_label = "Displace Modifier"
-    
-    #def init(self, context):
-        #self.inputs.new("GetObjectSocketType", "Input")
-        #self.inputs.new("GetObjectSocketType", "Reference Object")
-        #self.inputs.new("GetTextureSocketType", "Texture")
-    
-    #def update(self):
-        #if self.inputs["Input"].is_linked:
-            #objectName = self.inputs["Input"].links[0].from_node.SceneObjectsEnum
-            #bpy.context.scene.objects.active = bpy.data.objects[objectName]
-            #if "Displace" not in bpy.context.object.modifiers:
-                #bpy.ops.object.modifier_add(type='DISPLACE')
-                #bpy.ops.object.modifier_move_down(modifier='DISPLACE')
-        
-        #if self.inputs["Texture"].is_linked:
-            #objectName = self.inputs["Input"].links[0].from_node.SceneObjectsEnum
-            #textureName = self.inputs["Texture"].links[0].from_node.SceneTexturesEnum
-            #if "Displace" in bpy.data.objects[objectName].modifiers:
-                #bpy.data.objects[objectName].modifiers["Displace"].texture = bpy.data.textures[textureName]
-                #bpy.data.objects[objectName].modifiers["Displace"].texture_coords = 'OBJECT'
-            
-        #if self.inputs["Reference Object"].is_linked:
-            #objectName = self.inputs["Input"].links[0].from_node.SceneObjectsEnum
-            #referenceName = self.inputs["Reference Object"].links[0].from_node.SceneObjectsEnum
-            #if "Displace" in bpy.data.objects[objectName].modifiers:
-                #bpy.data.objects[objectName].modifiers["Displace"].texture_coords_object = bpy.data.objects[referenceName]
-
-    #def execute(self, refholder):
-        #if self.inputs["Input"].is_linked:
-            #print("From Displace Exe", self.inputs["Input"].links[0].from_socket.SelectObjectProp)
-
-
-# END: Nodes for Friday
 ################################
 
 class MyItem(bpy.types.PropertyGroup):
@@ -542,12 +445,6 @@ class UMOGNodeTree(bpy.types.NodeTree):
     bl_idname = "umog_UMOGNodeTree"
     bl_label = "UMOG"
     bl_icon = "SCULPTMODE_HLT"
-    
-    def __init__(self):
-        self.refs = UMOGReferenceHolder()
-        #if the current scene has parameters do nothing otherwise adde the global start and end frames
-        print('initializing umog node tree')
-        super().__init__()
         
     def execute(self, refholder):
         print('executing node tree');
@@ -580,9 +477,6 @@ class UMOGMeshMenu(bpy.types.Menu):
             insertNode(layout, "umog_MeshInputNode", "Input Mesh")
             insertNode(layout, "umog_PrintNode", "Print")
             insertNode(layout, "umog_GetTextureNode", "Texture")
-            #insertNode(layout, "umog_GetObjectNode", "Object")
-            #insertNode(layout, "umog_ModifierDisplace", "Displace Modifier")
-            #insertNode(layout, "umog_SubdivModifier", "Subdivision Modifier")
             insertNode(layout, "umog_NoiseGenerationNode", "Noise Generator")
             insertNode(layout, "umog_Mat3Node", "Matrix 3x3")
 
