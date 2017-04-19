@@ -153,3 +153,40 @@ class UMOG_OT_SelectTexture(bpy.types.Operator):
             item = self.collection.add()
             item.name=i
         return context.window_manager.invoke_props_dialog(self)
+    
+    
+class UMOG_OT_SelectTexture(bpy.types.Operator):
+    bl_idname = "umog.select_mesh"
+    bl_label = "Select Mesh"
+
+    collection = bpy.props.CollectionProperty(type=MyItem)
+    collection_index = bpy.props.IntProperty()
+
+    pnode = bpy.props.StringProperty()
+    
+    def check(self, context):
+        return True
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.template_list(
+            "WM_UL_my_list", "",
+            self, "collection", self, "collection_index")
+
+    def execute(self, context):
+        print("texture selected: " + self.collection[self.collection_index].name)
+        try:
+            bpy.context.space_data.edit_tree.nodes[self.pnode].mesh_name = self.collection[self.collection_index].name
+            print("set property of active node")
+        except:
+            pass
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        self.collection.clear()
+        #print(dir(self.collection))
+        for i in bpy.data.meshes.keys():
+            item = self.collection.add()
+            item.name=i
+        return context.window_manager.invoke_props_dialog(self)

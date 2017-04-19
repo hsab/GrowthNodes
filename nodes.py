@@ -1,5 +1,16 @@
 import bpy
 
+
+try:
+    PYDEV_SOURCE_DIR = "/usr/lib/eclipse/plugins/org.python.pydev_5.6.0.201703221358/pysrc"
+    import sys
+    if PYDEV_SOURCE_DIR not in sys.path:
+        sys.path.append(PYDEV_SOURCE_DIR)
+    import pydevd
+    print("debugging enabled")
+except:
+    print("no debugging enabled")
+    
 #begin base node classes
 
 class UMOGNode(bpy.types.Node):
@@ -105,12 +116,49 @@ class GetTextureNode(UMOGNode):
     
     def execute(self, refholder):
         print("get texture node execution, texture: " + self.texture)
+        print("texture handle: " + str(self.texture_index))
         print(refholder.np2dtextures[self.texture_index])
         
         
     def preExecute(self, refholder):
         #consider saving the result from this
         self.texture_index = refholder.getRefForTexture2d(self.texture)
+        
+        
+class SculptNode(UMOGOutputNode):
+    bl_idname = "umog_SculptNode"
+    bl_label = "Sculpt Node"
+
+    mesh_name = bpy.props.StringProperty()
+    
+    mesh_name_index = bpy.props.IntProperty()
+    
+    #contains the handle for the input texture
+    texture_handle = bpy.props.IntProperty()
+    
+    def init(self, context):
+        self.inputs.new("GetTextureSocketType", "Input")
+        super().init(context)
+
+    def draw_buttons(self, context, layout):
+        layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+
+
+    def update(self):
+        pass
+    
+    def execute(self, refholder):
+        print("sculpt node execution, mesh: " + self.mesh_name)
+        print("  texture_hanlde is: " + str(self.texture_handle))
+        
+        
+    def preExecute(self, refholder):
+        #set the texture handle for use in the execute method
+        try:
+            fn = self.inputs[0].links[0].from_node
+            self.texture_handle = fn.texture_index
+        except:
+            print("no mesh as input")
     
 class Mat3Node(UMOGNode):
     bl_idname = "umog_Mat3Node"
