@@ -1,5 +1,5 @@
 import bpy
-
+import bmesh
 
 try:
     PYDEV_SOURCE_DIR = "/usr/lib/eclipse/plugins/org.python.pydev_5.6.0.201703221358/pysrc"
@@ -159,6 +159,136 @@ class SculptNode(UMOGOutputNode):
             self.texture_handle = fn.texture_index
         except:
             print("no mesh as input")
+            
+            
+class ModifierNode(UMOGOutputNode):
+    bl_idname = "umog_ModifierNode"
+    bl_label = "Modifier Node"
+
+    mesh_name = bpy.props.StringProperty()
+    mesh_dupl_name = bpy.props.StringProperty()
+    
+    mesh_name_index = bpy.props.IntProperty()
+    
+    
+    
+    mod_list_handle = bpy.props.IntProperty()
+    
+    def init(self, context):
+        self.inputs.new("GetTextureSocketType", "Input")
+        super().init(context)
+
+    def draw_buttons(self, context, layout):
+        layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+
+
+    def update(self):
+        pass
+    
+    def execute(self, refholder):
+        print("sculpt node execution, mesh: " + self.mesh_name)
+        print("  texture_hanlde is: " + str(self.texture_handle))
+        obj = bpy.data.objects[self.mesh_name]
+        
+        oname="Remesh"
+        obj.modifiers.new(name=oname, type='REMESH')
+        bpy.ops.object.modifier_apply(modifier=oname)
+        
+        oname="Remesh"
+        mod = obj.modifiers.new(name=oname, type='DISPLACE')
+        dir(mod)
+        mod.texture = bpy.data.textures['Tex']
+        bpy.ops.object.modifier_apply(modifier=oname)
+        
+        
+        oname="Remesh"
+        obj.modifiers.new(name=oname, type='BEVEL')
+        bpy.ops.object.modifier_apply(modifier=oname)
+        
+        
+        
+    def preExecute(self, refholder):
+        #set the texture handle for use in the execute method
+        try:
+            fn = self.inputs[0].links[0].from_node
+            self.texture_handle = fn.texture_index
+            #copy the mesh and hid the original
+        except:
+            print("no mesh as input")
+            
+            
+class BMeshNode(UMOGOutputNode):
+    bl_idname = "umog_BMeshNode"
+    bl_label = "BMesh Node"
+
+    mesh_name = bpy.props.StringProperty()
+    mesh_dupl_name = bpy.props.StringProperty()
+    
+    mesh_name_index = bpy.props.IntProperty()
+    
+    
+    
+    mod_list_handle = bpy.props.IntProperty()
+    
+    def init(self, context):
+        self.inputs.new("GetTextureSocketType", "Input")
+        super().init(context)
+
+    def draw_buttons(self, context, layout):
+        layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+
+
+    def update(self):
+        pass
+    
+    def execute(self, refholder):
+        try:
+            print("sculpt node execution, mesh: " + self.mesh_name)
+            print("  texture_hanlde is: " + str(self.texture_handle))
+        except:
+            pass
+        
+        bm = bmesh.new()   # create an empty BMesh
+        bm.from_mesh(bpy.data.meshes[self.mesh_name])
+        
+        #bmesh.ops.inset_region(bm, faces=bm.faces, thickness=0.4)
+        #bmesh.ops.inset_region(bm, faces=bm.faces, thickness=0, depth=-0.5)
+        bmesh.ops.poke(bm, faces=bm.faces)
+        
+        cx, cy =0,0
+        tr = bpy.context.scene.TextureResolution -1
+        for vert in bm.verts:
+            #displace along normal by texture
+            factor = (refholder.np2dtextures[self.texture_handle].item(cx,cy,3)) + 0.1
+            print("factor: " + str(factor) + " x:" + str(cx) + " y:" + str(cy))
+            vert.co = vert.co + (factor * vert.normal )
+            if cx == tr:
+                cx =0
+                cy = cy+1
+            else:
+                cx = cx +1
+                
+            if cy == tr:
+                cy = 0
+            
+        #rv = bmesh.ops.subdivide_edges(bm, cuts=1, edges=bm.edges)
+        #print(dir(rv))
+        #print(rv.keys())
+        
+        #pydevd.settrace()
+        
+        
+        bm.to_mesh(bpy.data.meshes[self.mesh_name])
+        bm.free()
+        
+    def preExecute(self, refholder):
+        #set the texture handle for use in the execute method
+        try:
+            fn = self.inputs[0].links[0].from_node
+            self.texture_handle = fn.texture_index
+            #copy the mesh and hid the original
+        except:
+            print("no texture as input")
     
 class Mat3Node(UMOGNode):
     bl_idname = "umog_Mat3Node"
