@@ -82,6 +82,7 @@ class UMOGMeshMenu(bpy.types.Menu):
             insertNode(layout, "umog_SculptNode", "Sculpt Node")
             insertNode(layout, "umog_ModifierNode", "Modifier Node")
             insertNode(layout, "umog_BMeshNode", "BMesh Node")
+            insertNode(layout, "umog_BMeshCurlNode", "BMesh Curl Node")
 
 def register():
     print("begin resitration")
