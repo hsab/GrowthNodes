@@ -190,3 +190,34 @@ class UMOG_OT_SelectTexture(bpy.types.Operator):
             item = self.collection.add()
             item.name=i
         return context.window_manager.invoke_props_dialog(self)
+        
+class UMOG_OT_EasySculpt(bpy.types.Operator):
+    bl_idname = 'umog.easy_sculpt'
+    bl_label = 'Easy Sculpt'
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def check(self, context):
+        return True
+
+    def execute(self, context):
+        print("attempting to sculpt")
+        bpy.ops.object.mode_set(mode = 'SCULPT')
+        rv = bpy.ops.sculpt.brush_stroke(stroke=[{ "name": "defaultStroke",
+            "mouse" : (0.0, 0.0),
+            "pen_flip" : False,
+            "is_start": True,
+            "location": (1.0, 1.0, -1.0),
+            "pressure": 1.0,
+            "time": 0.0,
+            "size" :500},
+        { "name": "defaultStroke",
+            "mouse" : (0.0, 0.0),
+            "pen_flip" : False,
+            "is_start": False,
+            "location": (1.0, 1.0, 1.0),
+            "pressure": 1.0,
+            "time": 1.2,
+            "size" :500}
+        ])
+        print(dir(rv))
+        return {'FINISHED'}
