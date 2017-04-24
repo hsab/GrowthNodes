@@ -150,7 +150,37 @@ class SculptNode(UMOGOutputNode):
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
         print("  texture_hanlde is: " + str(self.texture_handle))
-        
+        for area in bpy.context.screen.areas:
+            print(area.type)
+            if area.type == 'VIEW_3D':
+                X= area.x
+                Y= area.y
+                WIDTH=area.width
+                HEIGHT=area.height
+                print(X,Y,WIDTH,HEIGHT)
+                ctx = bpy.context.copy()
+                ctx['area'] = area
+                ctx['region'] = area.regions[-1]
+                bpy.ops.object.mode_set(mode = 'SCULPT')
+                bpy.ops.sculpt.brush_stroke(ctx, stroke=[{
+                    "name": "first",
+                    "mouse" : (0, 0),
+                    "is_start": True,
+                    "location": (0.0422, -0.17006, 0.82477),
+                    "pressure": 1.0,
+                    'pen_flip': False,
+                    'time': 1.0,
+                    "size": 44},
+                    {"name": "second",
+                    "mouse" : (0, 0),
+                    "is_start": True,
+                    "location": (0.0422, -0.17006, 0.82477),
+                    "pressure": 1.0,
+                    'pen_flip': False,
+                    'time': 1.0,
+                    "size": 44}])
+                bpy.ops.object.mode_set(mode = 'OBJECT')
+                print("no errors sculpting")
         
     def preExecute(self, refholder):
         #set the texture handle for use in the execute method
