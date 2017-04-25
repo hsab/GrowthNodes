@@ -118,6 +118,11 @@ class SculptNode(UMOGOutputNode):
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
 
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.select_all(action='DESELECT')
+        bpy.data.objects[self.mesh_name].select = True
+        bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
+
         for area in bpy.context.screen.areas:
             print(area.type)
             if area.type == 'VIEW_3D':
@@ -125,11 +130,7 @@ class SculptNode(UMOGOutputNode):
                 ctx['area'] = area
                 ctx['region'] = area.regions[-1]
 
-                bpy.ops.object.mode_set(mode='OBJECT')
-                bpy.ops.object.select_all(action='DESELECT')
-                bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
-
-                bpy.ops.view3d.view_selected(use_all_regions=False)
+                bpy.ops.view3d.view_selected(ctx)
 
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.mesh.normals_make_consistent()
@@ -160,7 +161,9 @@ class SculptNode(UMOGOutputNode):
                         'pen_flip': False,
                         'time': 1.0,
                         "size": self.stroke_size}])
-                bpy.ops.object.mode_set(mode = 'OBJECT')
+                bpy.ops.object.mode_set(mode='EDIT')
+                bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.ops.view3d.view_selected(ctx)
                 print("SCULPT DYNAMIC FINISHED")
         
     def preExecute(self, refholder):
@@ -196,6 +199,11 @@ class SculptNDNode(UMOGOutputNode):
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
 
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.select_all(action='DESELECT')
+        bpy.data.objects[self.mesh_name].select = True
+        bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
+
         for area in bpy.context.screen.areas:
             print(area.type)
             if area.type == 'VIEW_3D':
@@ -203,11 +211,7 @@ class SculptNDNode(UMOGOutputNode):
                 ctx['area'] = area
                 ctx['region'] = area.regions[-1]
 
-                bpy.ops.object.mode_set(mode='OBJECT')
-                bpy.ops.object.select_all(action='DESELECT')
-                bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
-
-                bpy.ops.view3d.view_selected(use_all_regions=False)
+                bpy.ops.view3d.view_selected(ctx)
 
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.mesh.normals_make_consistent()
@@ -241,6 +245,8 @@ class SculptNDNode(UMOGOutputNode):
                 print("ALL GOOD!")
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.ops.view3d.view_selected(ctx)
+                print("SCULPT STATIC FINISHED")
         
     def preExecute(self, refholder):
         #set the texture handle for use in the execute method
