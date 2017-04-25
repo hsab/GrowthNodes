@@ -97,11 +97,9 @@ class SculptNode(UMOGOutputNode):
     bl_label = "Sculpt Node"
 
     mesh_name = bpy.props.StringProperty()
-    
-    mesh_name_index = bpy.props.IntProperty()
-    
-    #contains the handle for the input texture
-    texture_handle = bpy.props.IntProperty()
+    stroke_pressure = bpy.props.FloatProperty(min=0.0001, max=2.0, default=1.0)
+    stroke_size = bpy.props.IntProperty(default=44)
+    dyntopo_detail = bpy.props.FloatProperty(min=0.1, max=5, default=1.5, precision=1)
     
     def init(self, context):
         #self.inputs.new("BaseInputSocketType", "Input")
@@ -110,7 +108,9 @@ class SculptNode(UMOGOutputNode):
     def draw_buttons(self, context, layout):
         #layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
         layout.prop_search(self, "mesh_name", bpy.data, "objects", icon="MESH_CUBE", text="")
-
+        layout.prop(self, "stroke_pressure", text="Stroke Pressure")
+        layout.prop(self, "stroke_size", text="Stroke Size")
+        layout.prop(self, "dyntopo_detail", text="Precision Level")
 
     def update(self):
         pass
@@ -140,21 +140,24 @@ class SculptNode(UMOGOutputNode):
                 if not bpy.context.sculpt_object.use_dynamic_topology_sculpting:
                     bpy.ops.sculpt.dynamic_topology_toggle()
                     bpy.context.scene.tool_settings.sculpt.detail_type_method = 'CONSTANT'
-                    bpy.context.scene.tool_settings.sculpt.constant_detail = 1.5
+                    bpy.context.scene.tool_settings.sculpt.constant_detail = self.dyntopo_detail
 
                 obj = bpy.context.active_object
                 verts = list(obj.data.vertices)
-                
+
+                mouse_width = int(area.width/2)
+                mouse_height = int(area.height/2)
+
                 for vert in verts:
                     bpy.ops.sculpt.brush_stroke(ctx, stroke=[{
                         "name": "first",
-                        "mouse" : (250 , 250),
+                        "mouse" : (mouse_width , mouse_height),
                         "is_start": True,
                         "location": obj.matrix_world * vert.co,
-                        "pressure": 1.0,
+                        "pressure": self.stroke_pressure,
                         'pen_flip': False,
                         'time': 1.0,
-                        "size": 44}])
+                        "size": self.stroke_size}])
                 bpy.ops.object.mode_set(mode = 'OBJECT')
                 print("SCULPT DYNAMIC FINISHED")
         
@@ -171,19 +174,18 @@ class SculptNDNode(UMOGOutputNode):
     bl_label = "Sculpt ND Node"
 
     mesh_name = bpy.props.StringProperty()
-    
-    mesh_name_index = bpy.props.IntProperty()
-    
-    #contains the handle for the input texture
-    texture_handle = bpy.props.IntProperty()
-    
+    stroke_pressure = bpy.props.FloatProperty(min=0.0001, max=2.0, default=1.0)
+    stroke_size = bpy.props.IntProperty(default=44)
+
     def init(self, context):
-        #self.inputs.new("BaseInputSocketType", "Input")
+        # self.inputs.new("BaseInputSocketType", "Input")
         super().init(context)
 
     def draw_buttons(self, context, layout):
-        #layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+        # layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
         layout.prop_search(self, "mesh_name", bpy.data, "objects", icon="MESH_CUBE", text="")
+        layout.prop(self, "stroke_pressure", text="Stroke Pressure")
+        layout.prop(self, "stroke_size", text="Stroke Size")
 
 
     def update(self):
@@ -218,19 +220,23 @@ class SculptNDNode(UMOGOutputNode):
                 verts = list(obj.data.vertices)
                 print(str(len(verts)))
 
+                mouse_width = int(area.width/2)
+                mouse_height = int(area.height/2)
+
                 for vert in verts:
                     bpy.ops.sculpt.brush_stroke(ctx, stroke=[{
                         "name": "first",
-                        "mouse" : (250 , 250),
+                        "mouse" : (mouse_width , mouse_height),
                         "is_start": True,
                         "location": obj.matrix_world * vert.co,
-                        "pressure": 1.0,
+                        "pressure": self.stroke_pressure,
                         'pen_flip': False,
                         'time': 1.0,
-                        "size": 44}])
+                        "size": self.stroke_size}])
                 bpy.ops.object.mode_set(mode = 'OBJECT')
                 print("ALL GOOD!")
-                print("no errors sculpting")
+                bpy.ops.object.mode_set(mode='EDIT')
+                bpy.ops.object.mode_set(mode='OBJECT')
         
     def preExecute(self, refholder):
         #set the texture handle for use in the execute method
