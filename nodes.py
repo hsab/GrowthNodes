@@ -288,8 +288,8 @@ class DisplaceNode(UMOGOutputNode):
         print("  texture_hanlde is: " + str(self.texture_handle))
         obj = bpy.data.objects[self.mesh_name]
 
-        if self.inputs["Input"].is_linked:
-            texture_name = self.inputs["Input"].links[0].from_node.texture
+        if self.inputs["Texture"].is_linked:
+            texture_name = self.inputs["Texture"].links[0].from_node.texture
 			
             if self.use_subdiv:
                 oname="SUBDIV"
