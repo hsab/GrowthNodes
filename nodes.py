@@ -137,7 +137,7 @@ class SculptNode(UMOGOutputNode):
     texture_handle = bpy.props.IntProperty()
     
     def init(self, context):
-        self.inputs.new("GetTextureSocketType", "Input")
+        #self.inputs.new("GetTextureSocketType", "Input")
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -149,47 +149,139 @@ class SculptNode(UMOGOutputNode):
     
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
-        print("  texture_hanlde is: " + str(self.texture_handle))
+        #print("  texture_hanlde is: " + str(self.texture_handle))
         for area in bpy.context.screen.areas:
             print(area.type)
             if area.type == 'VIEW_3D':
-                X= area.x
-                Y= area.y
-                WIDTH=area.width
-                HEIGHT=area.height
-                print(X,Y,WIDTH,HEIGHT)
                 ctx = bpy.context.copy()
                 ctx['area'] = area
                 ctx['region'] = area.regions[-1]
+                
+                #bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
+                obj = bpy.context.active_object
+                v = obj.data.vertices[0]
+                co_final = obj.matrix_world * v.co
+                obj_empty = bpy.data.objects.new("Test", None)
+                bpy.context.scene.objects.link(obj_empty)
+                obj_empty.location = co_final
+                
+                bpy.ops.object.mode_set(mode='EDIT')
+                bpy.ops.mesh.normals_make_consistent()
+                
                 bpy.ops.object.mode_set(mode = 'SCULPT')
-                bpy.ops.sculpt.brush_stroke(ctx, stroke=[{
-                    "name": "first",
-                    "mouse" : (0, 0),
-                    "is_start": True,
-                    "location": (0.0422, -0.17006, 0.82477),
-                    "pressure": 1.0,
-                    'pen_flip': False,
-                    'time': 1.0,
-                    "size": 44},
-                    {"name": "second",
-                    "mouse" : (0, 0),
-                    "is_start": True,
-                    "location": (0.0422, -0.17006, 0.82477),
-                    "pressure": 1.0,
-                    'pen_flip': False,
-                    'time': 1.0,
-                    "size": 44}])
-                bpy.ops.object.mode_set(mode = 'OBJECT')
+                
+                bpy.data.brushes["SculptDraw"].stroke_method = "DOTS"
+                bpy.context.scene.tool_settings.sculpt.use_symmetry_x = False
+                
+                if not bpy.context.sculpt_object.use_dynamic_topology_sculpting:
+                    bpy.ops.sculpt.dynamic_topology_toggle()
+                    bpy.context.scene.tool_settings.sculpt.detail_type_method = 'CONSTANT'
+                    bpy.context.scene.tool_settings.sculpt.constant_detail = 1.5
+                verts = list(obj.data.vertices)
+                print(str(len(verts)))
+                #pydevd.settrace()
+                
+                for vert in verts:
+                    bpy.ops.sculpt.brush_stroke(ctx, stroke=[{
+                        "name": "first",
+                        "mouse" : (250 , 250),
+                        "is_start": True,
+                        "location": obj.matrix_world * vert.co,
+                        "pressure": 1.0,
+                        'pen_flip': False,
+                        'time': 1.0,
+                        "size": 44}])
+        #        bpy.ops.object.mode_set(mode = 'OBJECT')
+                print("ALL GOOD!")
                 print("no errors sculpting")
         
     def preExecute(self, refholder):
         #set the texture handle for use in the execute method
         try:
             fn = self.inputs[0].links[0].from_node
-            self.texture_handle = fn.texture_index
+            #self.texture_handle = fn.texture_index
         except:
             print("no mesh as input")
-            
+
+
+class SculptNDNode(UMOGOutputNode):
+    bl_idname = "umog_SculptNDNode"
+    bl_label = "Sculpt ND Node"
+
+    mesh_name = bpy.props.StringProperty()
+    
+    mesh_name_index = bpy.props.IntProperty()
+    
+    #contains the handle for the input texture
+    texture_handle = bpy.props.IntProperty()
+    
+    def init(self, context):
+        #self.inputs.new("GetTextureSocketType", "Input")
+        super().init(context)
+
+    def draw_buttons(self, context, layout):
+        layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+
+
+    def update(self):
+        pass
+    
+    def execute(self, refholder):
+        print("sculpt node execution, mesh: " + self.mesh_name)
+        #print("  texture_hanlde is: " + str(self.texture_handle))
+        for area in bpy.context.screen.areas:
+            print(area.type)
+            if area.type == 'VIEW_3D':
+                ctx = bpy.context.copy()
+                ctx['area'] = area
+                ctx['region'] = area.regions[-1]
+                
+                #bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
+                obj = bpy.context.active_object
+                v = obj.data.vertices[0]
+                co_final = obj.matrix_world * v.co
+                obj_empty = bpy.data.objects.new("Test", None)
+                bpy.context.scene.objects.link(obj_empty)
+                obj_empty.location = co_final
+                
+                bpy.ops.object.mode_set(mode='EDIT')
+                bpy.ops.mesh.normals_make_consistent()
+                
+                bpy.ops.object.mode_set(mode = 'SCULPT')
+                
+                bpy.data.brushes["SculptDraw"].stroke_method = "DOTS"
+                bpy.context.scene.tool_settings.sculpt.use_symmetry_x = False
+                
+                #if not bpy.context.sculpt_object.use_dynamic_topology_sculpting:
+                    #bpy.ops.sculpt.dynamic_topology_toggle()
+                    #bpy.context.scene.tool_settings.sculpt.detail_type_method = 'CONSTANT'
+                    #bpy.context.scene.tool_settings.sculpt.constant_detail = 1.5
+                verts = list(obj.data.vertices)
+                print(str(len(verts)))
+                #pydevd.settrace()
+                
+                for vert in verts:
+                    bpy.ops.sculpt.brush_stroke(ctx, stroke=[{
+                        "name": "first",
+                        "mouse" : (250 , 250),
+                        "is_start": True,
+                        "location": obj.matrix_world * vert.co,
+                        "pressure": 1.0,
+                        'pen_flip': False,
+                        'time': 1.0,
+                        "size": 44}])
+        #        bpy.ops.object.mode_set(mode = 'OBJECT')
+                print("ALL GOOD!")
+                print("no errors sculpting")
+        
+    def preExecute(self, refholder):
+        #set the texture handle for use in the execute method
+        try:
+            fn = self.inputs[0].links[0].from_node
+            #self.texture_handle = fn.texture_index
+        except:
+            print("no mesh as input")
+
             
 class ModifierNode(UMOGOutputNode):
     bl_idname = "umog_ModifierNode"
@@ -291,6 +383,7 @@ class BMeshNode(UMOGOutputNode):
             #displace along normal by texture
             factor = (refholder.np2dtextures[self.texture_handle].item(cx,cy,3)) + 0.1
             print("factor: " + str(factor) + " x:" + str(cx) + " y:" + str(cy))
+            print("vertex: " + str(vert.co.x) + "," + str(vert.co.y) + "," + str(vert.co.z))
             vert.co = vert.co + (factor * vert.normal )
             if cx == tr:
                 cx =0
