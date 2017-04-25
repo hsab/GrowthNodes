@@ -129,6 +129,8 @@ class SculptNode(UMOGOutputNode):
                 bpy.ops.object.select_all(action='DESELECT')
                 bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
 
+                bpy.ops.view3d.view_selected(use_all_regions=False)
+
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.mesh.normals_make_consistent()
                 
@@ -204,6 +206,8 @@ class SculptNDNode(UMOGOutputNode):
                 bpy.ops.object.mode_set(mode='OBJECT')
                 bpy.ops.object.select_all(action='DESELECT')
                 bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
+
+                bpy.ops.view3d.view_selected(use_all_regions=False)
 
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.mesh.normals_make_consistent()
