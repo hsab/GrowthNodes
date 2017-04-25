@@ -1,7 +1,7 @@
 bl_info = {
     "name": "UMOG",
     "author": "Hirad Sabaghian, Micah Johnston, Marsh Poulson, Jacob Luke",
-    "version": (0, 1, 5),
+    "version": (0, 1, 6),
     "blender": (2, 78, 0),
     "location": "Node Editor > UMOG",
     "description": "Mesh Manipulation Tools",
@@ -76,7 +76,7 @@ class UMOGMeshMenu(bpy.types.Menu):
             #insertNode(layout, "umog_Mat3Node", "Matrix 3x3")
             insertNode(layout, "umog_SculptNode", "Sculpt Dynamic Node")
             insertNode(layout, "umog_SculptNDNode", "Sculpt Static Node")
-            insertNode(layout, "umog_ModifierNode", "Modifier Node")
+            insertNode(layout, "umog_DisplaceNode", "Displace Node")
             insertNode(layout, "umog_BMeshNode", "BMesh Node")
             insertNode(layout, "umog_BMeshCurlNode", "BMesh Curl Node")
 
