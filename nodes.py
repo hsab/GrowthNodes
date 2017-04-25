@@ -256,25 +256,29 @@ class SculptNDNode(UMOGOutputNode):
         except:
             print("no mesh as input")
 
-class ModifierNode(UMOGOutputNode):
-    bl_idname = "umog_ModifierNode"
-    bl_label = "Modifier Node"
+class DisplaceNode(UMOGOutputNode):
+    bl_idname = "umog_DisplaceNode"
+    bl_label = "Displace Node"
 
     mesh_name = bpy.props.StringProperty()
     mesh_dupl_name = bpy.props.StringProperty()
     
     mesh_name_index = bpy.props.IntProperty()
 
-    mod_list_handle = bpy.props.IntProperty()
+    use_subdiv = bpy.props.BoolProperty(default=True)
+    mod_midlevel = bpy.props.FloatProperty(min=0.0, max=1.0, default=0.5)	
+    mod_strength = bpy.props.FloatProperty(default=1.0)
     
     def init(self, context):
-        self.inputs.new("BaseInputSocketType", "Input")
+        self.inputs.new("BaseInputSocketType", "Texture")
         super().init(context)
 
     def draw_buttons(self, context, layout):
         #layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
         layout.prop_search(self, "mesh_name", bpy.data, "objects", icon="MESH_CUBE", text="")
-
+        layout.prop(self, "use_subdiv", text="Subdivide")		
+        layout.prop(self, "mod_midlevel", text="Midlevel")
+        layout.prop(self, "mod_strength", text="Strength")
 
     def update(self):
         pass
@@ -286,19 +290,18 @@ class ModifierNode(UMOGOutputNode):
 
         if self.inputs["Input"].is_linked:
             texture_name = self.inputs["Input"].links[0].from_node.texture
-
-            oname="SUBDIV"
-            mod = obj.modifiers.new(name=oname, type='SUBSURF')
-            bpy.ops.object.modifier_apply(modifier=oname)
+			
+            if self.use_subdiv:
+                oname="SUBDIV"
+                mod = obj.modifiers.new(name=oname, type='SUBSURF')
+                bpy.ops.object.modifier_apply(modifier=oname)
 
             oname="DSIPLACE"
             mod = obj.modifiers.new(name=oname, type='DISPLACE')
             dir(mod)
             mod.texture = bpy.data.textures[texture_name]
-            bpy.ops.object.modifier_apply(modifier=oname)
-
-            oname="BEVEL"
-            obj.modifiers.new(name=oname, type='BEVEL')
+            mod.mid_level = self.mod_midlevel
+            mod.strength = self.mod_strength
             bpy.ops.object.modifier_apply(modifier=oname)
 
         
