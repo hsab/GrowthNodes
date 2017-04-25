@@ -44,20 +44,6 @@ class UMOGOutputNode(UMOGNode):
 #end base node classes
 
 #BEGIN: UMOG_NODES
-            
-class UMOGMeshInputNode(UMOGNode):
-    bl_idname = "umog_MeshInputNode"
-    bl_label = "UMOG Mesh Input Node"
-        
-    def init(self,context):
-        print('initializing umog node')
-        self.inputs.new("GetObjectSocketType", "My Input")
-        self.outputs.new("GetObjectSocketType", "My Output")
-        super().init(context)
-        
-    def execute(self, refholder):
-        print("input node execution")
-
 class UMOGNoiseGenerationNode(UMOGNode):
     bl_idname = "umog_NoiseGenerationNode"
     bl_label = "UMOG Noise Generation Node"
@@ -73,25 +59,6 @@ class UMOGNoiseGenerationNode(UMOGNode):
     def execute(self, refholder):
         print("noise node execution")
 
-class PrintNode(UMOGOutputNode):
-    bl_idname = "umog_PrintNode"
-    bl_label = "Print Node"
-    
-    def init(self, context):
-        print('initializing umog print node')
-        self.inputs.new("NodeSocketString", "Print String")
-        super().init(context)
-
-    def execute(self, refholder):
-        """if self.inputs['Print String'].is_linked:
-            input_String = "NOTHING ENTERED"
-        else:
-            input_String = self.inputs['Print String']
-            
-        print(input_String)"""
-        print("THIS PRINT WORKS")
-        
-        
 class GetTextureNode(UMOGNode):
     bl_idname = "umog_GetTextureNode"
     bl_label = "Get Texture Node"
@@ -101,11 +68,12 @@ class GetTextureNode(UMOGNode):
     texture_index = bpy.props.IntProperty()
 
     def init(self, context):
-        self.outputs.new("GetTextureSocketType", "Output")
+        self.outputs.new("BaseInputSocketType", "Output")
         super().init(context)
 
     def draw_buttons(self, context, layout):
-        layout.operator("umog.select_texture", text = "Select Texture").pnode = self.name
+        #layout.operator("umog.select_texture", text = "Select Texture").pnode = self.name
+        layout.prop_search(self, "texture", bpy.data, "textures", icon="TEXTURE_DATA", text="")
         try:
             layout.template_preview(bpy.data.textures[self.texture])
         except:
@@ -123,8 +91,7 @@ class GetTextureNode(UMOGNode):
     def preExecute(self, refholder):
         #consider saving the result from this
         self.texture_index = refholder.getRefForTexture2d(self.texture)
-        
-        
+
 class SculptNode(UMOGOutputNode):
     bl_idname = "umog_SculptNode"
     bl_label = "Sculpt Node"
@@ -137,11 +104,12 @@ class SculptNode(UMOGOutputNode):
     texture_handle = bpy.props.IntProperty()
     
     def init(self, context):
-        #self.inputs.new("GetTextureSocketType", "Input")
+        #self.inputs.new("BaseInputSocketType", "Input")
         super().init(context)
 
     def draw_buttons(self, context, layout):
-        layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+        #layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+        layout.prop_search(self, "mesh_name", bpy.data, "objects", icon="MESH_CUBE", text="")
 
 
     def update(self):
@@ -149,22 +117,18 @@ class SculptNode(UMOGOutputNode):
     
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
-        #print("  texture_hanlde is: " + str(self.texture_handle))
+
         for area in bpy.context.screen.areas:
             print(area.type)
             if area.type == 'VIEW_3D':
                 ctx = bpy.context.copy()
                 ctx['area'] = area
                 ctx['region'] = area.regions[-1]
-                
-                #bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
-                obj = bpy.context.active_object
-                v = obj.data.vertices[0]
-                co_final = obj.matrix_world * v.co
-                obj_empty = bpy.data.objects.new("Test", None)
-                bpy.context.scene.objects.link(obj_empty)
-                obj_empty.location = co_final
-                
+
+                bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.ops.object.select_all(action='DESELECT')
+                bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
+
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.mesh.normals_make_consistent()
                 
@@ -177,9 +141,9 @@ class SculptNode(UMOGOutputNode):
                     bpy.ops.sculpt.dynamic_topology_toggle()
                     bpy.context.scene.tool_settings.sculpt.detail_type_method = 'CONSTANT'
                     bpy.context.scene.tool_settings.sculpt.constant_detail = 1.5
+
+                obj = bpy.context.active_object
                 verts = list(obj.data.vertices)
-                print(str(len(verts)))
-                #pydevd.settrace()
                 
                 for vert in verts:
                     bpy.ops.sculpt.brush_stroke(ctx, stroke=[{
@@ -191,9 +155,8 @@ class SculptNode(UMOGOutputNode):
                         'pen_flip': False,
                         'time': 1.0,
                         "size": 44}])
-        #        bpy.ops.object.mode_set(mode = 'OBJECT')
-                print("ALL GOOD!")
-                print("no errors sculpting")
+                bpy.ops.object.mode_set(mode = 'OBJECT')
+                print("SCULPT DYNAMIC FINISHED")
         
     def preExecute(self, refholder):
         #set the texture handle for use in the execute method
@@ -202,7 +165,6 @@ class SculptNode(UMOGOutputNode):
             #self.texture_handle = fn.texture_index
         except:
             print("no mesh as input")
-
 
 class SculptNDNode(UMOGOutputNode):
     bl_idname = "umog_SculptNDNode"
@@ -216,11 +178,12 @@ class SculptNDNode(UMOGOutputNode):
     texture_handle = bpy.props.IntProperty()
     
     def init(self, context):
-        #self.inputs.new("GetTextureSocketType", "Input")
+        #self.inputs.new("BaseInputSocketType", "Input")
         super().init(context)
 
     def draw_buttons(self, context, layout):
-        layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+        #layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+        layout.prop_search(self, "mesh_name", bpy.data, "objects", icon="MESH_CUBE", text="")
 
 
     def update(self):
@@ -228,22 +191,18 @@ class SculptNDNode(UMOGOutputNode):
     
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
-        #print("  texture_hanlde is: " + str(self.texture_handle))
+
         for area in bpy.context.screen.areas:
             print(area.type)
             if area.type == 'VIEW_3D':
                 ctx = bpy.context.copy()
                 ctx['area'] = area
                 ctx['region'] = area.regions[-1]
-                
-                #bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
-                obj = bpy.context.active_object
-                v = obj.data.vertices[0]
-                co_final = obj.matrix_world * v.co
-                obj_empty = bpy.data.objects.new("Test", None)
-                bpy.context.scene.objects.link(obj_empty)
-                obj_empty.location = co_final
-                
+
+                bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.ops.object.select_all(action='DESELECT')
+                bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
+
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.mesh.normals_make_consistent()
                 
@@ -252,14 +211,13 @@ class SculptNDNode(UMOGOutputNode):
                 bpy.data.brushes["SculptDraw"].stroke_method = "DOTS"
                 bpy.context.scene.tool_settings.sculpt.use_symmetry_x = False
                 
-                #if not bpy.context.sculpt_object.use_dynamic_topology_sculpting:
-                    #bpy.ops.sculpt.dynamic_topology_toggle()
-                    #bpy.context.scene.tool_settings.sculpt.detail_type_method = 'CONSTANT'
-                    #bpy.context.scene.tool_settings.sculpt.constant_detail = 1.5
+                if bpy.context.sculpt_object.use_dynamic_topology_sculpting:
+                    bpy.ops.sculpt.dynamic_topology_toggle()
+
+                obj = bpy.context.active_object
                 verts = list(obj.data.vertices)
                 print(str(len(verts)))
-                #pydevd.settrace()
-                
+
                 for vert in verts:
                     bpy.ops.sculpt.brush_stroke(ctx, stroke=[{
                         "name": "first",
@@ -270,7 +228,7 @@ class SculptNDNode(UMOGOutputNode):
                         'pen_flip': False,
                         'time': 1.0,
                         "size": 44}])
-        #        bpy.ops.object.mode_set(mode = 'OBJECT')
+                bpy.ops.object.mode_set(mode = 'OBJECT')
                 print("ALL GOOD!")
                 print("no errors sculpting")
         
@@ -282,7 +240,6 @@ class SculptNDNode(UMOGOutputNode):
         except:
             print("no mesh as input")
 
-            
 class ModifierNode(UMOGOutputNode):
     bl_idname = "umog_ModifierNode"
     bl_label = "Modifier Node"
@@ -291,17 +248,16 @@ class ModifierNode(UMOGOutputNode):
     mesh_dupl_name = bpy.props.StringProperty()
     
     mesh_name_index = bpy.props.IntProperty()
-    
-    
-    
+
     mod_list_handle = bpy.props.IntProperty()
     
     def init(self, context):
-        self.inputs.new("GetTextureSocketType", "Input")
+        self.inputs.new("BaseInputSocketType", "Input")
         super().init(context)
 
     def draw_buttons(self, context, layout):
-        layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+        #layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+        layout.prop_search(self, "mesh_name", bpy.data, "objects", icon="MESH_CUBE", text="")
 
 
     def update(self):
@@ -311,22 +267,24 @@ class ModifierNode(UMOGOutputNode):
         print("sculpt node execution, mesh: " + self.mesh_name)
         print("  texture_hanlde is: " + str(self.texture_handle))
         obj = bpy.data.objects[self.mesh_name]
-        
-        oname="Remesh"
-        obj.modifiers.new(name=oname, type='REMESH')
-        bpy.ops.object.modifier_apply(modifier=oname)
-        
-        oname="Remesh"
-        mod = obj.modifiers.new(name=oname, type='DISPLACE')
-        dir(mod)
-        mod.texture = bpy.data.textures['Tex']
-        bpy.ops.object.modifier_apply(modifier=oname)
-        
-        
-        oname="Remesh"
-        obj.modifiers.new(name=oname, type='BEVEL')
-        bpy.ops.object.modifier_apply(modifier=oname)
-        
+
+        if self.inputs["Input"].is_linked:
+            texture_name = self.inputs["Input"].links[0].from_node.texture
+
+            oname="SUBDIV"
+            mod = obj.modifiers.new(name=oname, type='SUBSURF')
+            bpy.ops.object.modifier_apply(modifier=oname)
+
+            oname="DSIPLACE"
+            mod = obj.modifiers.new(name=oname, type='DISPLACE')
+            dir(mod)
+            mod.texture = bpy.data.textures[texture_name]
+            bpy.ops.object.modifier_apply(modifier=oname)
+
+            oname="BEVEL"
+            obj.modifiers.new(name=oname, type='BEVEL')
+            bpy.ops.object.modifier_apply(modifier=oname)
+
         
         
     def preExecute(self, refholder):
@@ -337,8 +295,7 @@ class ModifierNode(UMOGOutputNode):
             #copy the mesh and hid the original
         except:
             print("no mesh as input")
-            
-            
+
 class BMeshNode(UMOGOutputNode):
     bl_idname = "umog_BMeshNode"
     bl_label = "BMesh Node"
@@ -353,11 +310,12 @@ class BMeshNode(UMOGOutputNode):
     mod_list_handle = bpy.props.IntProperty()
     
     def init(self, context):
-        self.inputs.new("GetTextureSocketType", "Input")
+        self.inputs.new("BaseInputSocketType", "Input")
         super().init(context)
 
     def draw_buttons(self, context, layout):
-        layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+        #layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+        layout.prop_search(self, "mesh_name", bpy.data, "objects", icon="MESH_CUBE", text="")
 
 
     def update(self):
@@ -371,7 +329,7 @@ class BMeshNode(UMOGOutputNode):
             pass
         
         bm = bmesh.new()   # create an empty BMesh
-        bm.from_mesh(bpy.data.meshes[self.mesh_name])
+        bm.from_mesh(bpy.data.meshes[bpy.data.objects[self.mesh_name].data.name])
         
         #bmesh.ops.inset_region(bm, faces=bm.faces, thickness=0.4)
         #bmesh.ops.inset_region(bm, faces=bm.faces, thickness=0, depth=-0.5)
@@ -401,7 +359,7 @@ class BMeshNode(UMOGOutputNode):
         #pydevd.settrace()
         
         
-        bm.to_mesh(bpy.data.meshes[self.mesh_name])
+        bm.to_mesh(bpy.data.meshes[bpy.data.objects[self.mesh_name].data.name])
         bm.free()
         
     def preExecute(self, refholder):
@@ -412,8 +370,7 @@ class BMeshNode(UMOGOutputNode):
             #copy the mesh and hid the original
         except:
             print("no texture as input")
-            
-            
+
 class BMeshCurlNode(UMOGOutputNode):
     bl_idname = "umog_BMeshCurlNode"
     bl_label = "BMesh Curl Node"
@@ -428,11 +385,12 @@ class BMeshCurlNode(UMOGOutputNode):
     mod_list_handle = bpy.props.IntProperty()
     
     def init(self, context):
-        self.inputs.new("GetTextureSocketType", "Input")
+        self.inputs.new("BaseInputSocketType", "Input")
         super().init(context)
 
     def draw_buttons(self, context, layout):
-        layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+        #layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
+        layout.prop_search(self, "mesh_name", bpy.data, "objects", icon="MESH_CUBE", text="")
 
 
     def update(self):
@@ -446,7 +404,7 @@ class BMeshCurlNode(UMOGOutputNode):
             pass
         
         bm = bmesh.new()   # create an empty BMesh
-        bm.from_mesh(bpy.data.meshes[self.mesh_name])
+        bm.from_mesh(bpy.data.meshes[bpy.data.objects[self.mesh_name].data.name])
         
         #bmesh.ops.inset_region(bm, faces=bm.faces, thickness=0.4)
         #bmesh.ops.inset_region(bm, faces=bm.faces, thickness=0, depth=-0.5)
@@ -477,7 +435,7 @@ class BMeshCurlNode(UMOGOutputNode):
         #pydevd.settrace()
         
         
-        bm.to_mesh(bpy.data.meshes[self.mesh_name])
+        bm.to_mesh(bpy.data.meshes[bpy.data.objects[self.mesh_name].data.name])
         bm.free()
         
     def preExecute(self, refholder):

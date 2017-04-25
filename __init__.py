@@ -16,9 +16,6 @@ import sys
 from bpy.types import NodeTree, Node, NodeSocket
 import mathutils
 
-
-
-
 #begining of code for debugging
 #https://wiki.blender.org/index.php/Dev:Doc/Tools/Debugging/Python_Eclipse
 #make this match your current installation
@@ -74,16 +71,15 @@ class UMOGMeshMenu(bpy.types.Menu):
     
     def draw(self, context):
             layout = self.layout
-            insertNode(layout, "umog_MeshInputNode", "Input Mesh")
-            insertNode(layout, "umog_PrintNode", "Print")
             insertNode(layout, "umog_GetTextureNode", "Texture")
-            insertNode(layout, "umog_NoiseGenerationNode", "Noise Generator")
-            insertNode(layout, "umog_Mat3Node", "Matrix 3x3")
-            insertNode(layout, "umog_SculptNode", "Sculpt Node")
+            #insertNode(layout, "umog_NoiseGenerationNode", "Noise Generator")
+            #insertNode(layout, "umog_Mat3Node", "Matrix 3x3")
+            insertNode(layout, "umog_SculptNode", "Sculpt Dynamic Node")
+            insertNode(layout, "umog_SculptNDNode", "Sculpt Static Node")
             insertNode(layout, "umog_ModifierNode", "Modifier Node")
             insertNode(layout, "umog_BMeshNode", "BMesh Node")
             insertNode(layout, "umog_BMeshCurlNode", "BMesh Curl Node")
-            insertNode(layout, "umog_SculptNDNode", "Sculpt ND Node")
+
 
 def register():
     print("begin resitration")
