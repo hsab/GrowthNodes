@@ -53,6 +53,8 @@ class bakeMeshes(bpy.types.Operator):
         start_nodes = []
         #initialize NodePriority to -1 for non output and 0 for output nodes
         nn2p = {}
+        #dictionary of enabled
+        nn2e = {}
         for node in bpy.context.space_data.edit_tree.nodes:
             try:
                 if node._OutputNode:
@@ -60,6 +62,7 @@ class bakeMeshes(bpy.types.Operator):
                     start_nodes.append(node)
             except:
                 nn2p[node.name] = -1
+            nn2e[node.name] = True
         
         #now using the start nodes
         while len(start_nodes) != 0:
@@ -79,14 +82,20 @@ class bakeMeshes(bpy.types.Operator):
         #highest numbered nodes should be first
         sorted_nodes.reverse()
         
+        for node in sorted_nodes:
+            if nn2p[node.name] == -1:
+                nn2e[node.name] = False
+        
         refholder = UMOGReferenceHolder()
         
         for node in sorted_nodes:
-            node.preExecute(refholder)
+            if nn2e[node.name]:
+                node.preExecute(refholder)
         for frames in range(bpy.context.scene.StartFrame, bpy.context.scene.EndFrame):
             for subframes in range(0, bpy.context.scene.SubFrames):
                 for node in sorted_nodes:
-                    node.execute(refholder)
+                    if nn2e[node.name]:
+                        node.execute(refholder)
                     #consider at what point to do the end of frame calls
         return {"FINISHED"}
 
