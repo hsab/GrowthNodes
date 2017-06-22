@@ -79,6 +79,7 @@ class UMOGMeshMenu(bpy.types.Menu):
             insertNode(layout, "umog_DisplaceNode", "Displace Node")
             insertNode(layout, "umog_BMeshNode", "BMesh Node")
             insertNode(layout, "umog_BMeshCurlNode", "BMesh Curl Node")
+            insertNode(layout, "umog_TextureAlternatorNode", "Texture Alternator")
 
 
 def register():
