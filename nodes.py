@@ -35,6 +35,7 @@ class UMOGNode(bpy.types.Node):
     #refholder is passed to this so it can register any objects that need it
     def preExecute(self, refholder):
         pass
+
         
 class UMOGOutputNode(UMOGNode):
     _OutputNode = True
@@ -44,6 +45,40 @@ class UMOGOutputNode(UMOGNode):
 #end base node classes
 
 #BEGIN: UMOG_NODES
+class TextureAlternatorNode(UMOGNode):
+    bl_idname = "umog_TextureAlternatorNode"
+    bl_label = "UMOG Texture Alternator"
+    
+    counter_index = bpy.props.IntProperty()
+    texture_index = bpy.props.IntProperty()
+    
+    def init(self, context):
+        self.inputs.new("TextureSocketType", "Texture0")
+        self.inputs.new("TextureSocketType", "Texture1")
+        self.outputs.new("TextureSocketType", "Output")
+        super().init(context)
+
+    def execute(self, refholder):
+        self.counter_index = self.counter_index + 1
+        if (self.counter_index %2) == 0:
+            try:
+                fn = self.inputs[0].links[0].from_node
+                self.texture_index = fn.texture_index
+                print("use texture 0")
+            except:
+                print("no texture as input")
+        else:
+            try:
+                fn = self.inputs[1].links[0].from_node
+                self.texture_index = fn.texture_index
+                print("use texture 1")
+            except:
+                print("no texture as input")
+        
+
+    def preExecute(self, refholder):
+        self.counter_index = 0;
+
 class UMOGNoiseGenerationNode(UMOGNode):
     bl_idname = "umog_NoiseGenerationNode"
     bl_label = "UMOG Noise Generation Node"
@@ -68,7 +103,7 @@ class GetTextureNode(UMOGNode):
     texture_index = bpy.props.IntProperty()
 
     def init(self, context):
-        self.outputs.new("BaseInputSocketType", "Output")
+        self.outputs.new("TextureSocketType", "Output")
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -117,7 +152,13 @@ class SculptNode(UMOGOutputNode):
     
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
-
+        try:
+            fn = self.inputs[0].links[0].from_node
+            self.texture_handle = fn.texture_index
+            #copy the mesh and hid the original
+        except:
+            print("no texture as input")
+            
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
         bpy.data.objects[self.mesh_name].select = True
@@ -198,7 +239,13 @@ class SculptNDNode(UMOGOutputNode):
     
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
-
+        try:
+            fn = self.inputs[0].links[0].from_node
+            self.texture_handle = fn.texture_index
+            #copy the mesh and hid the original
+        except:
+            print("no texture as input")
+        
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
         bpy.data.objects[self.mesh_name].select = True
@@ -270,7 +317,7 @@ class DisplaceNode(UMOGOutputNode):
     mod_strength = bpy.props.FloatProperty(default=1.0)
     
     def init(self, context):
-        self.inputs.new("BaseInputSocketType", "Texture")
+        self.inputs.new("TextureSocketType", "Texture")
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -286,6 +333,13 @@ class DisplaceNode(UMOGOutputNode):
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
         print("  texture_hanlde is: " + str(self.texture_handle))
+        try:
+            fn = self.inputs[0].links[0].from_node
+            self.texture_handle = fn.texture_index
+            #copy the mesh and hid the original
+        except:
+            print("no texture as input")
+        
         obj = bpy.data.objects[self.mesh_name]
 
         if self.inputs["Texture"].is_linked:
@@ -329,7 +383,7 @@ class BMeshNode(UMOGOutputNode):
     mod_list_handle = bpy.props.IntProperty()
     
     def init(self, context):
-        self.inputs.new("BaseInputSocketType", "Input")
+        self.inputs.new("TextureSocketType", "Input")
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -347,6 +401,12 @@ class BMeshNode(UMOGOutputNode):
         except:
             pass
         
+        try:
+            fn = self.inputs[0].links[0].from_node
+            self.texture_handle = fn.texture_index
+            #copy the mesh and hid the original
+        except:
+            print("no texture as input")
         bm = bmesh.new()   # create an empty BMesh
         bm.from_mesh(bpy.data.meshes[bpy.data.objects[self.mesh_name].data.name])
         
@@ -404,7 +464,7 @@ class BMeshCurlNode(UMOGOutputNode):
     mod_list_handle = bpy.props.IntProperty()
     
     def init(self, context):
-        self.inputs.new("BaseInputSocketType", "Input")
+        self.inputs.new("TextureSocketType", "Input")
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -421,6 +481,12 @@ class BMeshCurlNode(UMOGOutputNode):
             print("  texture_hanlde is: " + str(self.texture_handle))
         except:
             pass
+        try:
+            fn = self.inputs[0].links[0].from_node
+            self.texture_handle = fn.texture_index
+            #copy the mesh and hid the original
+        except:
+            print("no texture as input")
         
         bm = bmesh.new()   # create an empty BMesh
         bm.from_mesh(bpy.data.meshes[bpy.data.objects[self.mesh_name].data.name])
