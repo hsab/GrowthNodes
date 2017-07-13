@@ -50,7 +50,6 @@ class TextureAlternatorNode(UMOGNode):
     bl_label = "UMOG Texture Alternator"
     
     counter_index = bpy.props.IntProperty()
-    texture_index = bpy.props.IntProperty()
     
     def init(self, context):
         self.inputs.new("TextureSocketType", "Texture0")
@@ -62,15 +61,15 @@ class TextureAlternatorNode(UMOGNode):
         self.counter_index = self.counter_index + 1
         if (self.counter_index %2) == 0:
             try:
-                fn = self.inputs[0].links[0].from_node
-                self.texture_index = fn.texture_index
+                fn = self.inputs[0].links[0].from_socket
+                self.outputs[0].texture_index = fn.texture_index
                 print("use texture 0")
             except:
                 print("no texture as input")
         else:
             try:
-                fn = self.inputs[1].links[0].from_node
-                self.texture_index = fn.texture_index
+                fn = self.inputs[1].links[0].from_socket
+                self.outputs[0].texture_index = fn.texture_index
                 print("use texture 1")
             except:
                 print("no texture as input")
@@ -99,8 +98,6 @@ class GetTextureNode(UMOGNode):
     bl_label = "Get Texture Node"
 
     texture = bpy.props.StringProperty()
-    
-    texture_index = bpy.props.IntProperty()
 
     def init(self, context):
         self.outputs.new("TextureSocketType", "Output")
@@ -118,14 +115,14 @@ class GetTextureNode(UMOGNode):
         pass
     
     def execute(self, refholder):
-        print("get texture node execution, texture: " + self.texture)
-        print("texture handle: " + str(self.texture_index))
-        print(refholder.np2dtextures[self.texture_index])
-        
+        #print("get texture node execution, texture: " + self.texture)
+        #print("texture handle: " + str(self.outputs[0].texture_index))
+        #print(refholder.np2dtextures[self.outputs[0].texture_index])
+        pass
         
     def preExecute(self, refholder):
         #consider saving the result from this
-        self.texture_index = refholder.getRefForTexture2d(self.texture)
+        self.outputs[0].texture_index = refholder.getRefForTexture2d(self.texture)
 
 class SculptNode(UMOGOutputNode):
     bl_idname = "umog_SculptNode"
@@ -151,10 +148,10 @@ class SculptNode(UMOGOutputNode):
         pass
     
     def execute(self, refholder):
-        print("sculpt node execution, mesh: " + self.mesh_name)
+        #print("sculpt node execution, mesh: " + self.mesh_name)
         try:
-            fn = self.inputs[0].links[0].from_node
-            self.texture_handle = fn.texture_index
+            fn = self.inputs[0].links[0].to_socket
+            texture_handle = fn.texture_index
             #copy the mesh and hid the original
         except:
             print("no texture as input")
@@ -165,7 +162,7 @@ class SculptNode(UMOGOutputNode):
         bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
 
         for area in bpy.context.screen.areas:
-            print(area.type)
+            #print(area.type)
             if area.type == 'VIEW_3D':
                 ctx = bpy.context.copy()
                 ctx['area'] = area
@@ -208,12 +205,7 @@ class SculptNode(UMOGOutputNode):
                 print("SCULPT DYNAMIC FINISHED")
         
     def preExecute(self, refholder):
-        #set the texture handle for use in the execute method
-        try:
-            fn = self.inputs[0].links[0].from_node
-            #self.texture_handle = fn.texture_index
-        except:
-            print("no mesh as input")
+        pass
 
 class SculptNDNode(UMOGOutputNode):
     bl_idname = "umog_SculptNDNode"
@@ -238,10 +230,10 @@ class SculptNDNode(UMOGOutputNode):
         pass
     
     def execute(self, refholder):
-        print("sculpt node execution, mesh: " + self.mesh_name)
+        #print("sculpt node execution, mesh: " + self.mesh_name)
         try:
-            fn = self.inputs[0].links[0].from_node
-            self.texture_handle = fn.texture_index
+            fn = self.inputs[0].links[0].to_socket
+            texture_handle = fn.texture_index
             #copy the mesh and hid the original
         except:
             print("no texture as input")
@@ -252,7 +244,7 @@ class SculptNDNode(UMOGOutputNode):
         bpy.context.scene.objects.active = bpy.data.objects[self.mesh_name]
 
         for area in bpy.context.screen.areas:
-            print(area.type)
+            #print(area.type)
             if area.type == 'VIEW_3D':
                 ctx = bpy.context.copy()
                 ctx['area'] = area
@@ -273,7 +265,7 @@ class SculptNDNode(UMOGOutputNode):
 
                 obj = bpy.context.active_object
                 verts = list(obj.data.vertices)
-                print(str(len(verts)))
+                #print(str(len(verts)))
 
                 mouse_width = int(area.width/2)
                 mouse_height = int(area.height/2)
@@ -289,19 +281,14 @@ class SculptNDNode(UMOGOutputNode):
                         'time': 1.0,
                         "size": self.stroke_size}])
                 bpy.ops.object.mode_set(mode = 'OBJECT')
-                print("ALL GOOD!")
+                #print("ALL GOOD!")
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.object.mode_set(mode='OBJECT')
                 bpy.ops.view3d.view_selected(ctx)
                 print("SCULPT STATIC FINISHED")
-        
+                
     def preExecute(self, refholder):
-        #set the texture handle for use in the execute method
-        try:
-            fn = self.inputs[0].links[0].from_node
-            #self.texture_handle = fn.texture_index
-        except:
-            print("no mesh as input")
+        pass
 
 class DisplaceNode(UMOGOutputNode):
     bl_idname = "umog_DisplaceNode"
@@ -332,10 +319,12 @@ class DisplaceNode(UMOGOutputNode):
     
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
-        print("  texture_hanlde is: " + str(self.texture_handle))
         try:
-            fn = self.inputs[0].links[0].from_node
-            self.texture_handle = fn.texture_index
+            fn = self.inputs[0].links[0].to_socket
+            texture_handle = fn.texture_index
+            for key,value in refholder.tdict.items():
+                if value == texture_handle:
+                    texture_name = key
             #copy the mesh and hid the original
         except:
             print("no texture as input")
@@ -343,7 +332,6 @@ class DisplaceNode(UMOGOutputNode):
         obj = bpy.data.objects[self.mesh_name]
 
         if self.inputs["Texture"].is_linked:
-            texture_name = self.inputs["Texture"].links[0].from_node.texture
 			
             if self.use_subdiv:
                 oname="SUBDIV"
@@ -357,17 +345,11 @@ class DisplaceNode(UMOGOutputNode):
             mod.mid_level = self.mod_midlevel
             mod.strength = self.mod_strength
             bpy.ops.object.modifier_apply(modifier=oname)
+        else:
+            print("no texture specified")
 
-        
-        
     def preExecute(self, refholder):
-        #set the texture handle for use in the execute method
-        try:
-            fn = self.inputs[0].links[0].from_node
-            self.texture_handle = fn.texture_index
-            #copy the mesh and hid the original
-        except:
-            print("no mesh as input")
+        pass
 
 class BMeshNode(UMOGOutputNode):
     bl_idname = "umog_BMeshNode"
@@ -397,30 +379,27 @@ class BMeshNode(UMOGOutputNode):
     def execute(self, refholder):
         try:
             print("sculpt node execution, mesh: " + self.mesh_name)
-            print("  texture_hanlde is: " + str(self.texture_handle))
         except:
             pass
         
         try:
-            fn = self.inputs[0].links[0].from_node
-            self.texture_handle = fn.texture_index
+            fn = self.inputs[0].links[0].to_socket
+            texture_handle = fn.texture_index
             #copy the mesh and hid the original
         except:
             print("no texture as input")
         bm = bmesh.new()   # create an empty BMesh
         bm.from_mesh(bpy.data.meshes[bpy.data.objects[self.mesh_name].data.name])
         
-        #bmesh.ops.inset_region(bm, faces=bm.faces, thickness=0.4)
-        #bmesh.ops.inset_region(bm, faces=bm.faces, thickness=0, depth=-0.5)
         bmesh.ops.poke(bm, faces=bm.faces)
         
         cx, cy =0,0
         tr = bpy.context.scene.TextureResolution -1
         for vert in bm.verts:
             #displace along normal by texture
-            factor = (refholder.np2dtextures[self.texture_handle].item(cx,cy,3)) + 0.1
-            print("factor: " + str(factor) + " x:" + str(cx) + " y:" + str(cy))
-            print("vertex: " + str(vert.co.x) + "," + str(vert.co.y) + "," + str(vert.co.z))
+            factor = (refholder.np2dtextures[texture_handle].item(cx,cy,3)) + 0.1
+            #print("factor: " + str(factor) + " x:" + str(cx) + " y:" + str(cy))
+            #print("vertex: " + str(vert.co.x) + "," + str(vert.co.y) + "," + str(vert.co.z))
             vert.co = vert.co + (factor * vert.normal )
             if cx == tr:
                 cx =0
@@ -431,24 +410,11 @@ class BMeshNode(UMOGOutputNode):
             if cy == tr:
                 cy = 0
             
-        #rv = bmesh.ops.subdivide_edges(bm, cuts=1, edges=bm.edges)
-        #print(dir(rv))
-        #print(rv.keys())
-        
-        #pydevd.settrace()
-        
-        
         bm.to_mesh(bpy.data.meshes[bpy.data.objects[self.mesh_name].data.name])
         bm.free()
         
     def preExecute(self, refholder):
-        #set the texture handle for use in the execute method
-        try:
-            fn = self.inputs[0].links[0].from_node
-            self.texture_handle = fn.texture_index
-            #copy the mesh and hid the original
-        except:
-            print("no texture as input")
+        pass
 
 class BMeshCurlNode(UMOGOutputNode):
     bl_idname = "umog_BMeshCurlNode"
@@ -478,12 +444,11 @@ class BMeshCurlNode(UMOGOutputNode):
     def execute(self, refholder):
         try:
             print("sculpt node execution, mesh: " + self.mesh_name)
-            print("  texture_hanlde is: " + str(self.texture_handle))
         except:
             pass
         try:
-            fn = self.inputs[0].links[0].from_node
-            self.texture_handle = fn.texture_index
+            fn = self.inputs[0].links[0].to_socket
+            texture_handle = fn.texture_index
             #copy the mesh and hid the original
         except:
             print("no texture as input")
@@ -499,9 +464,9 @@ class BMeshCurlNode(UMOGOutputNode):
         tr = bpy.context.scene.TextureResolution -1
         for vert in bm.verts:
             #displace along normal by texture
-            factor = (refholder.np2dtextures[self.texture_handle].item(cx,cy,3)) + 0.1
+            factor = (refholder.np2dtextures[texture_handle].item(cx,cy,3)) + 0.1
             #print("factor: " + str(factor) + " x:" + str(cx) + " y:" + str(cy))
-            print("shell factor: " + str(vert.calc_shell_factor()))
+            #print("shell factor: " + str(vert.calc_shell_factor()))
             if vert.calc_shell_factor() > 1.01:
                 vert.co = vert.co + (factor * vert.normal )
                 if cx == tr:
@@ -512,25 +477,12 @@ class BMeshCurlNode(UMOGOutputNode):
                     
                 if cy == tr:
                     cy = 0
-            
-        #rv = bmesh.ops.subdivide_edges(bm, cuts=1, edges=bm.edges)
-        #print(dir(rv))
-        #print(rv.keys())
-        
-        #pydevd.settrace()
-        
         
         bm.to_mesh(bpy.data.meshes[bpy.data.objects[self.mesh_name].data.name])
         bm.free()
         
     def preExecute(self, refholder):
-        #set the texture handle for use in the execute method
-        try:
-            fn = self.inputs[0].links[0].from_node
-            self.texture_handle = fn.texture_index
-            #copy the mesh and hid the original
-        except:
-            print("no texture as input")
+        pass
     
 class Mat3Node(UMOGNode):
     bl_idname = "umog_Mat3Node"

@@ -40,6 +40,8 @@ class TextureSocket(NodeSocket):
     
     objectName = bpy.props.StringProperty()
     
+    texture_index = bpy.props.IntProperty()
+    
     def init(self, context):
         pass
         
@@ -52,10 +54,33 @@ class TextureSocket(NodeSocket):
     def draw_color(self, context, node):
         return (0, 0, 1, 0.5)
     #these will return a reference to the bind point adn index for passing parameters
-    def get_bind_point(self):
-        return 'texture'
     def get_bind_index(self):
         return 'texture_index'
+    
+class IntegerSocket(NodeSocket):
+    # Description string
+    '''Custom Integer socket type'''
+    # Optional identifier string. If not explicitly defined, the python class name is used.
+    bl_idname = 'IntegerSocketType'
+    # Label for nice name display
+    bl_label = 'IntegerA Socket'
+    
+    objectName = bpy.props.StringProperty()
+    
+    def init(self, context):
+        pass
+        
+    # Optional function for drawing the socket input value
+    def draw(self, context, layout, node, text):
+        layout.label(text=text)
+
+
+    # Socket color
+    def draw_color(self, context, node):
+        return (0, 1, 1, 0.5)
+    #these will return a reference to the bind point adn index for passing parameters
+    def get_bind_index(self):
+        return 'integer_index'
     
 class Mat3Socket(NodeSocket):
     # Description string

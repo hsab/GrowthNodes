@@ -20,7 +20,7 @@ import mathutils
 #https://wiki.blender.org/index.php/Dev:Doc/Tools/Debugging/Python_Eclipse
 #make this match your current installation
 try:
-    PYDEV_SOURCE_DIR = "/usr/lib/eclipse/plugins/org.python.pydev_5.6.0.201703221358/pysrc"
+    PYDEV_SOURCE_DIR = "/usr/lib/eclipse/dropins/pydev/plugins/org.python.pydev_5.8.0.201706061859/pysrc"
     import sys
     if PYDEV_SOURCE_DIR not in sys.path:
         sys.path.append(PYDEV_SOURCE_DIR)
