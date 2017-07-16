@@ -49,17 +49,20 @@ class TextureAlternatorNode(UMOGNode):
     bl_idname = "umog_TextureAlternatorNode"
     bl_label = "UMOG Texture Alternator"
     
-    counter_index = bpy.props.IntProperty()
-    
     def init(self, context):
         self.inputs.new("TextureSocketType", "Texture0")
         self.inputs.new("TextureSocketType", "Texture1")
+        self.inputs.new("IntegerSocketType", "Integer0")
         self.outputs.new("TextureSocketType", "Output")
         super().init(context)
 
     def execute(self, refholder):
-        self.counter_index = self.counter_index + 1
-        if (self.counter_index %2) == 0:
+        try:
+            counter_index = self.inputs[2].links[0].to_socket.integer_value
+        except:
+            print("no integer as input")
+        
+        if (counter_index %2) == 0:
             try:
                 fn = self.inputs[0].links[0].from_socket
                 self.outputs[0].texture_index = fn.texture_index
@@ -73,10 +76,37 @@ class TextureAlternatorNode(UMOGNode):
                 print("use texture 1")
             except:
                 print("no texture as input")
-        
+
+class IntegerNode(UMOGNode):
+    bl_idname = "umog_IntegerNode"
+    bl_label = "UMOG Integer"
+    
+    input_value = bpy.props.IntProperty()
+    
+    def init(self, context):
+        self.outputs.new("IntegerSocketType", "Integer0")
+        super().init(context)
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "input_value", text="Value")
+
 
     def preExecute(self, refholder):
-        self.counter_index = 0;
+        #consider saving the result from this
+        self.outputs[0].integer_value = self.input_value
+
+class IntegerFrameNode(UMOGNode):
+    bl_idname = "umog_IntegerFrameNode"
+    bl_label = "UMOG Integer Frame"
+    
+    def init(self, context):
+        self.outputs.new("IntegerSocketType", "Integer0")
+        self.outputs[0].integer_value = 0
+        super().init(context)
+        
+    def execute(self, refholder):
+        self.outputs[0].integer_value = self.outputs[0].integer_value + 1
+        print("Frame Counter " + str(self.outputs[0].integer_value))
 
 class UMOGNoiseGenerationNode(UMOGNode):
     bl_idname = "umog_NoiseGenerationNode"
