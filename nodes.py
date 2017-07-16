@@ -107,7 +107,10 @@ class GetTextureNode(UMOGNode):
         #layout.operator("umog.select_texture", text = "Select Texture").pnode = self.name
         layout.prop_search(self, "texture", bpy.data, "textures", icon="TEXTURE_DATA", text="")
         try:
-            layout.template_preview(bpy.data.textures[self.texture])
+            #only one template_preview can exist per screen area https://developer.blender.org/T46733
+            #make sure that at most one preview can be opened at any time
+            if self.select and (len(bpy.context.selected_nodes) == 1):
+                layout.template_preview(bpy.data.textures[self.texture])
         except:
             pass
 
@@ -148,14 +151,7 @@ class SculptNode(UMOGOutputNode):
         pass
     
     def execute(self, refholder):
-        #print("sculpt node execution, mesh: " + self.mesh_name)
-        try:
-            fn = self.inputs[0].links[0].to_socket
-            texture_handle = fn.texture_index
-            #copy the mesh and hid the original
-        except:
-            print("no texture as input")
-            
+        #print("sculpt node execution, mesh: " + self.mesh_name)            
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
         bpy.data.objects[self.mesh_name].select = True
@@ -231,13 +227,6 @@ class SculptNDNode(UMOGOutputNode):
     
     def execute(self, refholder):
         #print("sculpt node execution, mesh: " + self.mesh_name)
-        try:
-            fn = self.inputs[0].links[0].to_socket
-            texture_handle = fn.texture_index
-            #copy the mesh and hid the original
-        except:
-            print("no texture as input")
-        
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
         bpy.data.objects[self.mesh_name].select = True
@@ -359,8 +348,6 @@ class BMeshNode(UMOGOutputNode):
     mesh_dupl_name = bpy.props.StringProperty()
     
     mesh_name_index = bpy.props.IntProperty()
-    
-    
     
     mod_list_handle = bpy.props.IntProperty()
     
