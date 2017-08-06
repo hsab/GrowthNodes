@@ -1,6 +1,10 @@
 # Unified Model of Organic Growth
 A Blender plugin for generative content creation and simulation of organic growth processes.
 
+Inspired by Computational Growth by Deskriptiv and Wanderers by Mediated Matter. 
+
+All prototype photos courtesy of Mediated Matter Group as desirable outcome of the stable release of plugin.
+
 ![](http://i.imgur.com/uPNijRm.jpg)
 
 Introduction:
