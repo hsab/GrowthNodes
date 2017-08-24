@@ -83,6 +83,7 @@ class UMOGMeshMenu(bpy.types.Menu):
             insertNode(layout, "umog_IntegerNode", "Integer")
             insertNode(layout, "umog_IntegerFrameNode", "Integer Frame")
             insertNode(layout, "umog_IntegerSubframeNode", "Integer Subframe")
+            insertNode(layout, "umog_IntegerMathNode", "Integer Math")
 
 
 def register():
