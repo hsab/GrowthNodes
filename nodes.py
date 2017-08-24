@@ -35,6 +35,9 @@ class UMOGNode(bpy.types.Node):
     #refholder is passed to this so it can register any objects that need it
     def preExecute(self, refholder):
         pass
+    #will be called once at the end of each frame
+    def postFrame(self, refholder):
+        pass
 
         
 class UMOGOutputNode(UMOGNode):
@@ -103,10 +106,35 @@ class IntegerFrameNode(UMOGNode):
         self.outputs.new("IntegerSocketType", "Integer0")
         self.outputs[0].integer_value = 0
         super().init(context)
-        
+    
+    def preExecute(self, refholder):
+        self.outputs[0].integer_value = 0
+    
     def execute(self, refholder):
+        pass
+        
+    def postFrame(self, refholder):
         self.outputs[0].integer_value = self.outputs[0].integer_value + 1
         print("Frame Counter " + str(self.outputs[0].integer_value))
+        
+class IntegerSubframeNode(UMOGNode):
+    bl_idname = "umog_IntegerSubframeNode"
+    bl_label = "UMOG Integer Subframe"
+    
+    def init(self, context):
+        self.outputs.new("IntegerSocketType", "Integer0")
+        self.outputs[0].integer_value = 0
+        super().init(context)
+    
+    def preExecute(self, refholder):
+        self.outputs[0].integer_value = 0
+    
+    def execute(self, refholder):
+        self.outputs[0].integer_value = self.outputs[0].integer_value + 1
+        print("Subrame Counter " + str(self.outputs[0].integer_value))
+        
+    def postFrame(self, refholder):
+        self.outputs[0].integer_value = 0
 
 class UMOGNoiseGenerationNode(UMOGNode):
     bl_idname = "umog_NoiseGenerationNode"

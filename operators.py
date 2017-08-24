@@ -96,6 +96,9 @@ class bakeMeshes(bpy.types.Operator):
                 for node in sorted_nodes:
                     if nn2e[node.name]:
                         node.execute(refholder)
+            for node in sorted_nodes:
+                if nn2e[node.name]:
+                    node.postFrame(refholder)
                     #consider at what point to do the end of frame calls
         return {"FINISHED"}
 
