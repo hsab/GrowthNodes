@@ -435,9 +435,13 @@ class SculptNDNode(UMOGOutputNode):
 class DisplaceNode(UMOGOutputNode):
     bl_idname = "umog_DisplaceNode"
     bl_label = "Displace Node"
+    
+    temp_texture_prefix = "__umog_internal_"
 
     mesh_name = bpy.props.StringProperty()
     mesh_dupl_name = bpy.props.StringProperty()
+    
+    texture_name_temp = bpy.props.StringProperty()
     
     mesh_name_index = bpy.props.IntProperty()
 
@@ -471,6 +475,8 @@ class DisplaceNode(UMOGOutputNode):
         except:
             print("no texture as input")
         
+        refholder.handleToImage(self.inputs[0].links[0].to_socket.texture_index, bpy.data.images[self.texture_name_temp])
+        
         obj = bpy.data.objects[self.mesh_name]
 
         if self.inputs["Texture"].is_linked:
@@ -483,7 +489,7 @@ class DisplaceNode(UMOGOutputNode):
             oname="DSIPLACE"
             mod = obj.modifiers.new(name=oname, type='DISPLACE')
             dir(mod)
-            mod.texture = bpy.data.textures[texture_name]
+            mod.texture = bpy.data.textures[self.texture_name_temp]
             mod.mid_level = self.mod_midlevel
             mod.strength = self.mod_strength
             bpy.ops.object.modifier_apply(modifier=oname)
@@ -491,6 +497,16 @@ class DisplaceNode(UMOGOutputNode):
             print("no texture specified")
 
     def preExecute(self, refholder):
+        image = bpy.data.images.new(self.temp_texture_prefix + self.name, width=bpy.context.scene.TextureResolution, height=bpy.context.scene.TextureResolution)
+        self.texture_name_temp = image.name
+        cTex = bpy.data.textures.new(self.temp_texture_prefix + self.name, type = 'IMAGE')
+        cTex.image = image
+        print("texture name: " + self.texture_name_temp)
+        pass
+    
+    def postBake(self, refholder):
+        bpy.data.textures.remove(bpy.data.textures[self.texture_name_temp])
+        bpy.data.images.remove(bpy.data.images[self.texture_name_temp])
         pass
 
 class BMeshNode(UMOGOutputNode):
