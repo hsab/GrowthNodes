@@ -38,6 +38,9 @@ class UMOGNode(bpy.types.Node):
     #will be called once at the end of each frame
     def postFrame(self, refholder):
         pass
+    #will be called once right before bake returns
+    def postBake(self, refholder):
+        pass
 
         
 class UMOGOutputNode(UMOGNode):

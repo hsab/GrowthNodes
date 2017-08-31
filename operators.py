@@ -100,6 +100,9 @@ class bakeMeshes(bpy.types.Operator):
                 if nn2e[node.name]:
                     node.postFrame(refholder)
                     #consider at what point to do the end of frame calls
+        for node in sorted_nodes:
+            if nn2e[node.name]:
+                node.postBake(refholder)
         return {"FINISHED"}
 
 class addKeyframeSample(bpy.types.Operator):
