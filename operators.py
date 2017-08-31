@@ -21,6 +21,7 @@ class UMOGReferenceHolder:
         #now fill in the values
         self.fillTexture(oldidx, name)
         return oldidx
+    
     #returns the index of an initialized 
     def createRefForTexture2d(self):
         oldidx = self.ntindex
@@ -29,14 +30,34 @@ class UMOGReferenceHolder:
         tr = bpy.context.scene.TextureResolution
         self.np2dtextures[oldidx] = np.zeros((tr,tr,4))
         return oldidx
+    
+    def handleToImage(self, handle, image):
+        print("shape of texture " + str(self.np2dtextures[handle].shape))
+        pixels = self.np2dtextures[handle].flatten().tolist()
+        print(str(pixels[0:64]))
+        image.pixels = pixels
         
+        # write image use to debug textures
+        #image.filepath_raw = "/bulk/Pictures/Blender_Generated/temp.png"
+        #image.file_format = 'PNG'
+        #image.save()
+    
     def fillTexture(self, index, name):
         tr = bpy.context.scene.TextureResolution
         trh = tr/2
-        for i in range(0, tr):
-            for j in range(0, tr):
-                x, y = (i-trh)/trh, (j-trh)/trh
-                self.np2dtextures[index][i,j] = bpy.data.textures[name].evaluate((x,y,0.0))
+        #handle 1d textures by copying data to all channels
+        if bpy.data.textures[name].type in ['CLOUDS', 'DISTORTED_NOISE', 'MARBLE', 'MUSGRAVE', 
+            'NOISE', 'STUCCI', 'VORONOI', 'WOOD']:
+            for i in range(0, tr):
+                for j in range(0, tr):
+                    x, y = (i-trh)/trh, (j-trh)/trh
+                    temp = bpy.data.textures[name].evaluate((x,y,0.0))
+                    self.np2dtextures[index][i,j] = [temp[3], temp[3], temp[3], 1.0]
+        else:
+            for i in range(0, tr):
+                for j in range(0, tr):
+                    x, y = (i-trh)/trh, (j-trh)/trh
+                    self.np2dtextures[index][i,j] = bpy.data.textures[name].evaluate((x,y,0.0))
                 
     #used to generate intermediate or output references
     def getNewRef(self):
