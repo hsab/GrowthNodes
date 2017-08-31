@@ -1,6 +1,8 @@
 import bpy
 import bmesh
 import copy
+import numpy as np
+from . import events
 
 try:
     PYDEV_SOURCE_DIR = "/usr/lib/eclipse/plugins/org.python.pydev_5.6.0.201703221358/pysrc"
@@ -279,7 +281,7 @@ class SetTextureNode(UMOGOutputNode):
     def preExecute(self, refholder):
         #consider saving the result from this
         self.texture_index = refholder.getRefForTexture2d(self.texture)
-
+#begin mesh manipulation nodes
 class SculptNode(UMOGOutputNode):
     bl_idname = "umog_SculptNode"
     bl_label = "Sculpt Node"
@@ -465,16 +467,6 @@ class DisplaceNode(UMOGOutputNode):
     
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
-        try:
-            fn = self.inputs[0].links[0].to_socket
-            texture_handle = fn.texture_index
-            for key,value in refholder.tdict.items():
-                if value == texture_handle:
-                    texture_name = key
-            #copy the mesh and hid the original
-        except:
-            print("no texture as input")
-        
         refholder.handleToImage(self.inputs[0].links[0].to_socket.texture_index, bpy.data.images[self.texture_name_temp])
         
         obj = bpy.data.objects[self.mesh_name]
@@ -639,7 +631,58 @@ class BMeshCurlNode(UMOGOutputNode):
         
     def preExecute(self, refholder):
         pass
+#begin reaction nodes
+class ReactionDiffusionNode(UMOGNode):
+    bl_idname = "umog_ReactionDiffusionNode"
+    bl_label = "Reaction Diffusion Node"
     
+    feed = bpy.props.FloatProperty(default= 0.055)
+    kill = bpy.props.FloatProperty(default= 0.062)
+    Da = bpy.props.FloatProperty(default= 1.0)
+    Db = bpy.props.FloatProperty(default= 0.5)
+    dt = bpy.props.FloatProperty(default= 1.0)
+
+    def init(self, context):
+        self.outputs.new("TextureSocketType", "A'")
+        self.outputs.new("TextureSocketType", "B'")
+        self.inputs.new("TextureSocketType", "A")
+        self.inputs.new("TextureSocketType", "B")
+        super().init(context)
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "feed", "Feed")
+        layout.prop(self, "kill", "Kill")
+        layout.prop(self, "Da", "Da")
+        layout.prop(self, "Db", "Db")
+        layout.prop(self, "dt", "dt")
+
+    def update(self):
+        pass
+    
+    def execute(self, refholder):
+        #compute A'
+        mask = np.array([[0.05, 0.2, 0.05], [0.2, -1, 0.2], [0.05, 0.2, 0.05]])
+        Ap = refholder.np2dtextures[self.outputs[0].texture_index]
+        A = refholder.np2dtextures[self.inputs[0].links[0].from_socket.texture_index]
+        LA = events.convolve2d(Ap, mask)
+        
+        Bp = refholder.np2dtextures[self.outputs[1].texture_index]
+        B = refholder.np2dtextures[self.inputs[1].links[0].from_socket.texture_index]
+        LB = events.convolve2d(Bp, mask)
+        
+        adim = Ap.shape
+        for i in range(adim[0]):
+            for j in range(adim[1]):
+                for k in range(adim[2]):
+                    Ap[i][j][k] = A[i][j][k] + (self.Da*LA[i][j][k] - (A[i][j][k]*B[i][j][k]*B[i][j][k]) +self.feed*(1.0 - A[i][j][k]))* self.dt
+                    Bp[i][j][k] = B[i][j][k] + (self.Db * LB[i][j][k] + (A[i][j][k]*B[i][j][k]*B[i][j][k]) -(self.kill + self.feed)* B[i][j][k])*self.dt
+        
+        
+        
+    def preExecute(self, refholder):
+        self.outputs[0].texture_index = refholder.createRefForTexture2d()
+        self.outputs[1].texture_index = refholder.createRefForTexture2d()
+
 class Mat3Node(UMOGNode):
     bl_idname = "umog_Mat3Node"
     bl_label = "Matrix"
