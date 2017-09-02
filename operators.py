@@ -32,9 +32,9 @@ class UMOGReferenceHolder:
         return oldidx
     
     def handleToImage(self, handle, image):
-        print("shape of texture " + str(self.np2dtextures[handle].shape))
+        #print("shape of texture " + str(self.np2dtextures[handle].shape))
         pixels = self.np2dtextures[handle].flatten().tolist()
-        print(str(pixels[0:64]))
+        #print(str(pixels[0:64]))
         image.pixels = pixels
         
         # write image use to debug textures
