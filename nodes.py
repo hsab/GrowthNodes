@@ -672,12 +672,7 @@ class ReactionDiffusionNode(UMOGNode):
         B = refholder.np2dtextures[self.inputs[1].links[0].from_socket.texture_index]
         LB = events.convolve2d(Bp, mask)
         
-        adim = Ap.shape
-        for i in range(adim[0]):
-            for j in range(adim[1]):
-                for k in range(adim[2]):
-                    Ap[i][j][k] = A[i][j][k] + (self.Da*LA[i][j][k] - (A[i][j][k]*B[i][j][k]*B[i][j][k]) +self.feed*(1.0 - A[i][j][k]))* self.dt
-                    Bp[i][j][k] = B[i][j][k] + (self.Db * LB[i][j][k] + (A[i][j][k]*B[i][j][k]*B[i][j][k]) -(self.kill + self.feed)* B[i][j][k])*self.dt
+        events.ReactionDiffusion2d(A,Ap, LA, B, Bp, LB, mask, self.Da, self.Db, self.feed, self.kill, self.dt)
         
         
         
