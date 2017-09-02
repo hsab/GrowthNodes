@@ -2,6 +2,8 @@ import bpy
 import bmesh
 import copy
 import numpy as np
+import pyximport
+pyximport.install()
 from . import events
 
 try:
