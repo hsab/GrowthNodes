@@ -21,9 +21,14 @@ Created by Jacques Lucke
 '''
 Command Line Arguments:
     python setup.py
-     --all              # recompile all
+     --all              # clean, comment pyximport and recompile all
      --export           # make redistributable version
-     --nocopy           # don't copy the build into Blenders addon directory
+     --copy             # copy the build into Blenders addon directory
+     --clean            # removes .c, .pyd, .so, and .zip files as well as build folder and __pycache__ folders
+     --pyximport        # for building Cython modules during development without explicitly
+                        # running setup.py after each change. Unomments the following across all files
+                        #     import pyximport
+                        #     pyximport.install()
      --noversioncheck   # allow to create a build with any Python version
 
 Generate .html files to debug cython code:
@@ -52,7 +57,7 @@ config = {}
 
 initialArgs = sys.argv[:]
 
-expectedArgs = {"--all", "--export", "--nocopy", "--clean", "--noversioncheck"}
+expectedArgs = {"--all", "--export", "--copy", "--clean", "--noversioncheck", "--pyximport"}
 unknownArgs = set(initialArgs[1:]) - expectedArgs
 
 textWidth = 48
@@ -75,8 +80,8 @@ def printInd(message):
 
 if len(unknownArgs) > 0:
     printFunc("UNKNOWN ARGUMENTS", "Unknown arguments have been detected.", True)
-    printInd("Unknown arguments:", unknownArgs)
-    printInd("Allowed arguments:", expectedArgs)
+    printInd("Unknown arguments:"+ str(unknownArgs))
+    printInd("Allowed arguments:"+ str(expectedArgs))
     sys.exit()
 
 v = sys.version_info
@@ -94,12 +99,20 @@ def main():
         clean()
         return
 
+    if "--pyximport" in initialArgs:
+        printFunc("--PYXIMPORT", "Allows for building Cython modules during development without explicitly running setup.py after each change", True)
+        clean()
+        commentPyximport(".py", sourceDirectory, False)
+        return
+
     initFileHack(currentDirectory, ".py", ".temp")
 
     printFunc("SETUP CONFIG", "Used to specify where the compiled addon should be copied, what files, and folders should be excluded.", True)
     setupAndReadConfigFile()
 
     if canCompile():
+        print("\nPYXIMPORT:")
+        commentPyximport(".py", sourceDirectory, True)
         preprocessor()
         if "--all" in initialArgs:
             printFunc("--ALL", "Recompiles all files, by removing .c, .pyd, .so, and .zip files from the directory.", True)
@@ -109,7 +122,7 @@ def main():
         if "--export" in initialArgs:
             printFunc("--EXPORT", "Creates a zip file that can be shared with others.", True)
             export()
-        if not "--nocopy" in initialArgs:
+        if "--copy" in initialArgs:
             printFunc("COPY TO BLENDER", "Copies the compiled addon to Blender addon directory.", True)
 
             if os.path.isdir(config["addonsDirectory"]):
@@ -225,6 +238,41 @@ def removeFilesWithSuffix(extension, directory):
     printInd("Removed "+ extension+ " files.")
 
 
+import fileinput
+import re
+
+def commentPyximport(extension, directory, comment):
+    patternImp = re.compile(r'^import pyximport$', flags=re.M)
+    patternImpCom = re.compile(r'^#import pyximport$', flags=re.M)
+    patternInst = re.compile(r'^pyximport.install\(\)$', flags=re.M)
+    patternInstCom = re.compile(r'^#pyximport.install\(\)$', flags=re.M)
+    for path in iterPathsWithSuffix(extension, directory):
+        for line in fileinput.input(path, inplace=True):
+            modified = True
+            if comment:
+                if patternImp.search(line):
+                    sys.stderr.write("---- Commented Line " + str(fileinput.filelineno()) + "\n")
+                    print(re.sub(patternImp, "#import pyximport", line), end='')
+                elif patternInst.search(line):
+                    sys.stderr.write("---- Commented Line " + str(fileinput.filelineno()) + "\n")
+                    print(re.sub(patternInst, "#pyximport.install()", line), end='')
+                else:
+                    print(line, end='')
+                    modified=False
+            else:
+                if patternImpCom.search(line):
+                    sys.stderr.write("---- Uncommented Line " + str(fileinput.filelineno()) + "\n")
+                    print(re.sub(patternImpCom, "import pyximport", line), end='')
+                elif patternInstCom.search(line):
+                    sys.stderr.write("---- Unommented Line " + str(fileinput.filelineno()) + "\n")
+                    print(re.sub(patternInstCom, "pyximport.install()", line), end='')
+                else:
+                    print(line, end='')
+                    modified=False
+
+            if modified:
+                sys.stderr.write("----   @ " + path + "\n")
+
 # Compilation Info File
 ###################################################################
 
@@ -324,7 +372,7 @@ def removeFile(path):
 def removeDirectory(path, folder):
     try:
         shutil.rmtree(path + "\\" + folder, ignore_errors=False, onerror=None)
-        printInd("Removed folder.")
+        printInd("Removed folder:")
         printInd(" "+path)
     except:
         if tryGetFileAccessPermission(path):
