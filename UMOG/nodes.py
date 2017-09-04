@@ -2,9 +2,9 @@ import bpy
 import bmesh
 import copy
 import numpy as np
-import pyximport
-pyximport.install()
-from . import events
+#import pyximport
+#pyximport.install()
+from . events import events
 
 try:
     PYDEV_SOURCE_DIR = "/usr/lib/eclipse/plugins/org.python.pydev_5.6.0.201703221358/pysrc"
