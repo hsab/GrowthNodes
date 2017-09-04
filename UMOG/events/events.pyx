@@ -19,8 +19,8 @@ def convolve2d(double[:,:,:] array, double[:,:] mask):
     cdef int my = mask.shape[1]
     
     cdef int i,j,k,ii,jj
-    for i in prange(1, xlim, nogil=True):
-        for j in range(1, ylim):
+    for i in prange(edge_offset, xlim, nogil=True):
+        for j in range(edge_offset, ylim):
             for k in range(zlim):
                 for ii in range(mx):
                     for jj in range(my):
