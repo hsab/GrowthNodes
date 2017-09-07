@@ -60,6 +60,7 @@ class UMOGMeshMenu(bpy.types.Menu):
             layout = self.layout
             insertNode(layout, "umog_GetTextureNode", "Get Texture")
             insertNode(layout, "umog_SetTextureNode", "Set Texture")
+            insertNode(layout, "umog_SaveTextureNode", "Save Texture")
             #insertNode(layout, "umog_NoiseGenerationNode", "Noise Generator")
             #insertNode(layout, "umog_Mat3Node", "Matrix 3x3")
             insertNode(layout, "umog_SculptNode", "Sculpt Dynamic Node")
