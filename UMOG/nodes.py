@@ -276,8 +276,8 @@ class SetTextureNode(UMOGOutputNode):
         pass
     
     def execute(self, refholder):
-        refholder.np2dtextures[self.texture_index] = copy.deepcopy(refholder.np2dtextures[self.inputs[0].texture_index])
-        print("setting texture " + str(self.texture_index) + " " + str(self.inputs[0].texture_index))
+        refholder.np2dtextures[self.texture_index] = copy.deepcopy(refholder.np2dtextures[self.inputs[0].links[0].from_socket.texture_index])
+        print("setting texture " + str(self.texture_index) + " " + str(self.inputs[0].links[0].from_socket.texture_index))
         pass
         
     def preExecute(self, refholder):
@@ -308,7 +308,7 @@ class SaveTextureNode(UMOGOutputNode):
         pass
     
     def execute(self, refholder):
-        refholder.handleToImage(self.inputs[0].texture_index, bpy.data.images[self.texture_name_temp])
+        refholder.handleToImage(self.inputs[0].links[0].from_socket.texture_index, bpy.data.images[self.texture_name_temp])
         image = bpy.data.images[self.texture_name_temp]
         image.filepath_raw = self.file_path + self.file_name + str(self.file_name_diff) + ".png"
         image.file_format = 'PNG'
