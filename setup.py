@@ -103,6 +103,7 @@ def main():
         printFunc("--PYXIMPORT", "Allows for building Cython modules during development without explicitly running setup.py after each change", True)
         clean()
         commentPyximport(".py", sourceDirectory, False)
+        writePyximportInfoFile()
         return
 
     initFileHack(currentDirectory, ".py", ".temp")
@@ -291,6 +292,14 @@ def writeCompilationInfoFile():
     import json
     writeFile(compilationInfoPath, json.dumps(info, indent = 4))
 
+def writePyximportInfoFile():
+    printFunc("JSON LOG", "Creates a pyximport info log.", True)
+
+    info = {}
+    info["sys.pyximport"] = True
+
+    import json
+    writeFile(compilationInfoPath, json.dumps(info, indent = 4))
 
 # Copy to Blenders addons directory
 ###################################################################
