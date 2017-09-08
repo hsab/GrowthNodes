@@ -6,15 +6,15 @@ import pyximport
 pyximport.install()
 from . events import events
 
-try:
-    PYDEV_SOURCE_DIR = "/usr/lib/eclipse/plugins/org.python.pydev_5.6.0.201703221358/pysrc"
-    import sys
-    if PYDEV_SOURCE_DIR not in sys.path:
-        sys.path.append(PYDEV_SOURCE_DIR)
-    import pydevd
-    print("debugging enabled")
-except:
-    print("no debugging enabled")
+# try:
+#     PYDEV_SOURCE_DIR = "/usr/lib/eclipse/plugins/org.python.pydev_5.6.0.201703221358/pysrc"
+#     import sys
+#     if PYDEV_SOURCE_DIR not in sys.path:
+#         sys.path.append(PYDEV_SOURCE_DIR)
+#     import pydevd
+#     print("debugging enabled")
+# except:
+#     print("no debugging enabled")
     
 #begin base node classes
 
