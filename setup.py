@@ -45,7 +45,7 @@ import traceback
 from os.path import abspath, dirname, join, relpath
 import textwrap
 
-addonName = "UMOG"
+addonName = "umog_addon"
 currentDirectory = dirname(abspath(__file__))
 sourceDirectory = join(currentDirectory, addonName)
 #sourceDirectory = currentDirectory

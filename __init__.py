@@ -16,10 +16,10 @@ import sys
 import traceback
 from os.path import dirname, join, abspath
 
-addonName = "UMOG"
+addonDirectoryName = "umog_addon"
 currentDirectory = dirname(abspath(__file__))
 addonsDirectory = dirname(currentDirectory)
-currentDirectory = join(currentDirectory, addonName)
+currentDirectory = join(currentDirectory, addonDirectoryName)
 compilationInfoPath = join(currentDirectory, "compilation_info.json")
 
 counter = 0
@@ -34,15 +34,15 @@ if counter > 1:
         "Please uninstall/remove all older versions of the addon\n")
     raise Exception(message)
 
-# try: from . import import_modules
-# except: pass
-#
-# if "import_modules" not in globals():
-#     message = ("\n\n"
-#         "The Animation Nodes addon cannot be registered correctly.\n"
-#         "Please try to remove and install it again.\n"
-#         "If it still does not work, report it.\n")
-#     raise Exception(message)
+from .umog_addon import import_modules
+
+
+if "import_modules" not in globals():
+    message = ("\n\n"
+        "UMOG cannot be registered correctly.\n"
+        "Please try to remove and install it again.\n"
+        "If it still does not work, report it.\n")
+    raise Exception(message)
 
 try: import numpy
 except: pass
@@ -55,7 +55,7 @@ if "numpy" not in globals():
         "that comes with numpy (e.g. the newest official Blender release).")
     raise Exception(message)
 
-from .UMOG.preferences import getBlenderVersion
+from .umog_addon.preferences import getBlenderVersion
 if getBlenderVersion() < (2, 76, 0):
     message = ("\n\n"
         "UMOG requires at least Blender 2.77.\n"
@@ -104,23 +104,41 @@ else:
         message = ("\n\n"
                    "There is a Python version mismatch.\n\n"
                    "Your Blender build uses: {}\n"
-                   "Animation Nodes has been compiled for: {}\n\n"
+                   "UMOG has been compiled for: {}\n\n"
                    "You have three options:\n"
                    "  1. Try make Blender use another Python version.\n"
                    "     (Blender 2.78/2.79 officially uses Python 3.5.x)\n"
-                   "  2. Compile Animation Nodes yourself using the correct Python version.\n"
+                   "  2. Compile UMOG yourself using the correct Python version.\n"
                    "     (Look in the developer manual for more information)\n"
                    "  3. Create an issue on Github and ask if someone can create a build for you."
                    ).format(currentPythonVersion, addonPythonVersion)
         raise Exception(message)
 
+# Load all submodules
+##################################
+#
+from .umog_addon import import_modules
+
+modules = import_modules.importAllSubmodules(__path__[0], __package__,addonDirectoryName)
+
+if "bpy" in locals():
+    print("UMOG can't be reloaded.")
+
 import bpy
-from . import UMOG as UMG
+from . import umog_addon as UMG
 
 def register():
     UMG.register()
     bpy.utils.register_module(__name__)
+    for module in modules:
+        if hasattr(module, "register"):
+            module.register()
+    print("Registered UMOG with {} modules.".format(len(modules)))
 
 def unregister():
     UMG.unregister()
     bpy.utils.unregister_module(__name__)
+    for module in modules:
+        if hasattr(module, "unregister"):
+            module.unregister()
+    print("Unregistered UMOG.")
