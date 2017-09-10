@@ -1,0 +1,4 @@
+*.py text=auto
+*.pyx text=auto
+
+
