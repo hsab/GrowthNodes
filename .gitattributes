@@ -1,4 +1,5 @@
-*.py text=auto
-*.pyx text=auto
+* text=auto
 
+*.py text
+*.pyx text
 
