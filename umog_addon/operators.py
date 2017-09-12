@@ -92,7 +92,7 @@ class bakeMeshes(bpy.types.Operator):
                 for ln in node.inputs:
                     try:
                         ln = ln.links[0].from_node
-                        if nn2p[ln.name] == -1:
+                        if nn2p[ln.name] != 0:
                             nn2p[ln.name] = nn2p[node.name] +1
                             next_nodes.append(ln)
                     except:
