@@ -713,11 +713,13 @@ class ReactionDiffusionNode(UMOGNode):
         mask = np.array([[0.05, 0.2, 0.05], [0.2, -1, 0.2], [0.05, 0.2, 0.05]])
         Ap = refholder.np2dtextures[self.outputs[0].texture_index]
         A = refholder.np2dtextures[self.inputs[0].links[0].from_socket.texture_index]
-        LA = events.convolve2d(Ap, mask)
+        LA = copy.deepcopy(A)
+        events.convolve2d(Ap, mask, LA)
         
         Bp = refholder.np2dtextures[self.outputs[1].texture_index]
         B = refholder.np2dtextures[self.inputs[1].links[0].from_socket.texture_index]
-        LB = events.convolve2d(Bp, mask)
+        LB = copy.deepcopy(B)
+        events.convolve2d(Bp, mask, LB)
         
         events.ReactionDiffusion2d(A,Ap, LA, B, Bp, LB, mask, self.Da, self.Db, self.feed, self.kill, self.dt)
         
@@ -726,6 +728,35 @@ class ReactionDiffusionNode(UMOGNode):
     def preExecute(self, refholder):
         self.outputs[0].texture_index = refholder.createRefForTexture2d()
         self.outputs[1].texture_index = refholder.createRefForTexture2d()
+        
+class ConvolveNode(UMOGNode):
+    bl_idname = "umog_ConvolveNode"
+    bl_label = "Convolve Node"
+
+    def init(self, context):
+        self.outputs.new("TextureSocketType", "out")
+        self.inputs.new("TextureSocketType", "in")
+        super().init(context)
+
+    def draw_buttons(self, context, layout):
+        pass
+        
+    def update(self):
+        pass
+    
+    def execute(self, refholder):
+        #compute A'
+        print("convolve node")
+        mask = np.array([[0.05, 0.2, 0.05], [0.2, -1, 0.2], [0.05, 0.2, 0.05]])
+        A = refholder.np2dtextures[self.inputs[0].links[0].from_socket.texture_index]
+        Ap = refholder.np2dtextures[self.outputs[0].texture_index]
+        events.convolve2d(A, mask, Ap)
+        
+        print(" convolve min, max " + str(np.amin(Ap)) + "," + str(np.amax(Ap)))
+
+        
+    def preExecute(self, refholder):
+        self.outputs[0].texture_index = refholder.createRefForTexture2d()
 
 class Mat3Node(UMOGNode):
     bl_idname = "umog_Mat3Node"

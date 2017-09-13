@@ -2,12 +2,11 @@ import copy
 import numpy as np
 from cython.parallel import prange
 
-#convolves the image and returns the result
+#convolves the image and loads the result in output
 #mask must be square
-def convolve2d(double[:,:,:] array, double[:,:] mask):
+def convolve2d(double[:,:,:] array, double[:,:] mask, double [:,:,:] output):
     adim = array.shape
     #print(str(array.shape))
-    cdef double[:,:,:] result = np.zeros(shape=[adim[0], adim[1], adim[2]])
     #ignore the edges of the image
     cdef int edge_offset = mask.shape[0] // 2
     
@@ -24,9 +23,8 @@ def convolve2d(double[:,:,:] array, double[:,:] mask):
             for k in range(zlim):
                 for ii in range(mx):
                     for jj in range(my):
-                        result[i][j][k] += array[i + ii - edge_offset][j + jj - edge_offset][k]
+                        output[i][j][k] += array[i + ii - edge_offset][j + jj - edge_offset][k]*mask[ii][jj]
                 
-    return result
 
 
 def ReactionDiffusion2d(double [:,:,:] A,double [:,:,:] Ap,double [:,:,:] LA,
