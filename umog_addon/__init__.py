@@ -56,7 +56,8 @@ menus = {
             ("umog_GetTextureNode", "Get Texture"),
             ("umog_SetTextureNode", "Set Texture"),
             ("umog_SaveTextureNode", "Save Texture"),
-            ("umog_TextureAlternatorNode", "Texture Alternator")
+            ("umog_TextureAlternatorNode", "Texture Alternator"),
+            ("umog_ConvolveNode", "Convolve")
         ]
     },
     "object_menu": {
