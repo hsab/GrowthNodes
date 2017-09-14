@@ -42,5 +42,5 @@ def ReactionDiffusion2d(double [:,:,:] A,double [:,:,:] Ap,double [:,:,:] LA,
     for i in prange(xlim, nogil=True):
         for j in range(ylim):
             for k in range(zlim):
-                Ap[i][j][k] = A[i][j][k] + (Da*LA[i][j][k] - (A[i][j][k]*B[i][j][k]*B[i][j][k]) + feed*(1.0 - A[i][j][k]))* dt
-                Bp[i][j][k] = B[i][j][k] + (Db * LB[i][j][k] + (A[i][j][k]*B[i][j][k]*B[i][j][k]) -(kill + feed)* B[i][j][k])*dt
+                Ap[i][j][k] = max(A[i][j][k] + (Da*LA[i][j][k] - (A[i][j][k]*B[i][j][k]*B[i][j][k]) + feed*(1.0 - A[i][j][k]))* dt,0)
+                Bp[i][j][k] = max(B[i][j][k] + (Db * LB[i][j][k] + (A[i][j][k]*B[i][j][k]*B[i][j][k]) -(kill + feed)* B[i][j][k])*dt,0)
