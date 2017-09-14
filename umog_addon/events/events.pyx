@@ -10,20 +10,21 @@ def convolve2d(double[:,:,:] array, double[:,:] mask, double [:,:,:] output):
     #ignore the edges of the image
     cdef int edge_offset = mask.shape[0] // 2
     
-    cdef int xlim = adim[0]-edge_offset
-    cdef int ylim = adim[1]-edge_offset
-    cdef int zlim = adim[2]
+    cdef int xlim = adim[0]
+    cdef int ylim = adim[1]
+    cdef int zlim = adim[2] -1
     
     cdef int mx = mask.shape[0]
     cdef int my = mask.shape[1]
     
     cdef int i,j,k,ii,jj
-    for i in prange(edge_offset, xlim, nogil=True):
-        for j in range(edge_offset, ylim):
+    for i in prange(xlim, nogil=True):
+        for j in range(ylim):
             for k in range(zlim):
                 for ii in range(mx):
                     for jj in range(my):
-                        output[i][j][k] += array[i + ii - edge_offset][j + jj - edge_offset][k]*mask[ii][jj]
+                        output[i][j][k] += array[(i + ii - edge_offset) % xlim][(j + jj - edge_offset)% ylim][k]*mask[ii][jj]
+            output[i][j][zlim] = 1.0
                 
 
 
