@@ -11,7 +11,7 @@ class HelloWorldPanel(bpy.types.Panel):
 
     def draw(self, context):
         self.layout.operator("umog.bake_meshes", icon='RENDER_RESULT', text="Bake Mesh(es)")
-        self.layout.operator("umog.add_keyframe_sample", icon='RENDER_ANIMATION', text="Render Animation")
+        self.layout.operator("umog.render_animation", icon='RENDER_ANIMATION', text="Render Animation")
         self.layout.prop(bpy.context.scene, 'StartFrame')
         self.layout.prop(bpy.context.scene, 'EndFrame')
         self.layout.prop(bpy.context.scene, 'SubFrames')
