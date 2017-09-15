@@ -1,28 +1,5 @@
 import bpy
-import sys
-from bpy.types import NodeTree, Node, NodeSocket
-import mathutils
-
-# begining of code for debugging
-# https://wiki.blender.org/index.php/Dev:Doc/Tools/Debugging/Python_Eclipse
-# make this match your current installation
-# try:
-#     PYDEV_SOURCE_DIR = "/usr/lib/eclipse/dropins/pydev/plugins/org.python.pydev_5.8.0.201706061859/pysrc"
-#     import sys
-#     if PYDEV_SOURCE_DIR not in sys.path:
-#         sys.path.append(PYDEV_SOURCE_DIR)
-#     import pydevd
-#     print("debugging enabled")
-# except:
-#     print("no debugging enabled")
-# end code for debugging
-
-# will create a breakpoint
-# pydevd.settrace()
-
-# the lcoation of this may need changed depending on which file you want to debug
-from . import properties, panel, sockets, nodes, operators
-
+from bpy.types import NodeTree
 
 class UMOGNodeTree(NodeTree):
     bl_idname = "umog_UMOGNodeTree"
@@ -120,7 +97,6 @@ menus = OrderedDict([
     })
 ])
 
-
 def UMOGCreateMenus():
     for key, value in menus.items():
         if value is not "separator":
@@ -147,7 +123,6 @@ def UMOGCreateMenus():
 
 UMOGCreateMenus()
 
-
 def drawMenu(self, context):
     if context.space_data.tree_type != "umog_UMOGNodeTree": return
 
@@ -160,8 +135,6 @@ def drawMenu(self, context):
         else:
             layout.separator()
 
-
-# from animation nodes
 def insertNode(layout, type, text, settings={}, icon="NONE"):
     operator = layout.operator("node.add_node", text=text, icon=icon)
     operator.type = type
@@ -175,7 +148,6 @@ def insertNode(layout, type, text, settings={}, icon="NONE"):
 
 def register():
     bpy.types.NODE_MT_add.append(drawMenu)
-
 
 def unregister():
     bpy.types.NODE_MT_add.remove(drawMenu)
