@@ -11,6 +11,8 @@ class Mat3Node(bpy.types.Node, UMOGNode):
     def init(self, context):
         self.outputs.new("Mat3SocketType", "Output")
         self.inputs.new("Mat3SocketType", "Input")
+        self.newInput("Float", "Alpha", "alpha", value = 1.0)
+        self.newOutput("Float", "Test", "text")
         super().init(context)
 
     def draw_buttons(self, context, layout):

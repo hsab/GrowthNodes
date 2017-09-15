@@ -1,13 +1,16 @@
 import bpy
-from bpy.types import NodeSocket
+from .. base_types import UMOGSocket
 
-class TextureSocket(NodeSocket):
+class TextureSocket(bpy.types.NodeSocket, UMOGSocket):
     # Description string
     '''Custom Texture socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.
     bl_idname = 'TextureSocketType'
     # Label for nice name display
     bl_label = 'Texture Socket'
+    dataType = "Texture"
+    allowedInputTypes = ["Texture"]
+
 
     objectName = bpy.props.StringProperty()
 
