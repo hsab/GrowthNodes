@@ -1,6 +1,6 @@
 import bpy
 import sys
-from bpy.types import NodeTree, Node, NodeSocket
+from bpy.types import Node, NodeSocket
 import mathutils
 
 # begining of code for debugging
@@ -20,18 +20,8 @@ import mathutils
 # will create a breakpoint
 # pydevd.settrace()
 
-# the lcoation of this may need changed depending on which file you want to debug
-from . import properties, panel, sockets, nodes, operators
-
-
-class UMOGNodeTree(NodeTree):
-    bl_idname = "umog_UMOGNodeTree"
-    bl_label = "UMOG"
-    bl_icon = "SCULPTMODE_HLT"
-
-    def execute(self, refholder):
-        print('Executing node tree')
-
+# the location of this may need changed depending on which file you want to debug
+from . import properties, panel, sockets, node_tree, nodes, operators
 
 menus = {
     "mesh_menu": {
