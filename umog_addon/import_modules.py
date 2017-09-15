@@ -7,8 +7,13 @@ def importAllSubmodules(path, packageName, addonDirecotry):
     modules = []
     path = join(path, addonDirecotry)
     for name in sorted(iterSubModuleNames(path)):
-        module = importlib.import_module("." + addonDirecotry + "." + name, packageName)
-        modules.append(module)
+        try:
+            module = importlib.import_module("." + addonDirecotry + "." + name, packageName)
+            modules.append(module)
+        except:
+            print("FAILED TO LOAD\t" + "." + addonDirecotry + "." + name, packageName)
+            raise
+
     return modules
 
 def iterSubModuleNames(path, root = ""):
