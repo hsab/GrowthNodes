@@ -1,9 +1,7 @@
 import bpy
 
-################################
-# START: PANEL
-class HelloWorldPanel(bpy.types.Panel):
-    bl_idname = "panel.panel3"
+class UMOGNodeEditorPanel(bpy.types.Panel):
+    bl_idname = "umog_NodePanel"
     bl_label = "UMOG"
     bl_space_type = "NODE_EDITOR"
     bl_region_type = "TOOLS"
@@ -17,5 +15,3 @@ class HelloWorldPanel(bpy.types.Panel):
         self.layout.prop(bpy.context.scene, 'SubFrames')
         self.layout.prop(bpy.context.scene, 'TextureResolution')
 
-# END: PANEL
-################################
