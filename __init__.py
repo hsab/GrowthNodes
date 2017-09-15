@@ -34,12 +34,12 @@ if counter > 1:
         "Please uninstall/remove all older versions of the addon\n")
     raise Exception(message)
 
-from .umog_addon import import_modules
-
+try: from .umog_addon import import_modules
+except: pass
 
 if "import_modules" not in globals():
     message = ("\n\n"
-        "UMOG cannot be registered correctly.\n"
+        "The Animation Nodes addon cannot be registered correctly.\n"
         "Please try to remove and install it again.\n"
         "If it still does not work, report it.\n")
     raise Exception(message)
@@ -123,6 +123,9 @@ modules = import_modules.importAllSubmodules(__path__[0], __package__,addonDirec
 
 if "bpy" in locals():
     print("UMOG can't be reloaded.")
+
+from . umog_addon.sockets.info import updateSocketInfo
+updateSocketInfo()
 
 import bpy
 from . import umog_addon as UMG

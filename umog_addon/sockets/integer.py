@@ -1,13 +1,15 @@
 import bpy
-from bpy.types import NodeSocket
+from .. base_types import UMOGSocket
 
-class IntegerSocket(NodeSocket):
+class IntegerSocket(bpy.types.NodeSocket, UMOGSocket):
     # Description string
     '''Custom Integer socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.
     bl_idname = 'IntegerSocketType'
     # Label for nice name display
     bl_label = 'Integer Socket'
+    dataType = "Integer"
+    allowedInputTypes = ["Integer"]
 
     objectName = bpy.props.StringProperty()
 

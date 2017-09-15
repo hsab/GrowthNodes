@@ -1,13 +1,15 @@
 import bpy
-from bpy.types import NodeSocket
+from .. base_types import UMOGSocket
 
-class FloatSocket(NodeSocket):
+class FloatSocket(bpy.types.NodeSocket, UMOGSocket):
     # Description string
     '''Custom Integer socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.
     bl_idname = 'FloatSocketType'
     # Label for nice name display
     bl_label = 'Float Socket'
+    dataType = "Float"
+    allowedInputTypes = ["Float"]
 
     objectName = bpy.props.StringProperty()
 
