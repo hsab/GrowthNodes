@@ -75,9 +75,9 @@ class bakeMeshes(bpy.types.Operator):
 
         return {"FINISHED"}
 
-class addKeyframeSample(bpy.types.Operator):
-    bl_idname = 'umog.add_keyframe_sample'
-    bl_label = 'Add Keyframe'
+class renderAnimation(bpy.types.Operator):
+    bl_idname = 'umog.render_animation'
+    bl_label = 'Render Animation'
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
