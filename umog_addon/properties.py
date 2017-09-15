@@ -1,8 +1,5 @@
 import bpy
 
-###############################
-#START: PROPERTIES
-
 bpy.types.Scene.StartFrame = bpy.props.IntProperty(
     name = "StartFrame", 
     description = "StartFrame",
@@ -26,6 +23,3 @@ bpy.types.Scene.TextureResolution = bpy.props.IntProperty(
     description = "TextureResolution",
     default = 256,
     min = 64)
-
-#END: PROPERTIES
-################################
