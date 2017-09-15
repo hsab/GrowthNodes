@@ -1,7 +1,7 @@
 from ... base_types import UMOGOutputNode
 import bpy
 
-class DisplaceNode(UMOGOutputNode):
+class DisplaceNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_DisplaceNode"
     bl_label = "Displace Node"
 

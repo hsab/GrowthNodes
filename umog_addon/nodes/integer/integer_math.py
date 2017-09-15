@@ -1,7 +1,7 @@
 from ... base_types import UMOGNode
 import bpy
 
-class IntegerMathNode(UMOGNode):
+class IntegerMathNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_IntegerMathNode"
     bl_label = "UMOG Integer Math"
 

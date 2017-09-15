@@ -6,7 +6,7 @@ import pyximport
 pyximport.install()
 from ...events import events
 
-class ReactionDiffusionNode(UMOGNode):
+class ReactionDiffusionNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_ReactionDiffusionNode"
     bl_label = "Reaction Diffusion Node"
 
