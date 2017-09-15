@@ -1,6 +1,7 @@
+import bpy
 from ... base_types import UMOGNode
 
-class IntegerFrameNode(UMOGNode):
+class IntegerFrameNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_IntegerFrameNode"
     bl_label = "UMOG Integer Frame"
 

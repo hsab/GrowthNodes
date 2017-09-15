@@ -1,12 +1,6 @@
 import bpy
 
-class UMOGNode(bpy.types.Node):
-    bl_width_min = 10
-    bl_width_max = 5000
-
-    _IsUMOGNode = True
-
-    bl_label = "UMOGNode"
+class UMOGNode:
 
     @classmethod
     def poll(cls, nodeTree):

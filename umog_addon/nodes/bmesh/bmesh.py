@@ -2,7 +2,7 @@ from ... base_types import UMOGOutputNode
 import bpy
 import bmesh
 
-class BMeshNode(UMOGOutputNode):
+class BMeshNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_BMeshNode"
     bl_label = "BMesh Node"
 

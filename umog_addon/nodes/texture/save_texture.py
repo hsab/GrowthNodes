@@ -2,7 +2,7 @@ from ... base_types import UMOGOutputNode
 import bpy
 
 
-class SaveTextureNode(UMOGOutputNode):
+class SaveTextureNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SaveTextureNode"
     bl_label = "Save Texture Node"
 
