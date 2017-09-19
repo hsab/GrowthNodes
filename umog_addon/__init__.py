@@ -24,14 +24,14 @@ menus = OrderedDict([
         ]
     }),
     (" ", "separator"),
-    ("object_menu", {
-        "bl_idname": "umog_object_menu",
-        "bl_label": "Object Menu",
-        "text": "Object",
+    ("develop_menu", {
+        "bl_idname": "umog_develop_menu",
+        "bl_label": "Develop Menu",
+        "text": "Develop",
         "bl_description": "Lorem Ipsum",
-        "icon": "OUTLINER_OB_GROUP_INSTANCE",
+        "icon": "RECOVER_AUTO",
         "nodes": [
-            ("", "")
+            ("umog_MotherNode", "Mother Node")
         ]
     }),
     ("bmesh_menu", {
