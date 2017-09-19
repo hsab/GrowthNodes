@@ -4,20 +4,20 @@ from collections import defaultdict
 from ... utils.recursion import noRecursion
 
 class SocketTextProperties(bpy.types.PropertyGroup):
-    bl_idname = "an_SocketTextProperties"
+    bl_idname = "umog_SocketTextProperties"
     unique = BoolProperty(default = False)
     editable = BoolProperty(default = False)
     variable = BoolProperty(default = False)
 
 class SocketDisplayProperties(bpy.types.PropertyGroup):
-    bl_idname = "an_SocketDisplayProperties"
+    bl_idname = "umog_SocketDisplayProperties"
     text = BoolProperty(default = False)
     textInput = BoolProperty(default = False)
     moveOperators = BoolProperty(default = False)
     removeOperator = BoolProperty(default = False)
 
 class SocketExecutionProperties(bpy.types.PropertyGroup):
-    bl_idname = "an_SocketExecutionProperties"
+    bl_idname = "umog_SocketExecutionProperties"
     neededCopies = IntProperty(default = 0, min = 0)
 
 alternativeIdentifiersPerSocket = defaultdict(list)
@@ -294,18 +294,18 @@ def isTextUsed(node, name):
     # Register
 ##################################
 
-def getSocketVisibility(socket):
-    return not socket.hide
+# def getSocketVisibility(socket):
+#     return not socket.hide
 
-def setSocketVisibility(socket, value):
-    socket.hide = not value
+# def setSocketVisibility(socket, value):
+#     socket.hide = not value
 
-def toID(socket):
-    node = socket.node
-    return ((node.id_data.name, node.name), socket.is_output, socket.identifier)
+# def toID(socket):
+#     node = socket.node
+#     return ((node.id_data.name, node.name), socket.is_output, socket.identifier)
 
-def getNodeTree(socket):
-    return socket.node.id_data
+# def getNodeTree(socket):
+#     return socket.node.id_data
 
 def getSocketIndex(socket, node = None):
     if node is None: node = socket.node
@@ -313,21 +313,21 @@ def getSocketIndex(socket, node = None):
         return list(node.outputs).index(socket)
     return list(node.inputs).index(socket)
 
-def isAnimationNodeSocket(socket):
-    return getattr(socket, "_isAnimationNodeSocket", False)
+def isUMOGNodeSocket(socket):
+    return getattr(socket, "_isUMOGNodeSocket", False)
 
 def register():
-    bpy.types.NodeSocket.toID = toID
+    # bpy.types.NodeSocket.toID = toID
     bpy.types.NodeSocket.getIndex = getSocketIndex
-    bpy.types.NodeSocket.getNodeTree = getNodeTree
+    # bpy.types.NodeSocket.getNodeTree = getNodeTree
 
-    bpy.types.NodeSocket.show = BoolProperty(default = True,
-        get = getSocketVisibility, set = setSocketVisibility)
+    # bpy.types.NodeSocket.show = BoolProperty(default = True,
+    #     get = getSocketVisibility, set = setSocketVisibility)
 
-    bpy.types.NodeSocket.isAnimationNodeSocket = BoolProperty(default = False,
-        get = isAnimationNodeSocket)
+    bpy.types.NodeSocket.isUMOGNodeSocket = BoolProperty(default = False,
+        get = isUMOGNodeSocket)
 
 def unregister():
-    del bpy.types.NodeSocket.toID
-    del bpy.types.NodeSocket.show
-    del bpy.types.NodeSocket.isAnimationNodeSocket
+    # del bpy.types.NodeSocket.toID
+    # del bpy.types.NodeSocket.show
+    del bpy.types.NodeSocket.isUMOGNodeSocket

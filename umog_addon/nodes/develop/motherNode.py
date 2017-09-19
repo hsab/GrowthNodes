@@ -1,15 +1,14 @@
 import bpy
 from bpy.props import *
 from ... base_types import UMOGNode
-from ... utils.selection import getSortedSelectedObjectNames
-from ... sockets.info import getListDataTypes, toBaseDataType, toListDataType
+# from ... sockets.info import getListDataTypes, toBaseDataType, toListDataType
 
 
 items = ("Custom", "Location", "Rotation", "Scale", "LocRotScale")
 enumItems = [(item, item, "") for item in items]
 
 class GenericType(bpy.types.PropertyGroup):
-    bl_idname = "an_GenericType"
+    bl_idname = "umog_GenericType"
     # path = StringProperty(default = "test", update = propertyChanged, description = "String Property")
     genTypeStringProp = StringProperty(default = "Location", description = "String Property")
     genTypeIntProp = FloatProperty(default = 0, min = -51, soft_max =5, description = "Float Property")
@@ -18,7 +17,6 @@ class MotherNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_MotherNode"
     bl_label = "Mother Node"
     dynamicLabelType = "ALWAYS"
-    onlySearchTags = True
 
     itemList = CollectionProperty(type = GenericType)
 
@@ -62,37 +60,36 @@ class MotherNode(bpy.types.Node, UMOGNode):
         self.drawTypeSpecifics(layout)
 
 
+    # def drawLabel(self):
+    #     return "Create " + toListDataType(self.assignedType)
 
-    def drawLabel(self):
-        return "Create " + toListDataType(self.assignedType)
-
-    def getInputSocketVariables(self):
-        return {socket.identifier : "float_" + str(i) for i, socket in enumerate(self.inputs)}
+    # def getInputSocketVariables(self):
+    #     return {socket.identifier : "float_" + str(i) for i, socket in enumerate(self.inputs)}
 
 
-    def edit(self):
-        self.updateOutputName()
-        emptySocket = self.inputs["..."]
-        origin = emptySocket.directOrigin
-        if origin is None: return
-        socket = self.newInputSocket()
-        socket.linkWith(origin)
-        emptySocket.removeLinks()
+    # def edit(self):
+    #     self.updateOutputName()
+    #     emptySocket = self.inputs["..."]
+    #     origin = emptySocket.directOrigin
+    #     if origin is None: return
+    #     socket = self.newInputSocket()
+    #     socket.linkWith(origin)
+    #     emptySocket.removeLinks()
 
-    def assignListDataType(self, listDataType):
-        self.assignedType = toBaseDataType(listDataType)
+    # def assignListDataType(self, listDataType):
+    #     self.assignedType = toBaseDataType(listDataType)
 
-    def assignBaseDataType(self, baseDataType, inputAmount = 2):
-        self.assignedType = baseDataType
-        self.recreateSockets(inputAmount)
+    # def assignBaseDataType(self, baseDataType, inputAmount = 2):
+    #     self.assignedType = baseDataType
+    #     self.recreateSockets(inputAmount)
 
-    def recreateSockets(self, inputAmount = 2):
-        self.clearSockets()
+    # def recreateSockets(self, inputAmount = 2):
+    #     self.clearSockets()
 
-        self.newInput("Node Control", "...")
-        for i in range(inputAmount):
-            self.newInputSocket()
-        self.newOutput(toListDataType(self.assignedType), "List", "outList")
+    #     self.newInput("Node Control", "...")
+    #     for i in range(inputAmount):
+    #         self.newInputSocket()
+    #     self.newOutput(toListDataType(self.assignedType), "List", "outList")
 
     def newInputSocket(self):
         socket = self.newInput(self.assignedType, "Object")
@@ -126,48 +123,50 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def drawAdvancedTypeSpecific(self, layout):
         if self.assignedType in ("Object", "Spline"):
-            self.invokeFunction(layout, "createInputsForSelectedObjects", text = "From Selection", icon = "PLUS")
+            pass
+            # self.invokeFunction(layout, "createInputsForSelectedObjects", text = "From Selection", icon = "PLUS")
         if self.assignedType == "Object Group":
-            self.invokeFunction(layout, "createInputsForSelectedObjectGroups", text = "From Selection", icon = "PLUS")
+            pass
+            # self.invokeFunction(layout, "createInputsForSelectedObjectGroups", text = "From Selection", icon = "PLUS")
 
-    def createInputsForSelectedObjects(self):
-        names = getSortedSelectedObjectNames()
-        for name in names:
-            socket = self.newInputSocket()
-            socket.objectName = name
+    # def createInputsForSelectedObjects(self):
+    #     names = getSortedSelectedObjectNames()
+    #     for name in names:
+    #         socket = self.newInputSocket()
+    #         socket.objectName = name
 
-    def createInputsForSelectedObjectGroups(self):
-        groups = self.getGroupsOfObjects(bpy.context.selected_objects)
-        for group in groups:
-            socket = self.newInputSocket()
-            socket.groupName = group.name
+    # def createInputsForSelectedObjectGroups(self):
+    #     groups = self.getGroupsOfObjects(bpy.context.selected_objects)
+    #     for group in groups:
+    #         socket = self.newInputSocket()
+    #         socket.groupName = group.name
 
-    def getGroupsOfObjects(self, objects):
-        groups = set()
-        for object in objects:
-            groups.update(group for group in bpy.data.groups if object.name in group.objects)
-        return list(groups)
+    # def getGroupsOfObjects(self, objects):
+    #     groups = set()
+    #     for object in objects:
+    #         groups.update(group for group in bpy.data.groups if object.name in group.objects)
+    #     return list(groups)
 
 
     def preExecute(self, refholder):
         # consider saving the result from this
         self.outputs[0].integer_value = self.input_value
 
-    def newPath(self, path, index = -1):
+    def addItem(self, path, index = -1):
         item = self.itemList.add()
         item.genTypeStringProp = path
         item.genTypeIntProp = index
 
     def addItemToList(self):
         type = self.selectedEnum
-        if type == "Custom": self.newPath("")
-        elif type == "Location": self.newPath("loc")
-        elif type == "Rotation": self.newPath("rot")
-        elif type == "Scale": self.newPath("scale")
+        if type == "Custom": self.addItem("")
+        elif type == "Location": self.addItem("loc")
+        elif type == "Rotation": self.addItem("rot")
+        elif type == "Scale": self.addItem("scale")
         elif type == "LocRotScale":
-            self.newPath("loc")
-            self.newPath("rot")
-            self.newPath("scale")
+            self.addItem("loc")
+            self.addItem("rot")
+            self.addItem("scale")
 
     def removeItemFromList(self, strIndex):
         self.itemList.remove(int(strIndex))

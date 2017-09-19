@@ -1,6 +1,6 @@
 import bpy
 from collections import defaultdict
-from .. utils.enum_items import enumItemsFromList
+# from .. utils.enum_items import enumItemsFromList
 from .. utils.nodes import iterSubclassesWithAttribute
 
 class SocketInfo:
@@ -73,22 +73,22 @@ class SocketInfo:
         self.copyFunctionByType[idName] = copyFunction
         self.copyFunctionByType[dataType] = copyFunction
 
-    def insertSocketConnection(self, baseDataType, listDataType):
-        baseIdName = self.typeConversion[baseDataType]
-        listIdName = self.typeConversion[listDataType]
+    # def insertSocketConnection(self, baseDataType, listDataType):
+    #     baseIdName = self.typeConversion[baseDataType]
+    #     listIdName = self.typeConversion[listDataType]
 
-        self.baseIdName[listIdName] = baseIdName
-        self.baseIdName[listDataType] = baseIdName
-        self.listIdName[baseIdName] = listIdName
-        self.listIdName[baseDataType] = listIdName
+    #     self.baseIdName[listIdName] = baseIdName
+    #     self.baseIdName[listDataType] = baseIdName
+    #     self.listIdName[baseIdName] = listIdName
+    #     self.listIdName[baseDataType] = listIdName
 
-        self.baseDataType[listIdName] = baseDataType
-        self.baseDataType[listDataType] = baseDataType
-        self.listDataType[baseIdName] = listDataType
-        self.listDataType[baseDataType] = listDataType
+    #     self.baseDataType[listIdName] = baseDataType
+    #     self.baseDataType[listDataType] = baseDataType
+    #     self.listDataType[baseIdName] = listDataType
+    #     self.listDataType[baseDataType] = listDataType
 
-        self.baseDataTypes.add(baseDataType)
-        self.listDataTypes.add(listDataType)
+    #     self.baseDataTypes.add(baseDataType)
+    #     self.listDataTypes.add(listDataType)
 
 
 _socketInfo = SocketInfo()
@@ -111,86 +111,86 @@ def returnOnFailure(returnValue):
     return failHandlingDecorator
 
 # Check if list or base socket exists
-def isList(input):
-    return input in _socketInfo.baseDataType.keys()
+# def isList(input):
+#     return input in _socketInfo.baseDataType.keys()
 
-def isBase(input):
-    return input in _socketInfo.listDataType.keys()
+# def isBase(input):
+#     return input in _socketInfo.listDataType.keys()
 
-# to Base
-@returnOnFailure(None)
-def toBaseIdName(input):
-    return _socketInfo.baseIdName[input]
+# # to Base
+# @returnOnFailure(None)
+# def toBaseIdName(input):
+#     return _socketInfo.baseIdName[input]
 
-@returnOnFailure(None)
-def toBaseDataType(input):
-    return _socketInfo.baseDataType[input]
+# @returnOnFailure(None)
+# def toBaseDataType(input):
+#     return _socketInfo.baseDataType[input]
 
-# to List
-@returnOnFailure(None)
-def toListIdName(input):
-    return _socketInfo.listIdName[input]
+# # to List
+# @returnOnFailure(None)
+# def toListIdName(input):
+#     return _socketInfo.listIdName[input]
 
-@returnOnFailure(None)
-def toListDataType(input):
-    return _socketInfo.listDataType[input]
+# @returnOnFailure(None)
+# def toListDataType(input):
+#     return _socketInfo.listDataType[input]
 
 # Data Type <-> Id Name
-@returnOnFailure(None)
+# @returnOnFailure(None)
 def toIdName(input):
     if isIdName(input): return input
     return _socketInfo.typeConversion[input]
 
-@returnOnFailure(None)
-def toDataType(input):
-    if isIdName(input):
-        return _socketInfo.typeConversion[input]
-    return input
+# @returnOnFailure(None)
+# def toDataType(input):
+#     if isIdName(input):
+#         return _socketInfo.typeConversion[input]
+#     return input
 
 def isIdName(name):
     return name in _socketInfo.idNames
 
 
-def isComparable(input):
-    return _socketInfo.classByType[input].comparable
+# def isComparable(input):
+#     return _socketInfo.classByType[input].comparable
 
-def isCopyable(input):
-    return _socketInfo.classByType[input].isCopyable()
+# def isCopyable(input):
+#     return _socketInfo.classByType[input].isCopyable()
 
-def getCopyExpression(input):
-    return _socketInfo.classByType[input].getCopyExpression()
+# def getCopyExpression(input):
+#     return _socketInfo.classByType[input].getCopyExpression()
 
-def getCopyFunction(input):
-    return _socketInfo.copyFunctionByType[input]
+# def getCopyFunction(input):
+#     return _socketInfo.copyFunctionByType[input]
 
-def getAllowedInputDataTypes(input):
-    return _socketInfo.allowedInputDataTypes[input]
+# def getAllowedInputDataTypes(input):
+#     return _socketInfo.allowedInputDataTypes[input]
 
-def getAllowedTargetDataTypes(input):
-    return _socketInfo.allowedTargetDataTypes[input]
+# def getAllowedTargetDataTypes(input):
+#     return _socketInfo.allowedTargetDataTypes[input]
 
-def getSocketClass(input):
-    return _socketInfo.classByType[input]
+# def getSocketClass(input):
+#     return _socketInfo.classByType[input]
 
 
-def getListDataTypeItems():
-    return enumItemsFromList(getListDataTypes())
+# def getListDataTypeItems():
+#     return enumItemsFromList(getListDataTypes())
 
-def getBaseDataTypeItems():
-    return enumItemsFromList(getBaseDataTypes())
+# def getBaseDataTypeItems():
+#     return enumItemsFromList(getBaseDataTypes())
 
-def getDataTypeItems(skipInternalTypes = False):
-    return enumItemsFromList(getDataTypes(skipInternalTypes))
+# def getDataTypeItems(skipInternalTypes = False):
+#     return enumItemsFromList(getDataTypes(skipInternalTypes))
 
-def getListDataTypes():
-    return list(_socketInfo.listDataTypes)
+# def getListDataTypes():
+#     return list(_socketInfo.listDataTypes)
 
-def getBaseDataTypes():
-    return list(_socketInfo.baseDataTypes)
+# def getBaseDataTypes():
+#     return list(_socketInfo.baseDataTypes)
 
-def getDataTypes(skipInternalTypes = False):
-    internalTypes = {"Node Control"}
-    if skipInternalTypes:
-        return [dataType for dataType in _socketInfo.dataTypes if dataType not in internalTypes]
-    else:
-        return list(_socketInfo.dataTypes)
+# def getDataTypes(skipInternalTypes = False):
+#     internalTypes = {"Node Control"}
+#     if skipInternalTypes:
+#         return [dataType for dataType in _socketInfo.dataTypes if dataType not in internalTypes]
+#     else:
+#         return list(_socketInfo.dataTypes)

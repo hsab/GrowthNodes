@@ -1,9 +1,9 @@
-from . hashing import strToEnumItemID
+# from . hashing import strToEnumItemID
 
-def enumItemsFromList(itemData):
-    items = []
-    for element in itemData:
-        items.append((element, element, "", "NONE", strToEnumItemID(element)))
-    if len(items) == 0:
-        items = [("NONE", "NONE", "")]
-    return items
+# def enumItemsFromList(itemData):
+#     items = []
+#     for element in itemData:
+#         items.append((element, element, "", "NONE", strToEnumItemID(element)))
+#     if len(items) == 0:
+#         items = [("NONE", "NONE", "")]
+#     return items
