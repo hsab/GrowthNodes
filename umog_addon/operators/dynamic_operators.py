@@ -26,7 +26,7 @@ def createMissingOperators(scene):
 
 def createOperatorWithDescription(description):
     operatorID = str(len(operatorsByDescription))
-    idName = "an.invoke_function_" + operatorID
+    idName = "umog.invoke_function_" + operatorID
 
     operator = type("InvokeFunction_" + operatorID, (bpy.types.Operator, ), {
         "bl_idname" : idName,

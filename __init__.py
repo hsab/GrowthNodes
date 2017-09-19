@@ -39,7 +39,7 @@ except: pass
 
 if "import_modules" not in globals():
     message = ("\n\n"
-        "The Animation Nodes addon cannot be registered correctly.\n"
+        "The UMOG Nodes addon cannot be registered correctly.\n"
         "Please try to remove and install it again.\n"
         "If it still does not work, report it.\n")
     raise Exception(message)
