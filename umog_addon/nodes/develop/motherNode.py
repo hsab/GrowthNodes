@@ -156,6 +156,8 @@ class MotherNode(bpy.types.Node, UMOGNode):
         item = self.itemList.add()
         item.genTypeStringProp = path
         item.genTypeIntProp = index
+        self.debugFunc()
+
 
     def addItemToList(self):
         type = self.selectedEnum
