@@ -1,5 +1,6 @@
 from .. nodetree import UMOGReferenceHolder
 import bpy
+import time
 
 
 class bakeMeshes(bpy.types.Operator):
@@ -45,7 +46,9 @@ class bakeMeshes(bpy.types.Operator):
                 nn2e[node.name] = False
 
         refholder = UMOGReferenceHolder()
-
+        
+        start_time = time.time()
+        
         for node in sorted_nodes:
             if nn2e[node.name]:
                 node.preExecute(refholder)
@@ -61,4 +64,8 @@ class bakeMeshes(bpy.types.Operator):
         for node in sorted_nodes:
             if nn2e[node.name]:
                 node.postBake(refholder)
+                
+        diff_time = time.time() - start_time
+        print("the bake took " + str(diff_time))
+        
         return {"FINISHED"}
