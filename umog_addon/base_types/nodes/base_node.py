@@ -5,8 +5,6 @@ import random
 from ... sockets.info import toIdName as toSocketIdName
 from ... operators.callbacks import newNodeCallback
 from ... operators.dynamic_operators import getInvokeFunctionOperator
-# from ... utils.nodes import  iterUMOGNodes
-# from ... utils.nodes import getAnimationNodeTrees, iterUMOGNodes
 
 class UMOGNode:
     bl_width_min = 40
@@ -54,30 +52,6 @@ class UMOGNode:
         self.width_hidden = 100
         self.identifier = createIdentifier()
         self.setup()
-        # if self.isRefreshable:
-        #     self.refresh() 
-    
-    # Update and Refresh
-    ####################################################
-
-    # def refresh(self, context = None):
-    #     if not self.isRefreshable:
-    #         raise Exception("node is not refreshable")
-
-    #     self._refresh()
-
-
-    # def _refresh(self):
-    #     self._clear()
-    #     self._create()
-
-    # def _clear(self):
-    #     pass
-
-    # def _create(self):
-    #     self.preCreate()
-    #     self.create()
-    #     self.postCreate()
 
     def newCallback(self, functionName):
         return newNodeCallback(self, functionName)
@@ -128,29 +102,19 @@ class UMOGNode:
     def nodeTree(self):
         return self.id_data
 
-    # @property
-    # def activeInputSocket(self):
-    #     if len(self.inputs) == 0: return None
-    #     return self.inputs[self.activeInputIndex]
+    @property
+    def activeInputSocket(self):
+        if len(self.inputs) == 0: return None
+        return self.inputs[self.activeInputIndex]
 
-    # @property
-    # def activeOutputSocket(self):
-    #     if len(self.outputs) == 0: return None
-    #     return self.outputs[self.activeOutputIndex]
+    @property
+    def activeOutputSocket(self):
+        if len(self.outputs) == 0: return None
+        return self.outputs[self.activeOutputIndex]
 
     @property
     def sockets(self):
         return list(self.inputs) + list(self.outputs)
-
-    # @property
-    # def isRefreshable(self):
-    #     return hasattr(self, "create")
-
-    # def getInputSocketVariables(self):
-    #     return {socket.identifier : socket.identifier for socket in self.inputs}
-
-    # def getOutputSocketVariables(self):
-    #     return {socket.identifier : socket.identifier for socket in self.outputs}
 
     def debugFunc(self):
         debugTrace()
@@ -188,6 +152,7 @@ class UMOGNode:
     def invokeFunction(self, layout, functionName, text = "", icon = "NONE",
                        description = "", emboss = True, confirm = False,
                        data = None, passEvent = False):
+        self.debugFunc()
         idName = getInvokeFunctionOperator(description)
         props = layout.operator(idName, text = text, icon = icon, emboss = emboss)
         props.callback = self.newCallback(functionName)
@@ -195,26 +160,6 @@ class UMOGNode:
         props.confirm = confirm
         props.data = str(data)
         props.passEvent = passEvent
-
-    # def invokeSelector(self, layout, selectorType, functionName,
-    #                    text = "", icon = "NONE", description = "", emboss = True, **kwargs):
-    #     data, executionName = self._getInvokeSelectorData(selectorType, functionName, kwargs)
-    #     self.invokeFunction(layout, executionName,
-    #         text = text, icon = icon, description = description,
-    #         emboss = emboss, data = data)
-
-    # def _getInvokeSelectorData(self, selector, function, kwargs):
-    #     if selector == "DATA_TYPE":
-    #         dataTypes = kwargs.get("dataTypes", "ALL")
-    #         return function + "," + dataTypes, "_selector_DATA_TYPE"
-    #     elif selector == "PATH":
-    #         return function, "_selector_PATH"
-    #     elif selector == "ID_KEY":
-    #         return function, "_selector_ID_KEY"
-    #     elif selector == "AREA":
-    #         return function, "_selector_AREA"
-    #     else:
-    #         raise Exception("invalid selector type")
 
 def createIdentifier():
     identifierLength = 15
