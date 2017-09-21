@@ -82,7 +82,9 @@ menus = OrderedDict([
             ("umog_GetTextureNode", "Get Texture"),
             ("umog_SetTextureNode", "Set Texture"),
             ("umog_SaveTextureNode", "Save Texture"),
+            ("umog_LoadTextureNode", "Load Texture(s)"),
             ("umog_TextureAlternatorNode", "Texture Alternator")
+            
         ]
     })
 ])

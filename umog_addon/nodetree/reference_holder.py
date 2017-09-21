@@ -8,6 +8,10 @@ class UMOGReferenceHolder:
         self.ntindex = 0
         self.tdict = {}
         self.np2dtextures = {}
+        #maps the node name to a dict of node defined objects
+        #store temporary objects here
+        self.execution_scratch = {}
+        
 
     def getRefForTexture2d(self, name):
         if name in self.tdict:
