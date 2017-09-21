@@ -1,4 +1,4 @@
-from ... base_types import UMOGNode
+from ..umog_node import UMOGNode
 import numpy as np
 import pyximport
 pyximport.install()
