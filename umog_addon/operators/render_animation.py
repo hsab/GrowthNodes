@@ -1,4 +1,4 @@
-from .. nodetree import UMOGReferenceHolder
+from ..node_tree import UMOGReferenceHolder
 import bpy
 
 class renderAnimation(bpy.types.Operator):

@@ -1,4 +1,4 @@
-from ... base_types import UMOGNode
+from ..umog_node import UMOGNode
 
 class IntegerSubframeNode(UMOGNode):
     bl_idname = "umog_IntegerSubframeNode"
