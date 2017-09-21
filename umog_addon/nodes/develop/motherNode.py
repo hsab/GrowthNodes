@@ -153,13 +153,14 @@ class MotherNode(bpy.types.Node, UMOGNode):
         self.outputs[0].integer_value = self.input_value
 
     def addItem(self, path, index = -1):
+        self.debugFunc()
         item = self.itemList.add()
         item.genTypeStringProp = path
         item.genTypeIntProp = index
-        self.debugFunc()
 
 
     def addItemToList(self):
+        self.debugFunc()
         type = self.selectedEnum
         if type == "Custom": self.addItem("")
         elif type == "Location": self.addItem("loc")
@@ -171,4 +172,5 @@ class MotherNode(bpy.types.Node, UMOGNode):
             self.addItem("scale")
 
     def removeItemFromList(self, strIndex):
+        self.debugFunc()
         self.itemList.remove(int(strIndex))

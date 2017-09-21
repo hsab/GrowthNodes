@@ -1,4 +1,5 @@
 import bpy
+from .. utils.debug import *
 # from .. utils.names import getRandomString
 # from .. utils.nodes import idToNode, idToSocket
 
@@ -10,10 +11,12 @@ callbackByIdentifier = {}
 #     return identifier
 
 def insertCallback(identifier, function):
+    debugTrace()
     callbackByIdentifier[identifier] = function
     return identifier
 
 def newParameterizedCallback(identifier, *parameters):
+    debugTrace()
     return "#" + repr((identifier, parameters))
 
 # def executeCallback(identifier, *args, **kwargs):
@@ -48,6 +51,7 @@ def newParameterizedCallback(identifier, *parameters):
 #     getattr(socket, functionName)(*args, **kwargs)
 
 def newNodeCallback(node, functionName):
+    debugTrace()
     return newParameterizedCallback("executeNodeCallback", node.toID(), functionName)
 
 # def newSocketCallback(socket, node, functionName):
