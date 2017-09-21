@@ -46,6 +46,11 @@ class UMOGReferenceHolder:
         # image.file_format = 'PNG'
         # image.save()
 
+    #writes the pixels of the image to the numpy array of the handle
+    def imageToHandle(self, image, handle):
+        self.np2dtextures[handle] = np.reshape(np.array(pixels[:]), 
+            (bpy.context.scene.TextureResolution, bpy.context.scene.TextureResolution, 4))
+
     def fillTexture(self, index, name):
         tr = bpy.context.scene.TextureResolution
         trh = tr / 2
