@@ -8,11 +8,14 @@ class renderAnimation(bpy.types.Operator):
 
     def execute(self, context):
         obj = context.object
+        node_tree = context.space_data.edit_tree
 
-        for frame in range(context.scene.StartFrame, context.scene.EndFrame + 1):
-            print(frame)
-            bpy.context.space_data.edit_tree.execute(UMOGReferenceHolder())
-            obj.location[2] += 1.0
-            obj.keyframe_insert(data_path="location", frame=frame, index=2)
+        refholder = UMOGReferenceHolder()
+
+        node_tree.execute(refholder, context.scene.StartFrame, context.scene.EndFrame, context.scene.SubFrames, write_keyframes=True)
+
+        # print(frame)
+        # obj.location[2] += 1.0
+        # obj.keyframe_insert(data_path="location", frame=frame, index=2)
 
         return {'FINISHED'}
