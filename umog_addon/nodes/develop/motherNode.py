@@ -1,6 +1,7 @@
 import bpy
 from bpy.props import *
 from ... base_types import UMOGNode
+from ... utils.debug import *
 # from ... sockets.info import getListDataTypes, toBaseDataType, toListDataType
 
 
@@ -37,7 +38,9 @@ class MotherNode(bpy.types.Node, UMOGNode):
     def draw(self, layout):
         row = layout.row(align = True)
         row.prop(self, "selectedEnum", text = "")
-        self.invokeFunction(row, "addItemToList", icon = "PLUS")
+        self.invokeFunction(row, "addItemToList",
+            description = "Add item to list",
+            icon = "PLUS")
 
         col = layout.column(align = True)
         for i, item in enumerate(self.itemList):
@@ -45,17 +48,44 @@ class MotherNode(bpy.types.Node, UMOGNode):
             split = row.split(align = True, percentage = 0.5)
             split.prop(item, "genTypeStringProp", text = "")
             split.prop(item, "genTypeIntProp", text = "")
-            self.invokeFunction(row, "removeItemFromList", icon = "X", data = str(i))
+            self.invokeFunction(row, "removeItemFromList",
+                description = "Remove item from list",
+                icon = "X", 
+                data = str(i))
 
         row = layout.row(align = True)
-        self.invokeFunction(row, "newInputSocket",
-            text = "New Input",
-            description = "Create a new input socket",
-            icon = "PLUS")
         self.invokeFunction(row, "removeUnlinkedInputs",
+            text = "Remove Unlinked",
+            emboss = False,
             description = "Remove unlinked inputs",
             confirm = True,
             icon = "X")
+
+        row = layout.row(align = True)
+        self.invokeFunction(row, "newEditableSocket",
+            text = "Editable Socket",
+            description = "Create a new input socket",
+            icon = "PLUS")
+        row = layout.row(align = True)
+        self.invokeFunction(row, "newWithDrawPropertySocket",
+            text = "With Property Socket",
+            description = "Create a new input socket",
+            icon = "PLUS")
+        row = layout.row(align = True)
+        self.invokeFunction(row, "newMoveableSocket",
+            text = "Moveable Socket",
+            description = "Create a new input socket",
+            icon = "PLUS")
+        row = layout.row(align = True)
+        self.invokeFunction(row, "newRemoveableSocket",
+            text = "Removeable Socket",
+            description = "Create a new input socket",
+            icon = "PLUS")
+        row = layout.row(align = True)
+        self.invokeFunction(row, "newUseIsUsedProperty",
+            text = "Property Socket",
+            description = "Create a new input socket",
+            icon = "PLUS")
 
         self.drawTypeSpecifics(layout)
 
@@ -91,18 +121,66 @@ class MotherNode(bpy.types.Node, UMOGNode):
     #         self.newInputSocket()
     #     self.newOutput(toListDataType(self.assignedType), "List", "outList")
 
-    def newInputSocket(self):
+    def newEditableSocket(self):
+        socket = self.newInput(self.assignedType, "Object")
+        socket.dataIsModified = True
+        socket.textProps.editable = True
+        socket.display.textInput = True
+        socket.display.text = True
+        socket.text = "Editable"
+        socket.removeable = True
+        socket.moveable = True
+        socket.defaultDrawType = "TEXT_PROPERTY"
+
+        # if len(self.inputs) > 2:
+        #     socket.copyDisplaySettingsFrom(self.inputs[0])
+
+        self.updateOutputName()
+        return socket
+
+    def newWithDrawPropertySocket(self):
         socket = self.newInput(self.assignedType, "Object")
         socket.dataIsModified = True
         socket.display.text = True
-        socket.text = "Object"
+        socket.text = "As Defined"
         socket.removeable = True
         socket.moveable = True
-        socket.defaultDrawType = "PREFER_PROPERTY"
-        socket.moveUp()
+        socket.defaultDrawType = "TEXT_PROPERTY"
 
-        if len(self.inputs) > 2:
-            socket.copyDisplaySettingsFrom(self.inputs[0])
+        self.updateOutputName()
+        return socket
+
+    def newMoveableSocket(self):
+        socket = self.newInput(self.assignedType, "Object")
+        socket.dataIsModified = True
+        socket.display.text = True
+        socket.text = "Moveable"
+        socket.moveable = True
+        socket.display.moveOperators = True
+        socket.defaultDrawType = "TEXT_PROPERTY"
+
+        self.updateOutputName()
+        return socket
+
+    def newRemoveableSocket(self):
+        socket = self.newInput(self.assignedType, "Object")
+        socket.dataIsModified = True
+        socket.display.text = True
+        socket.text = "Removeable"
+        socket.removeable = True
+        socket.display.removeOperator = True
+        socket.defaultDrawType = "TEXT_PROPERTY"
+
+        self.updateOutputName()
+        return socket
+
+    def newUseIsUsedProperty(self):
+        socket = self.newInput(self.assignedType, "Object")
+        socket.dataIsModified = True
+        socket.display.text = True
+        socket.text = "Toggle Use"
+        socket.useIsUsedProperty = True
+        socket.defaultDrawType = "TEXT_PROPERTY"
 
         self.updateOutputName()
         return socket
@@ -113,7 +191,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
             self.outputs[0].name = name
 
     def removeUnlinkedInputs(self):
-        for socket in self.inputs[:-1]:
+        for socket in self.inputs:
             if not socket.is_linked:
                 socket.remove()
 
@@ -153,14 +231,12 @@ class MotherNode(bpy.types.Node, UMOGNode):
         self.outputs[0].integer_value = self.input_value
 
     def addItem(self, path, index = -1):
-        self.debugFunc()
         item = self.itemList.add()
         item.genTypeStringProp = path
         item.genTypeIntProp = index
 
 
     def addItemToList(self):
-        self.debugFunc()
         type = self.selectedEnum
         if type == "Custom": self.addItem("")
         elif type == "Location": self.addItem("loc")
@@ -171,6 +247,8 @@ class MotherNode(bpy.types.Node, UMOGNode):
             self.addItem("rot")
             self.addItem("scale")
 
+        # DBG(type, TRACE = False)
+
     def removeItemFromList(self, strIndex):
-        self.debugFunc()
+        # DBG(self.itemList[int(strIndex)], TRACE = False)
         self.itemList.remove(int(strIndex))

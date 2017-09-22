@@ -1,35 +1,41 @@
-# import os
+import os
+import sys
 import bpy
-# import sys
+from bpy.props import *
 
-# addonName = os.path.basename(os.path.dirname(__file__))
+currentFileDirectory = os.path.dirname(__file__)
+addonName = os.path.basename(os.path.dirname(currentFileDirectory))
 
-# def getPreferences():
-#     return bpy.context.user_preferences.addons[addonName].preferences
+class DeveloperProperties(bpy.types.PropertyGroup):
+    bl_idname = "umog_DeveloperProperties"
 
-# def getDeveloperSettings():
-#     return getPreferences().developer
+    executionInfo = BoolProperty(name = "Execution Info", default = False,
+        description = "Enable informative print statements")
+    traceInfo = BoolProperty(name = "Trace Info", default = False,
+        description = "Enable selective traceback statements")
 
-# def getExecutionCodeSettings():
-#     return getPreferences().executionCode
+class AddonPreferences(bpy.types.AddonPreferences):
+    bl_idname = addonName
 
-# def getExecutionCodeType():
-#     return getExecutionCodeSettings().type
+    developer = PointerProperty(type = DeveloperProperties)
 
-# def getColorSettings():
-#     return getPreferences().nodeColors
+    def draw(self, context):
+        layout = self.layout
 
-# def getMeshIndicesSettings():
-#     return getPreferences().drawHandlers.meshIndices
+        row = layout.row()
 
-# def debuggingIsEnabled():
-#     return getPreferences().developer.debug
+        col = row.column(align = True)
+        col.prop(self.developer, "executionInfo")
+        col.prop(self.developer, "traceInfo")
 
-# def testsAreEnabled():
-#     return getPreferences().developer.runTests
+def getPreferences():
+    return bpy.context.user_preferences.addons[addonName].preferences
+
+def getDeveloperSettings():
+    return getPreferences().developer
 
 def getBlenderVersion():
     return bpy.app.version
 
-# def getUMOGVersion():
-#     return sys.modules[addonName].bl_info["version"]
+def getUMOGVersion():
+    return sys.modules[addonName].bl_info["version"]

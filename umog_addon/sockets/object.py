@@ -2,6 +2,7 @@ import bpy
 from bpy.props import *
 from bpy.types import Object
 from .. base_types import UMOGSocket
+from .. utils.nodes import newNodeAtCursor
 # from .. utils.id_reference import tryToFindObjectReference
 
 class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
@@ -12,7 +13,7 @@ class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
     dataType = "Object"
     allowedInputTypes = ["Object"]
 
-    drawColor = (0, 0, 0, 1)
+    drawColor = (0, 1, 1, 0.5)
     storable = False
     comparable = True
 
@@ -41,12 +42,19 @@ class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
     #         description = "Assign active object to this socket (hold CTRL to open a rename object dialog)")
 
 
-    def draw_color(self, context, node):
-        return (0, 1, 1, 0.5)
+    # def draw_color(self, context, node):
+    #     return (0, 1, 1, 0.5)
 
     # Optional function for drawing the socket input value
-    def draw(self, context, layout, node, text):
+    def drawProperty(self, layout, text, node):
         layout.label(text=text)
+        row = layout.row()
+        self.invokeFunction(row, node, "addIntegerNode", icon = "PLUS", emboss = False,
+                description = "Create a new node node")
+
+    def addIntegerNode(self):
+        node = newNodeAtCursor("umog_IntegerNode")
+        self.linkWith(node.outputs[0])
 
     # def getValue(self):
     #     if self.objectName == "": return None

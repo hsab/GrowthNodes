@@ -2,6 +2,9 @@ import bpy
 from bpy.props import *
 from collections import defaultdict
 from ... utils.recursion import noRecursion
+from ... operators.callbacks import newSocketCallback
+from ... utils.names import getRandomString, toVariableName
+from ... operators.dynamic_operators import getInvokeFunctionOperator
 
 class SocketTextProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_SocketTextProperties"
@@ -26,6 +29,7 @@ class UMOGSocket:
     storable = True
     comparable = False
     _isUMOGSocket = True
+    drawColor = (1, 1, 1, 1)
 
     def textChanged(self, context):
         updateText(self)
@@ -35,6 +39,8 @@ class UMOGSocket:
     moveable = BoolProperty(default = False)
     moveGroup = IntProperty(default = 0)
 
+    isUsed = BoolProperty(name = "Is Used", default = True,
+        description = "Enable this socket (orange point means that the socket will be evaluated)")
     useIsUsedProperty = BoolProperty(default = False)
 
     display = PointerProperty(type = SocketDisplayProperties)
@@ -131,19 +137,25 @@ class UMOGSocket:
             return self.text
         return self.name
 
+    def draw_color(self, context, node):
+        return self.drawColor
+
     def copyDisplaySettingsFrom(self, other):
         self.display.text = other.display.text
         self.display.textInput = other.display.textInput
         self.display.moveOperators = other.display.moveOperators
         self.display.removeOperator = other.display.removeOperator
 
-    # def _selector_PATH(self, data):
-    #     bpy.ops.an.choose_path("INVOKE_DEFAULT",
-    #         callback = self.newCallback(self.node, data))
-
-    # def _selector_AREA(self, data):
-    #     bpy.ops.an.select_area("INVOKE_DEFAULT",
-    #         callback = self.newCallback(self.node, data))
+    def invokeFunction(self, layout, node, functionName, text = "", icon = "NONE",
+                       description = "", emboss = True, confirm = False,
+                       data = None, passEvent = False):
+        idName = getInvokeFunctionOperator(description)
+        props = layout.operator(idName, text = text, icon = icon, emboss = emboss)
+        props.callback = self.newCallback(node, functionName)
+        props.invokeWithData = data is not None
+        props.confirm = confirm
+        props.data = str(data)
+        props.passEvent = passEvent
 
     def newCallback(self, node, functionName):
         return newSocketCallback(self, node, functionName)
@@ -255,6 +267,14 @@ class UMOGSocket:
         """Returns all sockets next to this one (all inputs or outputs)"""
         return self.node.outputs if self.isOutput else self.node.inputs
 
+    @property
+    def isLinked(self):
+        return len(self.links) > 0
+
+    @property
+    def isUnlinked(self):
+        return len(self.links) == 0
+
     @classmethod
     def hasProperty(cls):
         return hasattr(cls, "drawProperty")
@@ -314,7 +334,7 @@ def getSocketIndex(socket, node = None):
     return list(node.inputs).index(socket)
 
 def isUMOGNodeSocket(socket):
-    return getattr(socket, "_isUMOGNodeSocket", False)
+    return getattr(socket, "_isUMOGSocket", False)
 
 def register():
     # bpy.types.NodeSocket.toID = toID

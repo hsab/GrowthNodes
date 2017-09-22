@@ -116,9 +116,6 @@ class UMOGNode:
     def sockets(self):
         return list(self.inputs) + list(self.outputs)
 
-    def debugFunc(self):
-        debugTrace()
-
     def newInput(self, type, name, identifier = None, alternativeIdentifier = None, **kwargs):
         idName = toSocketIdName(type)
         if idName is None:
@@ -152,7 +149,6 @@ class UMOGNode:
     def invokeFunction(self, layout, functionName, text = "", icon = "NONE",
                        description = "", emboss = True, confirm = False,
                        data = None, passEvent = False):
-        self.debugFunc()
         idName = getInvokeFunctionOperator(description)
         props = layout.operator(idName, text = text, icon = icon, emboss = emboss)
         props.callback = self.newCallback(functionName)
@@ -166,3 +162,9 @@ def createIdentifier():
     characters = "abcdefghijklmnopqrstuvwxyz" + "0123456789"
     choice = random.SystemRandom().choice
     return "_" + ''.join(choice(characters) for _ in range(identifierLength))
+
+def nodeToID(node):
+    return (node.id_data.name, node.name)
+
+def register():
+    bpy.types.Node.toID = nodeToID
