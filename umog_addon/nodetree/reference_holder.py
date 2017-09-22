@@ -8,10 +8,22 @@ class UMOGReferenceHolder:
         self.ntindex = 0
         self.tdict = {}
         self.np2dtextures = {}
+        self.matrices = {}
         #maps the node name to a dict of node defined objects
         #store temporary objects here
         self.execution_scratch = {}
         
+    def getRefForMatrix(self, matrix):
+        matrix_name = np.array2string(matrix)
+        if matrix_name in self.tdict:
+            return self.tdict[matrix_name]
+        oldidx = self.ntindex
+        self.ntindex += 1
+        # setup the empty texture array
+        self.matrices[oldidx] = matrix
+        self.tdict[matrix_name] = oldidx
+        # now fill in the values
+        return oldidx
 
     def getRefForTexture2d(self, name):
         if name in self.tdict:

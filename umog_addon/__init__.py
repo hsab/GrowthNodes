@@ -78,7 +78,10 @@ menus = OrderedDict([
         "bl_description": "Lorem Ipsum",
         "icon": "MESH_GRID",
         "nodes": [
-            ("umog_Mat3Node", "Matrix 3x3 Node")
+            ("umog_Mat3Node", "Matrix 3x3 Node"),
+            ("umog_MatrixMathNode", "Matrix Math"),
+            ("umog_GaussNode", "Gaussian Blur"),
+            ("umog_LaplaceNode", "Laplacian Filter")
         ]
     }),
     ("  ", "separator"),
