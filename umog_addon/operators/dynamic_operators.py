@@ -1,10 +1,10 @@
 '''
 This module can create and register operators dynamically based on a description.
 '''
-
 import bpy
 from bpy.props import *
-from .. utils.handlers import eventHandler
+from .. utils.debug import *
+from .. utils.handlers import eventUMOGHandler
 
 operatorsByDescription = {}
 missingDescriptions = set()
@@ -16,12 +16,13 @@ def getInvokeFunctionOperator(description):
     return fallbackOperator.bl_idname
 
 
-@eventHandler("SCENE_UPDATE_POST")
+@eventUMOGHandler("SCENE_UPDATE_POST")
 def createMissingOperators(scene):
     while len(missingDescriptions) > 0:
         description = missingDescriptions.pop()
         operator = createOperatorWithDescription(description)
         operatorsByDescription[description] = operator.bl_idname
+        DBG(str(description), operator, operator.bl_idname, TRACE = False)
         bpy.utils.register_class(operator)
 
 def createOperatorWithDescription(description):
@@ -49,10 +50,11 @@ def invoke_InvokeFunction(self, context, event):
     return self.execute(context)
 
 def execute_InvokeFunction(self, context):
+    DBG()
     args = []
     if self.invokeWithData: args.append(self.data)
     if self.passEvent: args.append(self._event)
-    self.an_executeCallback(self.callback, *args)
+    self.umog_executeCallback(self.callback, *args)
 
     bpy.context.area.tag_redraw()
     return {"FINISHED"}

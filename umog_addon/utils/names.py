@@ -1,7 +1,7 @@
-# import re
+import re
 # import bpy
-# import random
-# import keyword
+import random
+import keyword
 # from functools import lru_cache
 
 # def toDataPath(name):
