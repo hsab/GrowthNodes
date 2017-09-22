@@ -56,6 +56,11 @@ class DisplaceNode(UMOGOutputNode):
         else:
             print("no texture specified")
 
+    def write_keyframe(self, refholder, frame):
+        obj = bpy.data.objects[self.mesh_name]
+        for vertex in obj.data.vertices:
+            vertex.keyframe_insert(data_path='co', frame=frame)
+
     def preExecute(self, refholder):
         image = bpy.data.images.new(self.temp_texture_prefix + self.name, width=bpy.context.scene.TextureResolution,
                                     height=bpy.context.scene.TextureResolution)
