@@ -2,7 +2,6 @@ import bpy
 from bpy.props import *
 from ... base_types import UMOGNode
 from ... utils.debug import *
-# from ... sockets.info import getListDataTypes, toBaseDataType, toListDataType
 
 
 items = ("Custom", "Location", "Rotation", "Scale", "LocRotScale")
@@ -10,7 +9,6 @@ enumItems = [(item, item, "") for item in items]
 
 class GenericType(bpy.types.PropertyGroup):
     bl_idname = "umog_GenericType"
-    # path = StringProperty(default = "test", update = propertyChanged, description = "String Property")
     genTypeStringProp = StringProperty(default = "Location", description = "String Property")
     genTypeIntProp = FloatProperty(default = 0, min = -51, soft_max =5, description = "Float Property")
 
@@ -30,10 +28,6 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def create(self):
         pass
-        # self.newInput("Float", "Float", "enable", value = False)
-        # self.newInput("Texture", "Texture", "setKeyframe")
-        # self.newInput("Mat3", "Mat3", "removeUnwanted")
-        # self.newInput("Integer", "Object", "object")
 
     def draw(self, layout):
         row = layout.row(align = True)
@@ -88,38 +82,6 @@ class MotherNode(bpy.types.Node, UMOGNode):
             icon = "PLUS")
 
         self.drawTypeSpecifics(layout)
-
-
-    # def drawLabel(self):
-    #     return "Create " + toListDataType(self.assignedType)
-
-    # def getInputSocketVariables(self):
-    #     return {socket.identifier : "float_" + str(i) for i, socket in enumerate(self.inputs)}
-
-
-    # def edit(self):
-    #     self.updateOutputName()
-    #     emptySocket = self.inputs["..."]
-    #     origin = emptySocket.directOrigin
-    #     if origin is None: return
-    #     socket = self.newInputSocket()
-    #     socket.linkWith(origin)
-    #     emptySocket.removeLinks()
-
-    # def assignListDataType(self, listDataType):
-    #     self.assignedType = toBaseDataType(listDataType)
-
-    # def assignBaseDataType(self, baseDataType, inputAmount = 2):
-    #     self.assignedType = baseDataType
-    #     self.recreateSockets(inputAmount)
-
-    # def recreateSockets(self, inputAmount = 2):
-    #     self.clearSockets()
-
-    #     self.newInput("Node Control", "...")
-    #     for i in range(inputAmount):
-    #         self.newInputSocket()
-    #     self.newOutput(toListDataType(self.assignedType), "List", "outList")
 
     def newEditableSocket(self):
         socket = self.newInput(self.assignedType, "Object")
@@ -206,25 +168,6 @@ class MotherNode(bpy.types.Node, UMOGNode):
         if self.assignedType == "Object Group":
             pass
             # self.invokeFunction(layout, "createInputsForSelectedObjectGroups", text = "From Selection", icon = "PLUS")
-
-    # def createInputsForSelectedObjects(self):
-    #     names = getSortedSelectedObjectNames()
-    #     for name in names:
-    #         socket = self.newInputSocket()
-    #         socket.objectName = name
-
-    # def createInputsForSelectedObjectGroups(self):
-    #     groups = self.getGroupsOfObjects(bpy.context.selected_objects)
-    #     for group in groups:
-    #         socket = self.newInputSocket()
-    #         socket.groupName = group.name
-
-    # def getGroupsOfObjects(self, objects):
-    #     groups = set()
-    #     for object in objects:
-    #         groups.update(group for group in bpy.data.groups if object.name in group.objects)
-    #     return list(groups)
-
 
     def preExecute(self, refholder):
         # consider saving the result from this

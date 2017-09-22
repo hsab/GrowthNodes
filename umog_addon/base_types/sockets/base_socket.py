@@ -314,19 +314,6 @@ def isTextUsed(node, name):
     # Register
 ##################################
 
-# def getSocketVisibility(socket):
-#     return not socket.hide
-
-# def setSocketVisibility(socket, value):
-#     socket.hide = not value
-
-# def toID(socket):
-#     node = socket.node
-#     return ((node.id_data.name, node.name), socket.is_output, socket.identifier)
-
-# def getNodeTree(socket):
-#     return socket.node.id_data
-
 def getSocketIndex(socket, node = None):
     if node is None: node = socket.node
     if socket.is_output:
@@ -337,17 +324,9 @@ def isUMOGNodeSocket(socket):
     return getattr(socket, "_isUMOGSocket", False)
 
 def register():
-    # bpy.types.NodeSocket.toID = toID
     bpy.types.NodeSocket.getIndex = getSocketIndex
-    # bpy.types.NodeSocket.getNodeTree = getNodeTree
-
-    # bpy.types.NodeSocket.show = BoolProperty(default = True,
-    #     get = getSocketVisibility, set = setSocketVisibility)
-
-    bpy.types.NodeSocket.isUMOGNodeSocket = BoolProperty(default = False,
-        get = isUMOGNodeSocket)
+    bpy.types.NodeSocket.isUMOGNodeSocket = BoolProperty(default = False, get = isUMOGNodeSocket)
 
 def unregister():
-    # del bpy.types.NodeSocket.toID
-    # del bpy.types.NodeSocket.show
+
     del bpy.types.NodeSocket.isUMOGNodeSocket

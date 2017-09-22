@@ -5,9 +5,6 @@ from . operators.callbacks import executeCallback
 def register():
     bpy.types.Context.getActiveUMOGNodeTree = getActiveUMOGNodeTree
     bpy.types.Operator.umog_executeCallback = _executeCallback
-    # bpy.types.Mesh.an = PointerProperty(type = MeshProperties)
-    # bpy.types.Object.an = PointerProperty(type = ObjectProperties)
-    # bpy.types.ID.an_data = PointerProperty(type = IDProperties)
 
 def unregister():
     del bpy.types.Context.getActiveUMOGNodeTree
