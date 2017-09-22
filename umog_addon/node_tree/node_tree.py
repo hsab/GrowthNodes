@@ -15,15 +15,16 @@ class UMOGNodeTree(NodeTree):
         
         for node in nodes:
             node.preExecute(refholder)
+            if write_keyframes and node._IsOutputNode:
+                node.write_keyframe(refholder, start_frame)
 
-        for frame in range(start_frame, end_frame + 1):
+        for frame in range(start_frame + 1, end_frame + 1):
             for sub_frame in range(0, sub_frames):
                 for node in nodes:
                     node.execute(refholder)
 
             for node in nodes:
                 node.postFrame(refholder)
-
                 if write_keyframes and node._IsOutputNode:
                     node.write_keyframe(refholder, frame)
 
