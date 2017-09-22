@@ -46,7 +46,7 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
                 mod = obj.modifiers.new(name=oname, type='SUBSURF')
                 bpy.ops.object.modifier_apply(modifier=oname)
 
-            oname = "DSIPLACE"
+            oname = "DISPLACE"
             mod = obj.modifiers.new(name=oname, type='DISPLACE')
             dir(mod)
             mod.texture = bpy.data.textures[self.texture_name_temp]
@@ -55,6 +55,11 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
             bpy.ops.object.modifier_apply(modifier=oname)
         else:
             print("no texture specified")
+
+    def write_keyframe(self, refholder, frame):
+        obj = bpy.data.objects[self.mesh_name]
+        for vertex in obj.data.vertices:
+            vertex.keyframe_insert(data_path='co', frame=frame)
 
     def preExecute(self, refholder):
         image = bpy.data.images.new(self.temp_texture_prefix + self.name, width=bpy.context.scene.TextureResolution,
