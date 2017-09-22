@@ -11,7 +11,11 @@ class Mat3Socket(bpy.types.NodeSocket, UMOGSocket):
     dataType = "Mat3"
     allowedInputTypes = ["Mat3"]
 
-
+    
+    objectName = bpy.props.StringProperty()
+    
+    matrix_ref = bpy.props.IntProperty()
+    
     def init(self, context):
         pass
 

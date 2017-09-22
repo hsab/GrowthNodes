@@ -1,2 +1,2 @@
-from . base_node import UMOGNode
-from . sync_only_node import UMOGOutputNode
+from . umog_node import UMOGNode
+from . output_node import UMOGOutputNode

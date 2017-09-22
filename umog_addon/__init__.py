@@ -1,14 +1,4 @@
 import bpy
-from bpy.types import NodeTree
-
-class UMOGNodeTree(NodeTree):
-    bl_idname = "umog_UMOGNodeTree"
-    bl_label = "UMOG"
-    bl_icon = "SCULPTMODE_HLT"
-
-    def execute(self, refholder):
-        print('Executing node tree')
-
 from collections import OrderedDict
 
 menus = OrderedDict([
@@ -78,7 +68,10 @@ menus = OrderedDict([
         "bl_description": "Lorem Ipsum",
         "icon": "MESH_GRID",
         "nodes": [
-            ("umog_Mat3Node", "Matrix 3x3 Node")
+            ("umog_Mat3Node", "Matrix 3x3 Node"),
+            ("umog_MatrixMathNode", "Matrix Math"),
+            ("umog_GaussNode", "Gaussian Blur"),
+            ("umog_LaplaceNode", "Laplacian Filter")
         ]
     }),
     ("  ", "separator"),

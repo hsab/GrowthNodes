@@ -8,10 +8,22 @@ class UMOGReferenceHolder:
         self.ntindex = 0
         self.tdict = {}
         self.np2dtextures = {}
+        self.matrices = {}
         #maps the node name to a dict of node defined objects
         #store temporary objects here
         self.execution_scratch = {}
         
+    def getRefForMatrix(self, matrix):
+        matrix_name = np.array2string(matrix)
+        if matrix_name in self.tdict:
+            return self.tdict[matrix_name]
+        oldidx = self.ntindex
+        self.ntindex += 1
+        # setup the empty texture array
+        self.matrices[oldidx] = matrix
+        self.tdict[matrix_name] = oldidx
+        # now fill in the values
+        return oldidx
 
     def getRefForTexture2d(self, name):
         if name in self.tdict:
@@ -45,6 +57,11 @@ class UMOGReferenceHolder:
         # image.filepath_raw = "/bulk/Pictures/Blender_Generated/temp.png"
         # image.file_format = 'PNG'
         # image.save()
+
+    #writes the pixels of the image to the numpy array of the handle
+    def imageToHandle(self, image, handle):
+        self.np2dtextures[handle] = np.reshape(np.array(pixels[:]), 
+            (bpy.context.scene.TextureResolution, bpy.context.scene.TextureResolution, 4))
 
     def fillTexture(self, index, name):
         tr = bpy.context.scene.TextureResolution

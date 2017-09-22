@@ -1,6 +1,6 @@
 import bpy
 from bpy.props import *
-from ...utils.debug import *
+from ... utils.debug import *
 import random
 from ... sockets.info import toIdName as toSocketIdName
 from ... operators.callbacks import newNodeCallback
@@ -10,6 +10,7 @@ class UMOGNode:
     bl_width_min = 40
     bl_width_max = 5000
     _isUMOGNode = True
+    _IsUMOGOutputNode = False
     # unique string for each node; don't change it at all
     identifier = StringProperty(name = "Identifier", default = "")
     inInvalidNetwork = BoolProperty(name = "In Invalid Network", default = False)
