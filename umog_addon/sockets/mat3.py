@@ -1,3 +1,4 @@
+import bpy
 from bpy.types import NodeSocket
 
 class Mat3Socket(NodeSocket):
@@ -7,7 +8,11 @@ class Mat3Socket(NodeSocket):
     bl_idname = 'Mat3SocketType'
     # Label for nice name display
     bl_label = 'Mat3 Socket'
-
+    
+    objectName = bpy.props.StringProperty()
+    
+    matrix_ref = bpy.props.IntProperty()
+    
     def init(self, context):
         pass
 
