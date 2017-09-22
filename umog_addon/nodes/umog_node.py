@@ -5,6 +5,7 @@ class UMOGNode(bpy.types.Node):
     bl_width_max = 5000
 
     _IsUMOGNode = True
+    _IsOutputNode = False
 
     bl_label = "UMOGNode"
 

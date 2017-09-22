@@ -46,7 +46,7 @@ class DisplaceNode(UMOGOutputNode):
                 mod = obj.modifiers.new(name=oname, type='SUBSURF')
                 bpy.ops.object.modifier_apply(modifier=oname)
 
-            oname = "DSIPLACE"
+            oname = "DISPLACE"
             mod = obj.modifiers.new(name=oname, type='DISPLACE')
             dir(mod)
             mod.texture = bpy.data.textures[self.texture_name_temp]

@@ -24,7 +24,7 @@ class UMOGNodeTree(NodeTree):
             for node in nodes:
                 node.postFrame(refholder)
 
-                if write_keyframes and node._OutputNode:
+                if write_keyframes and node._IsOutputNode:
                     node.write_keyframe(refholder, frame)
 
         for node in nodes:
@@ -37,7 +37,7 @@ class UMOGNodeTree(NodeTree):
 
         # initialize stack with output nodes
         for node in self.nodes:
-            if node._OutputNode:
+            if node._IsOutputNode:
                 stack.append(node)
                 nodes.append(node)
                 visited[node.name] = True
