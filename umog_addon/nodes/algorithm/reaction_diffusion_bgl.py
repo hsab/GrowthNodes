@@ -17,6 +17,13 @@ class ReactionDiffusionBGLNode(UMOGNode):
     Da = bpy.props.FloatProperty(default=1.0)
     Db = bpy.props.FloatProperty(default=0.5)
     dt = bpy.props.FloatProperty(default=1.0)
+    steps = bpy.props.IntProperty(default=500)
+    channels = bpy.props.EnumProperty(items=
+        (('0', 'R', 'Just do the reaction on one channel'),
+         ('1', 'RGB', 'Do the reaction on all color channels'),
+        ),
+        name="channels")
+    
     
     temp_texture_prefix = "__umog_internal_"
     
@@ -35,8 +42,8 @@ class ReactionDiffusionBGLNode(UMOGNode):
     varying vec2 vTexCoord;
     uniform sampler2D myTexture;
     void main() {
-    //color = vec4(0,1,0,1);
-    color = texture2D(myTexture, vTexCoord);
+    color = vec4(1,0.5,0,1);
+    //color = texture2D(myTexture, vTexCoord);
     }
     """
 
@@ -53,63 +60,134 @@ class ReactionDiffusionBGLNode(UMOGNode):
         layout.prop(self, "Da", "Da")
         layout.prop(self, "Db", "Db")
         layout.prop(self, "dt", "dt")
-
+        layout.prop(self, "steps", "steps")
+        layout.prop(self, "channels", "channels")
+        
     def update(self):
         pass
 
     def execute(self, refholder):
+        tr = bpy.context.scene.TextureResolution
+        print("begining execution " + str(tr))
         # compute A'
         mask = np.array([[0.05, 0.2, 0.05], [0.2, -1, 0.2], [0.05, 0.2, 0.05]])
         Ap = refholder.np2dtextures[self.outputs[0].texture_index]
         A = refholder.np2dtextures[self.inputs[0].links[0].from_socket.texture_index]
-        A *= refholder.execution_scratch[self.name]["Ap_scale"]
-        A += refholder.execution_scratch[self.name]["Ap_offset"]
-        LA = copy.deepcopy(A)
-        events.convolve2d(Ap, mask, LA)
 
         Bp = refholder.np2dtextures[self.outputs[1].texture_index]
         B = refholder.np2dtextures[self.inputs[1].links[0].from_socket.texture_index]
-        B *= refholder.execution_scratch[self.name]["Bp_scale"]
-        B += refholder.execution_scratch[self.name]["Bp_offset"]
-        LB = copy.deepcopy(B)
-        events.convolve2d(Bp, mask, LB)
+        
+        bgl.glGetIntegerv(bgl.GL_CURRENT_PROGRAM, refholder.execution_scratch[self.name]["prev_program"])
+        bgl.glUseProgram(refholder.execution_scratch[self.name]["program"])
+        
+        #set any uniforms needed
+        
+        bgl.glDisable(bgl.GL_SCISSOR_TEST)
+        bgl.glViewport(0, 0, tr, tr)
+        
+        bgl.glMatrixMode(bgl.GL_MODELVIEW)
+        bgl.glPushMatrix()
+        bgl.glLoadIdentity()
 
-        events.ReactionDiffusion2d(A, Ap, LA, B, Bp, LB, mask, self.Da, self.Db, self.feed, self.kill, self.dt)
+        bgl.glMatrixMode(bgl.GL_PROJECTION)
+        bgl.glPushMatrix()
+        bgl.glLoadIdentity()
+        bgl.gluOrtho2D(0, 1, 0, 1)
         
-        refholder.execution_scratch[self.name]["Ap_offset"] = np.amin(Ap)
-        refholder.execution_scratch[self.name]["Ap_scale"] = np.amax(Ap) - np.amin(Ap)
-        refholder.execution_scratch[self.name]["Bp_offset"] = np.amin(Bp)
-        refholder.execution_scratch[self.name]["Bp_scale"] = np.amax(Bp) - np.amin(Bp)
+        bgl.glEnable(bgl.GL_TEXTURE_2D)
+        bgl.glActiveTexture(bgl.GL_TEXTURE0)
         
-        Ap -= refholder.execution_scratch[self.name]["Ap_offset"]
-        Ap /= refholder.execution_scratch[self.name]["Ap_scale"]
-        Bp -= refholder.execution_scratch[self.name]["Bp_offset"]
-        Bp /= refholder.execution_scratch[self.name]["Bp_scale"]
+        channels = []
+        if self.channels == '0':
+            channels = [0]
+        elif self.channels == '1':
+            channels = [0,1,2]
         
+        for j in channels:
+            refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:][:][0] = A[:][:][j]
+            refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:][:][1] = B[:][:][j]
+            
+            refholder.handleToImage(refholder.execution_scratch[self.name]["handle"],
+                                    refholder.execution_scratch[self.name]["image"])
+            
+            refholder.execution_scratch[self.name]["image"].gl_load(0, bgl.GL_NEAREST, bgl.GL_NEAREST)
+            bgl.glBindTexture(bgl.GL_TEXTURE_2D, refholder.execution_scratch[self.name]["image"].bindcode[0])
+            
+            for i in range(self.steps):
+                bgl.glClearDepth(1.0)
+                bgl.glClearColor(0.0, 0.0, 0.0, 0.0)
+                bgl.glClear(
+                    bgl.GL_COLOR_BUFFER_BIT |
+                    bgl.GL_DEPTH_BUFFER_BIT
+                )
+                
+                bgl.glBegin(bgl.GL_TRIANGLES)
+
+                bgl.glColor3f(1.0, 1.0, 1.0)
+                bgl.glTexCoord2f(0.0, 0.0)
+                bgl.glVertex2f(-1.0, -1.0)
+                bgl.glTexCoord2f(1.0, 0.0)
+                bgl.glVertex2f(1.0, -1.0)
+                bgl.glTexCoord2f(1.0, 1.0)
+                bgl.glVertex2f(1.0, 1.0)
+
+                bgl.glColor3f(1.0, 1.0, 1.0)
+                bgl.glTexCoord2f(0.0, 0.0)
+                bgl.glVertex2f(-1.0, -1.0)
+                bgl.glTexCoord2f(1.0, 1.0)
+                bgl.glVertex2f(1.0, 1.0)
+                bgl.glTexCoord2f(0.0, 1.0)
+                bgl.glVertex2f(-1.0, 1.0)
+                bgl.glEnd()
+                
+                bgl.glCopyTexImage2D(
+                    bgl.GL_TEXTURE_2D, #target
+                    0, #level
+                    bgl.GL_RGBA, #internalformat
+                    0, #x
+                    0, #y
+                    tr,
+                    tr,
+                    0 #border
+                    )
+                
+                #glFlush glFinish or none here?
+                bgl.glFinish()
+        
+            bgl.glReadPixels(0, 0, tr, tr , bgl.GL_RGBA, bgl.GL_FLOAT, refholder.execution_scratch[self.name]["buffer"])
+            refholder.execution_scratch[self.name]["image"].pixels = refholder.execution_scratch[self.name]["buffer"][:]
+            #write the image channel
+            
+            refholder.imageToHandle(refholder.execution_scratch[self.name]["image"],
+                refholder.execution_scratch[self.name]["handle"])
+            Ap[:,:,j] = refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:,:,0]
+            Bp[:,:,j] = refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:,:,1]
+            refholder.execution_scratch[self.name]["image"].gl_free()
+        
+        
+        #restore the state so blender wont break
+        bgl.glEnable(bgl.GL_SCISSOR_TEST)
+        bgl.glUseProgram(refholder.execution_scratch[self.name]["prev_program"][0])
+        bgl.glActiveTexture(bgl.GL_TEXTURE0)
 
     def preExecute(self, refholder):
         self.outputs[0].texture_index = refholder.createRefForTexture2d()
         self.outputs[1].texture_index = refholder.createRefForTexture2d()
         refholder.execution_scratch[self.name] = {}
-        refholder.execution_scratch[self.name]["Ap_offset"] = 0.0
-        refholder.execution_scratch[self.name]["Ap_scale"] = 1.0
-        refholder.execution_scratch[self.name]["Bp_offset"] = 0.0
-        refholder.execution_scratch[self.name]["Bp_scale"] = 1.0
-        refholder.execution_scratch[self.name]["imageA"] = bpy.data.images.new(self.temp_texture_prefix + self.name, width=bpy.context.scene.TextureResolution,
+        refholder.execution_scratch[self.name]["image"] = bpy.data.images.new(self.temp_texture_prefix + self.name, width=bpy.context.scene.TextureResolution,
                                     height=bpy.context.scene.TextureResolution)
-        refholder.execution_scratch[self.name]["imageB"] = bpy.data.images.new(self.temp_texture_prefix + self.name, width=bpy.context.scene.TextureResolution,
-                                    height=bpy.context.scene.TextureResolution)
+        refholder.execution_scratch[self.name]["handle"] = refholder.createRefForTexture2d() 
         vertex_shader = bgl_helper.createShader(bgl.GL_VERTEX_SHADER, self.vertex_source)
         fragment_shader = bgl_helper.createShader(bgl.GL_FRAGMENT_SHADER,
                                                   self.fragment_source)
         refholder.execution_scratch[self.name]["program"] = bgl_helper.createProgram(vertex_shader, fragment_shader)
         refholder.execution_scratch[self.name]["prev_program"] = bgl.Buffer(bgl.GL_INT, [1])
+        refholder.execution_scratch[self.name]["buffer"] = bgl.Buffer(bgl.GL_FLOAT, (bpy.context.scene.TextureResolution ** 2) * 4)
         
 def postBake(self, refholder):
-        bpy.data.images.remove(refholder.execution_scratch[self.name]["imageA"])
-        bpy.data.images.remove(refholder.execution_scratch[self.name]["imageB"])
+        bpy.data.images.remove(refholder.execution_scratch[self.name]["image"])
         #TODO clean up the shader stuff
         pass
     
 def render(self):
-    
+    pass
