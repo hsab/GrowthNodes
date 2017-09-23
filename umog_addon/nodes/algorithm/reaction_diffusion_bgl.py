@@ -42,8 +42,8 @@ class ReactionDiffusionBGLNode(UMOGNode):
     varying vec2 vTexCoord;
     uniform sampler2D myTexture;
     void main() {
-    color = vec4(1,0.5,0,1);
-    //color = texture2D(myTexture, vTexCoord);
+    //color = vec4(1,0.5,0,1);
+    color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
     }
     """
 
@@ -104,8 +104,8 @@ class ReactionDiffusionBGLNode(UMOGNode):
             channels = [0,1,2]
         
         for j in channels:
-            refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:][:][0] = A[:][:][j]
-            refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:][:][1] = B[:][:][j]
+            refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:,:,0] = A[:,:,j]
+            refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:,:,1] = B[:,:,j]
             
             refholder.handleToImage(refholder.execution_scratch[self.name]["handle"],
                                     refholder.execution_scratch[self.name]["image"])
