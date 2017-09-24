@@ -41,9 +41,50 @@ class ReactionDiffusionBGLNode(UMOGNode):
     out vec4 color;
     varying vec2 vTexCoord;
     uniform sampler2D myTexture;
+    
+    float step_width= 1/256;
+    float step_height = 1/256;
+
+    float du = 0.2;
+    float dv = 0.09;
+
+    float distance = 1.5;
+    float timestep = 0.3;
+
+    float k = 0.046;
+    float f = 0.014;
+    
     void main() {
-    //color = vec4(1,0.5,0,1);
-    color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
+    
+    float oldU = texture2D(myTexture, vTexCoord).r;				
+    float oldV = texture2D(myTexture, vTexCoord).g;	
+
+    // [rad] Compute approximation of Laplacian for both V and U.
+    float otherU = -4.0 * oldU;
+    float otherV = -4.0 * oldV;
+
+    otherU += texture2D(myTexture, vTexCoord + vec2(-step_width, 0)).r;
+    otherU += texture2D(myTexture, vTexCoord + vec2(step_width, 0)).r;
+    otherU += texture2D(myTexture, vTexCoord + vec2(0, -step_height)).r;
+    otherU += texture2D(myTexture, vTexCoord + vec2(0, step_height)).r;
+
+    otherV += texture2D(myTexture, vTexCoord + vec2(-step_width, 0)).g;
+    otherV += texture2D(myTexture, vTexCoord + vec2(step_width, 0)).g;
+    otherV += texture2D(myTexture, vTexCoord + vec2(0, -step_height)).g;
+    otherV += texture2D(myTexture, vTexCoord + vec2(0, step_height)).g;
+
+    float distance_squared = distance * distance;
+    
+    // [rad] Compute greyscott equations.
+    float newU = du * otherU / distance_squared - oldU * oldV * oldV + f * (1.0 - oldU);
+    float newV = dv * otherV / distance_squared + oldU * oldV * oldV - (f + k ) * oldV;
+
+    float scaledU = oldU + newU * timestep;
+    float scaledV = oldV + newV * timestep;
+
+    color = vec4(clamp(scaledU, 0.0, 1.0), clamp(scaledV, 0.0, 1.0), clamp(newU, 0.0, 1.0), 1.0);
+    
+    //color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
     }
     """
 
@@ -110,8 +151,10 @@ class ReactionDiffusionBGLNode(UMOGNode):
             refholder.handleToImage(refholder.execution_scratch[self.name]["handle"],
                                     refholder.execution_scratch[self.name]["image"])
             
-            refholder.execution_scratch[self.name]["image"].gl_load(0, bgl.GL_NEAREST, bgl.GL_NEAREST)
+            refholder.execution_scratch[self.name]["image"].gl_load(0, bgl.GL_LINEAR, bgl.GL_LINEAR)
             bgl.glBindTexture(bgl.GL_TEXTURE_2D, refholder.execution_scratch[self.name]["image"].bindcode[0])
+            bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_REPEAT)
+            bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_REPEAT)
             
             for i in range(self.steps):
                 bgl.glClearDepth(1.0)
