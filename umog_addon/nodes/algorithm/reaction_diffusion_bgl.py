@@ -12,11 +12,11 @@ class ReactionDiffusionBGLNode(UMOGNode):
     bl_idname = "umog_ReactionDiffusionBGLNode"
     bl_label = "Reaction Diffusion Node"
 
-    feed = bpy.props.FloatProperty(default=0.055)
-    kill = bpy.props.FloatProperty(default=0.062)
-    Da = bpy.props.FloatProperty(default=1.0)
-    Db = bpy.props.FloatProperty(default=0.5)
-    dt = bpy.props.FloatProperty(default=1.0)
+    feed = bpy.props.FloatProperty(default=0.014)
+    kill = bpy.props.FloatProperty(default=0.046)
+    Da = bpy.props.FloatProperty(default=0.2)
+    Db = bpy.props.FloatProperty(default=0.09)
+    dt = bpy.props.FloatProperty(default=0.3)
     steps = bpy.props.IntProperty(default=500)
     channels = bpy.props.EnumProperty(items=
         (('0', 'R', 'Just do the reaction on one channel'),
@@ -42,17 +42,16 @@ class ReactionDiffusionBGLNode(UMOGNode):
     varying vec2 vTexCoord;
     uniform sampler2D myTexture;
     
-    float step_width= 1/256;
-    float step_height = 1/256;
+    uniform float step;
 
-    float du = 0.2;
-    float dv = 0.09;
+    uniform float du;
+    uniform float dv;
 
     float distance = 1.5;
-    float timestep = 0.3;
+    uniform float timestep;
 
-    float k = 0.046;
-    float f = 0.014;
+    uniform float k;
+    uniform float f;
     
     void main() {
     
@@ -63,15 +62,15 @@ class ReactionDiffusionBGLNode(UMOGNode):
     float otherU = -4.0 * oldU;
     float otherV = -4.0 * oldV;
 
-    otherU += texture2D(myTexture, vTexCoord + vec2(-step_width, 0)).r;
-    otherU += texture2D(myTexture, vTexCoord + vec2(step_width, 0)).r;
-    otherU += texture2D(myTexture, vTexCoord + vec2(0, -step_height)).r;
-    otherU += texture2D(myTexture, vTexCoord + vec2(0, step_height)).r;
+    otherU += texture2D(myTexture, vTexCoord + vec2(-step, 0)).r;
+    otherU += texture2D(myTexture, vTexCoord + vec2(step, 0)).r;
+    otherU += texture2D(myTexture, vTexCoord + vec2(0, -step)).r;
+    otherU += texture2D(myTexture, vTexCoord + vec2(0, step)).r;
 
-    otherV += texture2D(myTexture, vTexCoord + vec2(-step_width, 0)).g;
-    otherV += texture2D(myTexture, vTexCoord + vec2(step_width, 0)).g;
-    otherV += texture2D(myTexture, vTexCoord + vec2(0, -step_height)).g;
-    otherV += texture2D(myTexture, vTexCoord + vec2(0, step_height)).g;
+    otherV += texture2D(myTexture, vTexCoord + vec2(-step, 0)).g;
+    otherV += texture2D(myTexture, vTexCoord + vec2(step, 0)).g;
+    otherV += texture2D(myTexture, vTexCoord + vec2(0, -step)).g;
+    otherV += texture2D(myTexture, vTexCoord + vec2(0, step)).g;
 
     float distance_squared = distance * distance;
     
@@ -122,6 +121,13 @@ class ReactionDiffusionBGLNode(UMOGNode):
         bgl.glUseProgram(refholder.execution_scratch[self.name]["program"])
         
         #set any uniforms needed
+        bgl.glUniform1f(refholder.execution_scratch[self.name]["dt_loc"], self.dt)
+        bgl.glUniform1f(refholder.execution_scratch[self.name]["step_loc"], 1/tr)
+        bgl.glUniform1f(refholder.execution_scratch[self.name]["da_loc"], self.Da)
+        bgl.glUniform1f(refholder.execution_scratch[self.name]["db_loc"], self.Db)
+        bgl.glUniform1f(refholder.execution_scratch[self.name]["kill_loc"], self.kill)
+        bgl.glUniform1f(refholder.execution_scratch[self.name]["feed_loc"], self.feed)
+        
         
         bgl.glDisable(bgl.GL_SCISSOR_TEST)
         bgl.glViewport(0, 0, tr, tr)
@@ -226,6 +232,17 @@ class ReactionDiffusionBGLNode(UMOGNode):
         refholder.execution_scratch[self.name]["program"] = bgl_helper.createProgram(vertex_shader, fragment_shader)
         refholder.execution_scratch[self.name]["prev_program"] = bgl.Buffer(bgl.GL_INT, [1])
         refholder.execution_scratch[self.name]["buffer"] = bgl.Buffer(bgl.GL_FLOAT, (bpy.context.scene.TextureResolution ** 2) * 4)
+        
+        program = refholder.execution_scratch[self.name]["program"]
+        
+        #dt_loc = bgl.glGetUniformLocation(program,"timestep"​)
+        refholder.execution_scratch[self.name]["dt_loc"] = bgl.glGetUniformLocation(program, "timestep")
+        refholder.execution_scratch[self.name]["step_loc"] = bgl.glGetUniformLocation(program, "step")
+        refholder.execution_scratch[self.name]["da_loc"] = bgl.glGetUniformLocation(program, "du")
+        refholder.execution_scratch[self.name]["db_loc"] = bgl.glGetUniformLocation(program, "dv")
+        refholder.execution_scratch[self.name]["kill_loc"] = bgl.glGetUniformLocation(program, "k")
+        refholder.execution_scratch[self.name]["feed_loc"] = bgl.glGetUniformLocation(program, "f")
+        
         
 def postBake(self, refholder):
         bpy.data.images.remove(refholder.execution_scratch[self.name]["image"])
