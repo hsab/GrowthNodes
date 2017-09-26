@@ -1,4 +1,4 @@
-from ... base_types import UMOGNode
+from ..umog_node import UMOGNode
 from ... events import bgl_helper
 import bpy
 import bgl
