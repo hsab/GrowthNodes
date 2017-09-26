@@ -60,7 +60,7 @@ class UMOGReferenceHolder:
 
     #writes the pixels of the image to the numpy array of the handle
     def imageToHandle(self, image, handle):
-        self.np2dtextures[handle] = np.reshape(np.array(pixels[:]), 
+        self.np2dtextures[handle] = np.reshape(np.array(image.pixels[:]), 
             (bpy.context.scene.TextureResolution, bpy.context.scene.TextureResolution, 4))
 
     def fillTexture(self, index, name):
