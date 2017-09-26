@@ -21,9 +21,6 @@ class BMeshNode(bpy.types.Node, UMOGOutputNode):
         # layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
         layout.prop_search(self, "mesh_name", bpy.data, "objects", icon="MESH_CUBE", text="")
 
-    def update(self):
-        pass
-
     def execute(self, refholder):
         try:
             print("sculpt node execution, mesh: " + self.mesh_name)

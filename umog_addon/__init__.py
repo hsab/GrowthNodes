@@ -21,7 +21,8 @@ menus = OrderedDict([
         "bl_description": "Lorem Ipsum",
         "icon": "RECOVER_AUTO",
         "nodes": [
-            ("umog_MotherNode", "Mother Node")
+            ("umog_MotherNode", "Mother Node"),
+            ("umog_ScriptNode", "Script Node")
         ]
     }),
     ("bmesh_menu", {

@@ -22,7 +22,7 @@ def createMissingOperators(scene):
         description = missingDescriptions.pop()
         operator = createOperatorWithDescription(description)
         operatorsByDescription[description] = operator.bl_idname
-        DBG(str(description), operator, operator.bl_idname, TRACE = False)
+        # DBG(str(description), operator, operator.bl_idname, TRACE = False)
         bpy.utils.register_class(operator)
 
 def createOperatorWithDescription(description):
@@ -50,7 +50,7 @@ def invoke_InvokeFunction(self, context, event):
     return self.execute(context)
 
 def execute_InvokeFunction(self, context):
-    DBG()
+    # DBG()
     args = []
     if self.invokeWithData: args.append(self.data)
     if self.passEvent: args.append(self._event)

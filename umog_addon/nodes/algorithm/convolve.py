@@ -19,9 +19,6 @@ class ConvolveNode(bpy.types.Node, UMOGNode):
     def draw_buttons(self, context, layout):
         pass
 
-    def update(self):
-        pass
-
     def execute(self, refholder):
         # compute A'
         print("convolve node")

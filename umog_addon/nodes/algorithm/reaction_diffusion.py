@@ -30,8 +30,6 @@ class ReactionDiffusionNode(bpy.types.Node, UMOGNode):
         layout.prop(self, "Db", "Db")
         layout.prop(self, "dt", "dt")
 
-    def update(self):
-        pass
 
     def execute(self, refholder):
         # compute A'

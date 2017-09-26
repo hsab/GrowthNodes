@@ -25,8 +25,6 @@ class SetTextureNode(bpy.types.Node, UMOGOutputNode):
         except:
             pass
 
-    def update(self):
-        pass
 
     def execute(self, refholder):
         refholder.np2dtextures[self.texture_index] = copy.deepcopy(

@@ -251,6 +251,31 @@ class UMOGSocket:
     ##########################################################
 
     @property
+    def getConnectedSocket(self):
+        if self.is_output:
+            return self.links[0].to_socket
+        else:
+            return self.links[0].from_socket
+
+    @property
+    def getConnectedNode(self):
+        if self.is_output:
+            return self.links[0].to_node
+        else:
+            return self.links[0].from_node
+
+    @property
+    def getConnectedNodes(self):
+        nodes = []
+        if self.is_output:
+            for link in self.links:
+                nodes.append(link.to_node)
+        else:
+            for link in self.links:
+                nodes.append(link.from_node)
+        return nodes
+
+    @property
     def isOutput(self):
         return self.is_output
 

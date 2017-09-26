@@ -1,3 +1,4 @@
+import math
 import bpy
 from bpy.props import *
 from ... utils.debug import *
@@ -11,9 +12,17 @@ class UMOGNode:
     bl_width_max = 5000
     _isUMOGNode = True
     _IsUMOGOutputNode = False
+    sortVisited = BoolProperty(name = "Visited in Topological Sort", default = False)
+    sortSubgraph = IntProperty(name = "Subgraph in Topological Sort", default = 0)
     # unique string for each node; don't change it at all
     identifier = StringProperty(name = "Identifier", default = "")
     inInvalidNetwork = BoolProperty(name = "In Invalid Network", default = False)
+
+
+    highlightColor = (0.6, 0.4, 0.4)
+
+    useCustomColor = BoolProperty(name = "Use Custom Color", default = False)
+    customColor = FloatVectorProperty(name="Custom Color", default=(0.0, 0.0, 0.0), min=0, max=1)
 
     # used for the listboxes in the sidebar
     activeInputIndex = IntProperty()
@@ -30,29 +39,67 @@ class UMOGNode:
     def poll(cls, nodeTree):
         return nodeTree.bl_idname == "umog_UMOGNodeTree"
 
-    # functions subclasses can override
-    ######################################
+    def init(self, context):
+        self.customColor = self.color
+        self.useCustomColor = self.use_custom_color
+
+        self.width_hidden = 100
+        self.identifier = createIdentifier()
+        self.setup()
+
+    def free(self):
+        self.destroy()
+        print("freed")
 
     def setup(self):
-        pass
-
-    # def preCreate(self):
-    #     pass
-
-    # def postCreate(self):
-    #     pass
-
-    def draw(self, layout):
-        pass
+        self.preCreate()
+        self.create()
+        self.postCreate()
 
     def draw_buttons(self, context, layout):
         if self.inInvalidNetwork: layout.label("Invalid Network", icon = "ERROR")
         self.draw(layout)
 
-    def init(self, context):
-        self.width_hidden = 100
-        self.identifier = createIdentifier()
-        self.setup()
+    def updated(self, context):
+        if self in self.nodeTree.linearizedNodes:
+            print("updated", self.name)
+            self.nodeTree.updateFrom(self)
+
+    def refreshNode(self):
+        self.preRefresh()
+        self.refresh()
+        self.postRefresh()
+
+    # functions subclasses can override
+    ######################################
+
+    def preCreate(self):
+        pass
+
+    def create(self):
+        pass
+
+    def postCreate(self):
+        pass
+
+    def update(self):
+        pass
+
+    def preRefresh(self):
+        pass
+
+    def refresh(self):
+        print("refreshNode", self.name, self.sortSubgraph)
+        pass
+
+    def postRefresh(self):
+        pass
+
+    def draw(self, layout):
+        pass
+
+    def destroy(self):
+        pass
 
     def newCallback(self, functionName):
         return newNodeCallback(self, functionName)
@@ -99,9 +146,46 @@ class UMOGNode:
             if index < self.activeInputIndex: self.activeInputIndex -= 1
         socket.sockets.remove(socket)
 
+    def storeCustomColor(self):
+        currentColor = self.color
+        redIsClose = math.isclose(currentColor[0], self.highlightColor[0], abs_tol=0.01)
+        greenIsClose = math.isclose(currentColor[1], self.highlightColor[1], abs_tol=0.01)
+        blueIsClose = math.isclose(currentColor[2], self.highlightColor[2], abs_tol=0.01)
+
+        if not redIsClose or not greenIsClose or not blueIsClose:
+            self.customColor = self.color
+            self.useCustomColor = self.use_custom_color
+
+    def enableUnlinkedHighlight(self):
+        self.storeCustomColor()
+        self.use_custom_color = True
+        self.color = self.highlightColor
+
+    def disableUnlinkedHighlight(self):
+        self.use_custom_color = self.useCustomColor
+        self.color = self.customColor
+
     @property
     def nodeTree(self):
         return self.id_data
+
+    @property
+    def hasInputLinks(self):
+        for inputSocket in self.inputs:
+            if len(inputSocket.links) > 0:
+                return True
+        return False
+
+    @property
+    def hasOutputLinks(self):
+        for outputSocket in self.outputs:
+            if len(outputSocket.links) > 0:
+                return True
+        return False
+
+    @property
+    def hasLinks(self):
+        return self.hasOutputLinks or self.hasInputLinks
 
     @property
     def activeInputSocket(self):

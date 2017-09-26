@@ -22,8 +22,6 @@ class GetTextureNode(bpy.types.Node, UMOGNode):
         except:
             pass
 
-    def update(self):
-        pass
 
     def execute(self, refholder):
         # print("get texture node execution, texture: " + self.texture)

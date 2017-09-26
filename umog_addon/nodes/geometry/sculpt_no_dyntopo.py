@@ -19,8 +19,6 @@ class SculptNDNode(bpy.types.Node, UMOGOutputNode):
         layout.prop(self, "stroke_pressure", text="Stroke Pressure")
         layout.prop(self, "stroke_size", text="Stroke Size")
 
-    def update(self):
-        pass
 
     def execute(self, refholder):
         # print("sculpt node execution, mesh: " + self.mesh_name)
