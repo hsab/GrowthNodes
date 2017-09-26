@@ -25,12 +25,15 @@ class UMOGNodeTree(NodeTree):
         else:
             index = self.linearizedNodes.index(node)
             subgraph = node.sortSubgraph
-            DBG_list = []
+            nodesToBeUpdated = []
             for node in self.linearizedNodes[index:]:
                 if node.sortSubgraph == subgraph:
-                    DBG_list.append(node)
-                    node.refresh()
-            DBG("FOLLOWING EXECUTABLE NODES REFRESHED:", *DBG_list, TRACE = False)
+                    nodesToBeUpdated.append(node)
+
+            DBG("FOLLOWING EXECUTABLE NODES REFRESHED:", *nodesToBeUpdated, TRACE = False)
+
+            for node in nodesToBeUpdated:
+                node.refresh()
 
     def refreshExecutionPolicy(self):
         self.topologicalSort()
