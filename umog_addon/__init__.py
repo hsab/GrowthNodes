@@ -9,8 +9,8 @@ menus = OrderedDict([
         "bl_description": "Lorem Ipsum",
         "icon": "STICKY_UVS_LOC",
         "nodes": [
-            ("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
-            ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node BGL"),
+            #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
+            ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node"),
             ("umog_ConvolveNode", "Convolve"),
             ("umog_ConvolveGLNode", "Convolve opengl")
         ]
