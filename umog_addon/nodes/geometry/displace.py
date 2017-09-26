@@ -29,8 +29,6 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
         layout.prop(self, "mod_midlevel", text="Midlevel")
         layout.prop(self, "mod_strength", text="Strength")
 
-    def update(self):
-        pass
 
     def execute(self, refholder):
         print("sculpt node execution, mesh: " + self.mesh_name)
@@ -49,6 +47,7 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
             oname = "DISPLACE"
             mod = obj.modifiers.new(name=oname, type='DISPLACE')
             dir(mod)
+            print(self.texture_name_temp)
             mod.texture = bpy.data.textures[self.texture_name_temp]
             mod.mid_level = self.mod_midlevel
             mod.strength = self.mod_strength

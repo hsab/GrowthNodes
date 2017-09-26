@@ -23,8 +23,6 @@ class SaveTextureNode(bpy.types.Node, UMOGOutputNode):
         layout.prop(self, "file_path", text="Path")
         layout.prop(self, "file_name", text="File Name")
 
-    def update(self):
-        pass
 
     def execute(self, refholder):
         refholder.handleToImage(self.inputs[0].links[0].from_socket.texture_index,

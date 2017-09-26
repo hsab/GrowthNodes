@@ -24,6 +24,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
     assignedType = StringProperty()
 
     def setup(self):
+        print("mothernode setup")
         self.assignedType = "Object"
 
     def create(self):

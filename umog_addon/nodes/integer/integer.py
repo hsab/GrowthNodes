@@ -1,11 +1,10 @@
-from ... base_types import UMOGNode
 import bpy
-
+from ... base_types import UMOGNode
 class IntegerNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_IntegerNode"
     bl_label = "UMOG Integer"
 
-    input_value = bpy.props.IntProperty()
+    input_value = bpy.props.IntProperty(update = UMOGNode.updated)
 
     def init(self, context):
         self.outputs.new("IntegerSocketType", "Integer0")
@@ -17,3 +16,6 @@ class IntegerNode(bpy.types.Node, UMOGNode):
     def preExecute(self, refholder):
         # consider saving the result from this
         self.outputs[0].integer_value = self.input_value
+
+    def getProperty(self):
+        return self.input_value
