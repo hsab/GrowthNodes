@@ -7,22 +7,31 @@ from ... sockets.info import toIdName as toSocketIdName
 from ... operators.callbacks import newNodeCallback
 from ... operators.dynamic_operators import getInvokeFunctionOperator
 
+class UMOGNodeExecutionProperties(bpy.types.PropertyGroup):
+    bl_idname = "umog_NodeExecutionProperties"
+    visited = BoolProperty(name = "Visited in Topological Sort", default = False)
+    subgraph = IntProperty(name = "Strongly Connected Component Node Belongs To", default = 0)
+
+class UMOGNodeDisplayProperties(bpy.types.PropertyGroup):
+    bl_idname = "umog_NodeDisplayProperties"
+    useCustomColor = BoolProperty(name = "Use Custom Color", default = False)
+    customColor = FloatVectorProperty(name="Custom Color", default=(0.0, 0.0, 0.0), min=0, max=1)
+    highlightColor = FloatVectorProperty(name="Highlight Color", default=(0.6, 0.4, 0.4), min=0, max=1)
 class UMOGNode:
     bl_width_min = 40
     bl_width_max = 5000
     _isUMOGNode = True
     _IsUMOGOutputNode = False
-    sortVisited = BoolProperty(name = "Visited in Topological Sort", default = False)
-    sortSubgraph = IntProperty(name = "Subgraph in Topological Sort", default = 0)
+
+    execution = PointerProperty(type = UMOGNodeExecutionProperties)
+    display = PointerProperty(type = UMOGNodeDisplayProperties)
+
     # unique string for each node; don't change it at all
     identifier = StringProperty(name = "Identifier", default = "")
-    inInvalidNetwork = BoolProperty(name = "In Invalid Network", default = False)
+
+    
 
 
-    highlightColor = (0.6, 0.4, 0.4)
-
-    useCustomColor = BoolProperty(name = "Use Custom Color", default = False)
-    customColor = FloatVectorProperty(name="Custom Color", default=(0.0, 0.0, 0.0), min=0, max=1)
 
     # used for the listboxes in the sidebar
     activeInputIndex = IntProperty()
@@ -40,8 +49,8 @@ class UMOGNode:
         return nodeTree.bl_idname == "umog_UMOGNodeTree"
 
     def init(self, context):
-        self.customColor = self.color
-        self.useCustomColor = self.use_custom_color
+        self.display.customColor = self.color
+        self.display.useCustomColor = self.use_custom_color
 
         self.width_hidden = 100
         self.identifier = createIdentifier()
@@ -57,7 +66,6 @@ class UMOGNode:
         self.postCreate()
 
     def draw_buttons(self, context, layout):
-        if self.inInvalidNetwork: layout.label("Invalid Network", icon = "ERROR")
         self.draw(layout)
 
     def updated(self, context):
@@ -89,7 +97,6 @@ class UMOGNode:
         pass
 
     def refresh(self):
-        print("refreshNode", self.name, self.sortSubgraph)
         pass
 
     def postRefresh(self):
@@ -148,22 +155,22 @@ class UMOGNode:
 
     def storeCustomColor(self):
         currentColor = self.color
-        redIsClose = math.isclose(currentColor[0], self.highlightColor[0], abs_tol=0.01)
-        greenIsClose = math.isclose(currentColor[1], self.highlightColor[1], abs_tol=0.01)
-        blueIsClose = math.isclose(currentColor[2], self.highlightColor[2], abs_tol=0.01)
+        redIsClose = math.isclose(currentColor[0], self.display.highlightColor[0], abs_tol=0.01)
+        greenIsClose = math.isclose(currentColor[1], self.display.highlightColor[1], abs_tol=0.01)
+        blueIsClose = math.isclose(currentColor[2], self.display.highlightColor[2], abs_tol=0.01)
 
         if not redIsClose or not greenIsClose or not blueIsClose:
-            self.customColor = self.color
-            self.useCustomColor = self.use_custom_color
+            self.display.customColor = self.color
+            self.display.useCustomColor = self.use_custom_color
 
     def enableUnlinkedHighlight(self):
         self.storeCustomColor()
         self.use_custom_color = True
-        self.color = self.highlightColor
+        self.color = self.display.highlightColor
 
     def disableUnlinkedHighlight(self):
-        self.use_custom_color = self.useCustomColor
-        self.color = self.customColor
+        self.use_custom_color = self.display.useCustomColor
+        self.color = self.display.customColor
 
     @property
     def nodeTree(self):
@@ -184,7 +191,7 @@ class UMOGNode:
         return False
 
     @property
-    def hasLinks(self):
+    def isLinked(self):
         return self.hasOutputLinks or self.hasInputLinks
 
     @property

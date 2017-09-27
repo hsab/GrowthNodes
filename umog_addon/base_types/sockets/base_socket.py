@@ -18,6 +18,29 @@ class SocketDisplayProperties(bpy.types.PropertyGroup):
     textInput = BoolProperty(default = False)
     moveOperators = BoolProperty(default = False)
     removeOperator = BoolProperty(default = False)
+    isRefreshable = BoolProperty(default = True)
+    isSelfContained = BoolProperty(default = True)
+
+    drawIsRefreshable = BoolProperty(name = "Draw Is Refreshable", default = True,
+        description = 
+        '''Refreshable [ON]
+        Refresh this socket on change
+        Value of this socket will be refreshed on node-tree changes''')
+    drawNotRefreshable = BoolProperty(name = "Draw Is Not Refreshable", default = True,
+        description = 
+        '''Refreshable [OFF]
+        Don't refresh this socket on change
+        Value of this socket is refreshed only at the beginning of bake''')
+    drawIsSelfContained = BoolProperty(name = "Draw Is Self-contained", default = True,
+        description = 
+        '''Self-contained [ON]
+        Stores the initial value of this socket
+        Value of this socket affects this node's calculations only at the beginning of bake''')
+    drawNotSelfContained = BoolProperty(name = "Draw Is Not Self-contained", default = True,
+        description = 
+        '''Self-contained [OFF]
+        Updates the value of this socket
+        Value of this socket will affects this node's calculations on every frame''')
 
 class SocketExecutionProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_SocketExecutionProperties"
@@ -31,23 +54,29 @@ class UMOGSocket:
     _isUMOGSocket = True
     drawColor = (1, 1, 1, 1)
 
-    def textChanged(self, context):
-        updateText(self)
-
-    text = StringProperty(default = "custom name", update = textChanged)
+    display = PointerProperty(type = SocketDisplayProperties)
     removeable = BoolProperty(default = False)
     moveable = BoolProperty(default = False)
     moveGroup = IntProperty(default = 0)
+
+    textProps = PointerProperty(type = SocketTextProperties)
+
+    def textChanged(self, context):
+        updateText(self)
+
+    text = StringProperty(default = "Default Name", update = textChanged)
+    defaultDrawType = StringProperty(default = "TEXT_PROPERTY")
 
     isUsed = BoolProperty(name = "Is Used", default = True,
         description = "Enable this socket (orange point means that the socket will be evaluated)")
     useIsUsedProperty = BoolProperty(default = False)
 
-    display = PointerProperty(type = SocketDisplayProperties)
-    textProps = PointerProperty(type = SocketTextProperties)
+    isRefreshable = BoolProperty(name = "Is Refreshable", default = True,
+        description = "Enabling refreshing this socket on node-tree change if necessary")
+    isSelfContained = BoolProperty(name = "Is Refreshable", default = False,
+        description = "Enabling refreshing this socket on node-tree change if necessary")
 
-    dataIsModified = BoolProperty(default = False)
-    defaultDrawType = StringProperty(default = "TEXT_PROPERTY")
+    isDataModified = BoolProperty(default = False)
 
  # Overwrite in subclasses
     ##########################################################
@@ -79,34 +108,92 @@ class UMOGSocket:
     # Drawing
     ##########################################################
 
+    def drawRefreshContain(self, subrow):
+        subrow.enabled = False
+        if self.display.isRefreshable:
+            if self.isRefreshable:
+                icon = "RECOVER_LAST"
+                subrow.prop(self.display, "drawIsRefreshable", text = "", icon = icon)
+            else:
+                icon = "TIME"
+                subrow.prop(self.display, "drawNotRefreshable", text = "", icon = icon)
+           
+        if self.display.isSelfContained:
+            if self.isSelfContained:
+                icon = "DISK_DRIVE"
+                subrow.prop(self.display, "drawIsSelfContained", text = "", icon = icon)
+            else:
+                icon = "LOAD_FACTORY"
+                subrow.prop(self.display, "drawNotSelfContained", text = "", icon = icon)
+
+    def drawMoveOperators(self, context, subrow, node):
+        if self.moveable and self.display.moveOperators:
+            if self.isInput: subrow.separator()
+            self.invokeFunction(subrow, node, "moveUpInGroup", icon = "TRIA_UP")
+            self.invokeFunction(subrow, node, "moveDownInGroup", icon = "TRIA_DOWN")
+            if not self.isInput: subrow.separator()
+
+    def drawRemoveOperators(self, context, subrow, node):
+        if self.removeable and self.display.removeOperator:
+            if self.isInput: subrow.separator()
+            self.invokeFunction(subrow, node, "remove", icon = "X")
+            if not self.isInput: subrow.separator()
+
+    def drawIsUsedProperty(self, context, subrow, node):
+        icon = "LAYER_ACTIVE" if self.isUsed else "LAYER_USED"
+        if self.useIsUsedProperty:
+            if not self.isInput: subrow.prop(self, "isUsed", text = "", icon = icon) 
+            if self.is_linked and not self.isUsed:
+                if self.isInput:
+                    subrow.label("", icon = "QUESTION")
+                    subrow.label("", icon = "TRIA_RIGHT")
+                else:
+                    subrow.label("", icon = "TRIA_RIGHT")
+                    subrow.label("", icon = "QUESTION")
+            if self.isInput: subrow.prop(self, "isUsed", text = "", icon = icon)
+
+
     def draw(self, context, layout, node, text):
         displayText = self.getDisplayedName()
 
         row = layout.row(align = True)
+
+        col = row.column()
+        leftSubrow = col.row(align=True)
+
+        col = row.column()
+        middleSubrow = col.row(align=True)
+
+        col = row.column()
+        rightSubrow = col.row(align=True)
+          
         if self.textProps.editable and self.display.textInput:
-            row.prop(self, "text", text = "")
+            self.drawRefreshContain(leftSubrow)
+            middleSubrow.prop(self, "text", text = "")
+
         else:
             if self.isInput and self.isUnlinked and self.isUsed:
-                self.drawSocket(row, displayText, node, self.defaultDrawType)
+                self.drawRefreshContain(leftSubrow)
+                self.drawSocket(middleSubrow, displayText, node, self.defaultDrawType)
             else:
-                if self.isOutput: row.alignment = "RIGHT"
-                row.label(displayText)
+                if self.isOutput:
+                    middleSubrow.alignment = "RIGHT"
+                    self.drawRefreshContain(rightSubrow)
+                else:
+                    self.drawRefreshContain(leftSubrow)
+                middleSubrow.label(displayText)
 
-        if self.moveable and self.display.moveOperators:
-            row.separator()
-            self.invokeFunction(row, node, "moveUpInGroup", icon = "TRIA_UP")
-            self.invokeFunction(row, node, "moveDownInGroup", icon = "TRIA_DOWN")
-
-        if self.removeable and self.display.removeOperator:
-            row.separator()
-            self.invokeFunction(row, node, "remove", icon = "X")
-
-        if self.useIsUsedProperty:
-            if self.is_linked and not self.isUsed:
-                row.label("", icon = "QUESTION")
-                row.label("", icon = "TRIA_RIGHT")
-            icon = "LAYER_ACTIVE" if self.isUsed else "LAYER_USED"
-            row.prop(self, "isUsed", text = "", icon = icon)
+        if self.isInput:
+            subrow = rightSubrow
+            self.drawIsUsedProperty(context, subrow, node)
+            self.drawMoveOperators(context, subrow, node)
+            self.drawRemoveOperators(context, subrow, node)
+        else:
+            subrow = leftSubrow
+            subrow.alignment = "LEFT"
+            self.drawRemoveOperators(context, subrow, node)
+            self.drawMoveOperators(context, subrow, node)
+            self.drawIsUsedProperty(context, subrow, node)
 
     def drawSocket(self, layout, text, node, drawType = "TEXT_PROPERTY"):
         '''
