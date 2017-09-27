@@ -29,10 +29,6 @@ class UMOGNode:
     # unique string for each node; don't change it at all
     identifier = StringProperty(name = "Identifier", default = "")
 
-    
-
-
-
     # used for the listboxes in the sidebar
     activeInputIndex = IntProperty()
     activeOutputIndex = IntProperty()
@@ -73,7 +69,12 @@ class UMOGNode:
             print("updated", self.name)
             self.nodeTree.updateFrom(self)
 
+    def refreshInputs(self):
+        for socket in self.inputs:
+            socket.refreshSocket()
+
     def refreshNode(self):
+        self.refreshInputs()
         self.preRefresh()
         self.refresh()
         self.postRefresh()

@@ -61,24 +61,50 @@ class UMOGSocket:
 
     textProps = PointerProperty(type = SocketTextProperties)
 
+    def updated(self, context):
+        if not self.wasRecentlyRefreshed:
+            print("updated from socket", self.name)
+            self.isDataModified = True
+            node = self.node
+            if node in self.nodeTree.linearizedNodes:
+                print("updated from socket", self.name)
+                self.nodeTree.updateFrom(node)
+        else:
+            self.wasRecentlyRefreshed = False
+
     def textChanged(self, context):
         updateText(self)
+        self.updated(context)
 
     text = StringProperty(default = "Default Name", update = textChanged)
     defaultDrawType = StringProperty(default = "TEXT_PROPERTY")
 
     isUsed = BoolProperty(name = "Is Used", default = True,
-        description = "Enable this socket (orange point means that the socket will be evaluated)")
+        description = "Enable this socket (orange point means that the socket will be evaluated)", update = updated)
     useIsUsedProperty = BoolProperty(default = False)
 
     isRefreshable = BoolProperty(name = "Is Refreshable", default = True,
-        description = "Enabling refreshing this socket on node-tree change if necessary")
+        description = "Enabling refreshing this socket on node-tree change if necessary", update = updated)
     isSelfContained = BoolProperty(name = "Is Refreshable", default = False,
-        description = "Enabling refreshing this socket on node-tree change if necessary")
+        description = "Enabling refreshing this socket on node-tree change if necessary", update = updated)
 
     isDataModified = BoolProperty(default = False)
+    wasRecentlyRefreshed = BoolProperty(default = False)
 
- # Overwrite in subclasses
+    # Refresh
+    ##########################################################
+    def refreshSocket(self):
+        if self.isRefreshable and self.isDataModified:
+            if self.isInput and self.isLinked:
+                print(self, self.node)
+                self.wasRecentlyRefreshed = True
+                self.setProperty(self.getFromSocket.getProperty())
+                self.refresh()
+
+    def refresh(self):
+        pass
+
+    # Overwrite in subclasses
     ##########################################################
 
     def setProperty(self, data):
@@ -338,15 +364,13 @@ class UMOGSocket:
     ##########################################################
 
     @property
-    def getConnectedSocket(self):
-        if self.is_output:
-            return self.links[0].to_socket
-        else:
+    def getFromSocket(self):
+        if not self.isOutput:
             return self.links[0].from_socket
 
     @property
     def getConnectedNode(self):
-        if self.is_output:
+        if self.isOutput:
             return self.links[0].to_node
         else:
             return self.links[0].from_node
@@ -354,7 +378,7 @@ class UMOGSocket:
     @property
     def getConnectedNodes(self):
         nodes = []
-        if self.is_output:
+        if self.isOutput:
             for link in self.links:
                 nodes.append(link.to_node)
         else:
