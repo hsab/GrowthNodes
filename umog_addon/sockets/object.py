@@ -12,13 +12,15 @@ class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
     dataType = "Object"
     allowedInputTypes = ["Object"]
 
+    isDataModified = True
+
+    text = "Object"
+    useIsUsedProperty = True
+    defaultDrawType = "TEXT_PROPERTY"
+
     drawColor = (0, 1, 1, 0.5)
     storable = False
     comparable = True
-
-    objectName = StringProperty()
-    objectCreationType = StringProperty(default = "")
-    showHideToggle = BoolProperty(default = False)
 
     def drawProperty(self, layout, text, node):
         layout.label(text=text)

@@ -21,19 +21,19 @@ class UMOGNodeTree(NodeTree):
         if node is None:
             DBG("ALL EXECUTABLE NODES REFRESHED:", *self.linearizedNodes, TRACE = False)
             for node in self.linearizedNodes:
-                node.refresh()
+                node.refreshNode()
         else:
             index = self.linearizedNodes.index(node)
-            subgraph = node.sortSubgraph
+            subgraph = node.execution.subgraph
             nodesToBeUpdated = []
             for node in self.linearizedNodes[index:]:
-                if node.sortSubgraph == subgraph:
+                if node.execution.subgraph == subgraph:
                     nodesToBeUpdated.append(node)
 
             DBG("FOLLOWING EXECUTABLE NODES REFRESHED:", *nodesToBeUpdated, TRACE = False)
 
             for node in nodesToBeUpdated:
-                node.refresh()
+                node.refreshNode()
 
     def refreshExecutionPolicy(self):
         self.topologicalSort()
@@ -71,16 +71,16 @@ class UMOGNodeTree(NodeTree):
     # A recursive function used by topologicalSort
     def topologicalSortUtil(self, node, subgraph):
         # Mark the current node as visited.
-        node.sortVisited = True
-        node.sortSubgraph = subgraph
+        node.execution.visited = True
+        node.execution.subgraph = subgraph
         # Recur for all the nodes adjacent to this node
         for socket in node.outputs:
             connectedNodes = socket.getConnectedNodes
             for adjacentNode in connectedNodes:
-                if adjacentNode.sortVisited == False:
+                if adjacentNode.execution.visited == False:
                     self.topologicalSortUtil(adjacentNode, subgraph)
                 else:
-                    node.sortSubgraph = adjacentNode.sortSubgraph
+                    node.execution.subgraph = adjacentNode.execution.subgraph
 
         # Push current vertex to stack which stores result
         self.linearizedNodes.insert(0,node)
@@ -94,15 +94,15 @@ class UMOGNodeTree(NodeTree):
         # Sort starting from all vertices one by one
         subgraph = 1
         for node in self.nodes:
-            if node.hasLinks is False:
-                node.sortSubgraph = 0
+            if node.isLinked is False:
+                node.execution.subgraph = 0
                 self.unlinkedNodes.append(node)
-            elif node.sortVisited is False:
+            elif node.execution.visited is False:
                 self.topologicalSortUtil(node, subgraph)
                 subgraph += 1
 
         for node in self.nodes:
-            node.sortVisited = False
+            node.execution.visited = False
 
     def topological_sort(self):
         stack = []

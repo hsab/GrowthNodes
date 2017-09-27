@@ -23,12 +23,10 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     assignedType = StringProperty()
 
-    def setup(self):
-        print("mothernode setup")
-        self.assignedType = "Object"
-
     def create(self):
-        pass
+        print("mothernode setup")
+        self.width = 300
+        self.assignedType = "Object"
 
     def draw(self, layout):
         row = layout.row(align = True)
@@ -49,12 +47,22 @@ class MotherNode(bpy.types.Node, UMOGNode):
                 data = str(i))
 
         row = layout.row(align = True)
+        row.alert = True
         self.invokeFunction(row, "removeUnlinkedInputs",
             text = "Remove Unlinked",
-            emboss = False,
+            emboss = True,
             description = "Remove unlinked inputs",
             confirm = True,
             icon = "X")
+
+        row = layout.row(align = True)
+        row.alert = True
+        self.invokeFunction(row, "newOutputNode",
+            text = "Output Socket",
+            emboss = True,
+            description = "Remove unlinked inputs",
+            confirm = True,
+            icon = "PLUS")
 
         row = layout.row(align = True)
         self.invokeFunction(row, "newEditableSocket",
@@ -84,9 +92,22 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
         self.drawTypeSpecifics(layout)
 
+    def newOutputNode(self):
+        socket = self.newOutput(self.assignedType, "Object")
+        socket.isDataModified = True
+        socket.textProps.editable = True
+        socket.display.text = True
+        socket.text = "Editable"
+        socket.removeable = True
+        socket.moveable = True
+        socket.display.removeOperator = True
+        socket.display.moveOperators = True
+        socket.useIsUsedProperty = True
+        socket.defaultDrawType = "TEXT_PROPERTY"
+
     def newEditableSocket(self):
         socket = self.newInput(self.assignedType, "Object")
-        socket.dataIsModified = True
+        socket.isDataModified = True
         socket.textProps.editable = True
         socket.display.textInput = True
         socket.display.text = True
@@ -103,11 +124,11 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def newWithDrawPropertySocket(self):
         socket = self.newInput(self.assignedType, "Object")
-        socket.dataIsModified = True
+        socket.isDataModified = True
         socket.display.text = True
-        socket.text = "As Defined"
-        socket.removeable = True
+        socket.text = "Output"
         socket.moveable = True
+        socket.display.moveOperators = True
         socket.defaultDrawType = "TEXT_PROPERTY"
 
         self.updateOutputName()
@@ -115,7 +136,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def newMoveableSocket(self):
         socket = self.newInput(self.assignedType, "Object")
-        socket.dataIsModified = True
+        socket.isDataModified = True
         socket.display.text = True
         socket.text = "Moveable"
         socket.moveable = True
@@ -127,10 +148,11 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def newRemoveableSocket(self):
         socket = self.newInput(self.assignedType, "Object")
-        socket.dataIsModified = True
+        socket.isDataModified = True
         socket.display.text = True
         socket.text = "Removeable"
         socket.removeable = True
+        socket.moveable = True
         socket.display.removeOperator = True
         socket.defaultDrawType = "TEXT_PROPERTY"
 
@@ -139,9 +161,14 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def newUseIsUsedProperty(self):
         socket = self.newInput(self.assignedType, "Object")
-        socket.dataIsModified = True
+        socket.isDataModified = True
         socket.display.text = True
         socket.text = "Toggle Use"
+        socket.moveable = True
+        socket.removeable = True
+        socket.moveable = True
+        socket.display.removeOperator = True
+        socket.display.moveOperators = True
         socket.useIsUsedProperty = True
         socket.defaultDrawType = "TEXT_PROPERTY"
 

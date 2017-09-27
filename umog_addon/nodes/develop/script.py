@@ -16,18 +16,16 @@ class ScriptNode(bpy.types.Node, UMOGNode):
     scriptName = StringProperty(default = "ScriptName")
     textBlock = None
 
-    def setup(self):
-        self.assignedType = "Object"
-
     def create(self):
-        pass
+        print("in script node create")
+        self.assignedType = "Variable"
+        self.width = 270
 
     def draw(self, layout):
         layout.prop(self, "scriptName", text = "", icon = "GROUP_VERTEX")
         row = layout.row(align = True)
         self.invokeFunction(row, "removeUnlinkedInputs",
             text = "Remove Unlinked",
-            emboss = False,
             description = "Remove unlinked inputs",
             confirm = True,
             icon = "X")
@@ -72,8 +70,8 @@ class ScriptNode(bpy.types.Node, UMOGNode):
         space.show_syntax_highlight = True
 
     def newVariable(self):
-        socket = self.newInput(self.assignedType, "Object")
-        socket.dataIsModified = True
+        socket = self.newInput(self.assignedType, "Variable")
+        socket.isDataModified = True
         socket.textProps.editable = True
         socket.display.textInput = True
         socket.display.text = True

@@ -9,9 +9,10 @@ class VariableSocket(bpy.types.NodeSocket, UMOGSocket):
     bl_idname = 'VariableSocketType'
     bl_label = 'Variable Socket'
     dataType = "Variable"
-    allowedInputTypes = []
+    allowedInputTypes = ["All"]
 
-    dataIsModified = True
+    isDataModified = True
+
     text = "varName"
     useIsUsedProperty = True
     defaultDrawType = "TEXT_PROPERTY"
@@ -21,17 +22,17 @@ class VariableSocket(bpy.types.NodeSocket, UMOGSocket):
     comparable = True
 
     def textChanged(self, context):
-        print(changed)
+        pass
 
     text = StringProperty(default = "custom name", update = textChanged)
 
-    socketName = StringProperty()
     socketCreationType = StringProperty(default = "")
-    showHideToggle = BoolProperty(default = False)
 
     def drawProperty(self, layout, text, node):
         layout.label(text=text)
         row = layout.row()
+        self.invokeFunction(row, node, "addIntegerNode", icon = "PLUS", emboss = False,
+                description = "Create a new node node")
         self.invokeFunction(row, node, "addIntegerNode", icon = "PLUS", emboss = False,
                 description = "Create a new node node")
 
