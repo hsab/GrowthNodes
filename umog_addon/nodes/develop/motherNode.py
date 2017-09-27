@@ -26,7 +26,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
     def create(self):
         print("mothernode setup")
         self.width = 300
-        self.assignedType = "Object"
+        self.assignedType = "Float"
 
     def draw(self, layout):
         row = layout.row(align = True)
@@ -93,7 +93,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
         self.drawTypeSpecifics(layout)
 
     def newOutputNode(self):
-        socket = self.newOutput(self.assignedType, "Object")
+        socket = self.newOutput(self.assignedType, "Float")
         socket.isDataModified = True
         socket.textProps.editable = True
         socket.display.text = True
@@ -106,7 +106,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
         socket.defaultDrawType = "TEXT_PROPERTY"
 
     def newEditableSocket(self):
-        socket = self.newInput(self.assignedType, "Object")
+        socket = self.newInput(self.assignedType, "Float")
         socket.isDataModified = True
         socket.textProps.editable = True
         socket.display.textInput = True
@@ -123,7 +123,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
         return socket
 
     def newWithDrawPropertySocket(self):
-        socket = self.newInput(self.assignedType, "Object")
+        socket = self.newInput(self.assignedType, "Float")
         socket.isDataModified = True
         socket.display.text = True
         socket.text = "Output"
@@ -135,7 +135,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
         return socket
 
     def newMoveableSocket(self):
-        socket = self.newInput(self.assignedType, "Object")
+        socket = self.newInput(self.assignedType, "Float")
         socket.isDataModified = True
         socket.display.text = True
         socket.text = "Moveable"
@@ -147,7 +147,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
         return socket
 
     def newRemoveableSocket(self):
-        socket = self.newInput(self.assignedType, "Object")
+        socket = self.newInput(self.assignedType, "Float")
         socket.isDataModified = True
         socket.display.text = True
         socket.text = "Removeable"
@@ -160,7 +160,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
         return socket
 
     def newUseIsUsedProperty(self):
-        socket = self.newInput(self.assignedType, "Object")
+        socket = self.newInput(self.assignedType, "Float")
         socket.isDataModified = True
         socket.display.text = True
         socket.text = "Toggle Use"
