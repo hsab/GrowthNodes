@@ -52,5 +52,5 @@ class UMOGNodeTree(NodeTree):
                         stack.append(link.from_node)
                         nodes.append(link.from_node)
                         visited[link.from_node.name] = True
-
+        nodes.reverse()
         return nodes
