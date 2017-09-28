@@ -6,7 +6,7 @@ menus = OrderedDict([
         "bl_idname": "umog_algorithm_menu",
         "bl_label": "Algorithm Menu",
         "text": "Algorithm",
-        "bl_description": "Lorem Ipsum",
+        "bl_description": "Nodes for systems",
         "icon": "STICKY_UVS_LOC",
         "nodes": [
             #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
@@ -30,7 +30,7 @@ menus = OrderedDict([
         "bl_idname": "umog_bmesh_menu",
         "bl_label": "Bmesh Menu",
         "text": "Bmesh",
-        "bl_description": "Lorem Ipsum",
+        "bl_description": "Nodes that modify meshes",
         "icon": "SURFACE_NSPHERE",
         "nodes": [
             ("umog_BMeshNode", "Bmesh Node"),
@@ -41,7 +41,7 @@ menus = OrderedDict([
         "bl_idname": "umog_geometry_menu",
         "bl_label": "Geometry Menu",
         "text": "Geometry",
-        "bl_description": "Lorem Ipsum",
+        "bl_description": "Nodes that modify meshes",
         "icon": "MESH_UVSPHERE",
         "nodes": [
             ("umog_SculptNode", "Sculpt Dynamic Node"),
@@ -54,7 +54,7 @@ menus = OrderedDict([
         "bl_idname": "umog_integer_menu",
         "bl_label": "Integer Menu",
         "text": "Integer",
-        "bl_description": "Lorem Ipsum",
+        "bl_description": "Nodes that operate on integers",
         "icon": "LINENUMBERS_ON",
         "nodes": [
             ("umog_IntegerNode", "Integer"),
@@ -67,7 +67,7 @@ menus = OrderedDict([
         "bl_idname": "umog_matrix_menu",
         "bl_label": "Matrix Menu",
         "text": "Matrix",
-        "bl_description": "Lorem Ipsum",
+        "bl_description": "Nodes that operate on matrices",
         "icon": "MESH_GRID",
         "nodes": [
             ("umog_Mat3Node", "Matrix 3x3 Node"),
@@ -81,7 +81,7 @@ menus = OrderedDict([
         "bl_idname": "umog_texture_menu",
         "bl_label": "Texture Menu",
         "text": "Texture",
-        "bl_description": "Lorem Ipsum",
+        "bl_description": "Nodes that operate on Textures",
         "icon": "IMGDISPLAY",
         "nodes": [
             ("umog_GetTextureNode", "Get Texture"),
