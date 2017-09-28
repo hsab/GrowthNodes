@@ -12,12 +12,12 @@ class ReactionDiffusionBGLNode(UMOGNode):
     bl_idname = "umog_ReactionDiffusionBGLNode"
     bl_label = "Reaction Diffusion Node"
 
-    feed = bpy.props.FloatProperty(default=0.014)
-    kill = bpy.props.FloatProperty(default=0.046)
-    Da = bpy.props.FloatProperty(default=0.2)
-    Db = bpy.props.FloatProperty(default=0.09)
-    dt = bpy.props.FloatProperty(default=0.3)
-    steps = bpy.props.IntProperty(default=500)
+    feed = bpy.props.FloatProperty(default=0.014, soft_min=0.0, soft_max=1.0, step=1, precision=4)
+    kill = bpy.props.FloatProperty(default=0.046, soft_min=0.0, soft_max=1.0, step=1, precision=4)
+    Da = bpy.props.FloatProperty(default=0.2, soft_min=0.0, soft_max=1.0, step=1, precision=4)
+    Db = bpy.props.FloatProperty(default=0.09, soft_min=0.0, soft_max=1.0, step=1, precision=4)
+    dt = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=1.0, step=1, precision=4)
+    steps = bpy.props.IntProperty(default=500, min=1, step=500)
     channels = bpy.props.EnumProperty(items=
         (('0', 'R', 'Just do the reaction on one channel'),
          ('1', 'RGB', 'Do the reaction on all color channels'),
