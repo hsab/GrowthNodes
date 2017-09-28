@@ -21,5 +21,5 @@ bpy.types.Scene.SubFrames = bpy.props.IntProperty(
 bpy.types.Scene.TextureResolution = bpy.props.IntProperty(
     name = "TextureResolution", 
     description = "TextureResolution",
-    default = 256,
+    default = 512,
     min = 64)
