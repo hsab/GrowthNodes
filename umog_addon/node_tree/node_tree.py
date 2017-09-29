@@ -40,8 +40,6 @@ class UMOGNodeTree(NodeTree):
         self.updateNodeColors()
 
     def execute(self, refholder, start_frame, end_frame, sub_frames, write_keyframes=False):
-        print('Executing node tree')
-
         nodes = self.topological_sort()
         
         for node in nodes:
@@ -127,11 +125,3 @@ class UMOGNodeTree(NodeTree):
                         visited[link.from_node.name] = True
 
         return nodes
-
-@eventUMOGHandler("FILE_LOAD_POST")
-def updateOnLoad():
-    for area in bpy.context.screen.areas:
-        if area.type == "NODE_EDITOR":
-            tree = area.spaces.active.node_tree
-            if getattr(tree, "bl_idname", "") == "umog_UMOGNodeTree":
-                tree.refreshExecutionPolicy()

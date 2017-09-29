@@ -13,9 +13,13 @@ def DBG(*messages, **options):
     except:
         return
     
-    if isExecutionInfoEnabled and len(messages)>0:
-        print()
+    executionInfoExists = False
 
+    print()
+
+    if isExecutionInfoEnabled and len(messages)>0:
+        executionInfoExists = True
+        
         notifier = getFunctionInfo(1)
         print("|||||||||",
             notifier["name"],
@@ -29,14 +33,18 @@ def DBG(*messages, **options):
         
         for message in messages:
             print("--------|", message)
-        print()
+        
 
     trace = True
     if "TRACE" in options:
         trace = options["TRACE"]
 
-    if isTraceEnabled and trace:
+    if isExecutionInfoEnabled and isTraceEnabled and trace and executionInfoExists:
+        print("        |")
+    elif isExecutionInfoEnabled and executionInfoExists:
         print()
+
+    if isTraceEnabled and trace:
 
         try:
             callee = getFunctionInfo(1)
@@ -46,7 +54,7 @@ def DBG(*messages, **options):
             caller = getFunctionInfo(1)
 
         traceData = [
-            ["--------|",    callee["name"],    '',                     callee["firstLine"],    callee["path"]],
+            ["********|",    callee["name"],    '',                     callee["firstLine"],    callee["path"]],
             ['    FROM|',    caller["name"],    caller["executedLine"], caller["firstLine"],    caller["path"]]
         ]
         

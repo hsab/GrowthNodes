@@ -26,7 +26,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
     def create(self):
         print("mothernode setup")
         self.width = 300
-        self.assignedType = "Float"
+        self.assignedType = "Texture2"
 
     def draw(self, layout):
         row = layout.row(align = True)
@@ -93,16 +93,17 @@ class MotherNode(bpy.types.Node, UMOGNode):
         self.drawTypeSpecifics(layout)
 
     def newOutputNode(self):
-        socket = self.newOutput(self.assignedType, "Float")
-        socket.isDataModified = True
-        socket.textProps.editable = True
-        socket.display.text = True
-        socket.text = "Editable"
-        socket.removeable = True
-        socket.moveable = True
-        socket.display.removeOperator = True
-        socket.display.moveOperators = True
-        socket.useIsUsedProperty = True
+        socket = self.newOutput(self.assignedType, "Texture2")
+        # socket.isDataModified = True
+        # socket.textProps.editable = True
+        # socket.display.text = True
+        socket.text = "Texture2"
+        socket.drawOutput = True
+        # socket.removeable = True
+        # socket.moveable = True
+        # socket.display.removeOperator = True
+        # socket.display.moveOperators = True
+        # socket.useIsUsedProperty = True
         socket.defaultDrawType = "TEXT_PROPERTY"
 
     def newEditableSocket(self):

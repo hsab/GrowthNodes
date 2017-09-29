@@ -5,19 +5,14 @@ from .. base_types import UMOGSocket
 from .. utils.events import propUpdate
 
 
-def getValue(self):
-    return min(max(self.minValue, self.get("value", 0)), self.maxValue)
-def setValue(self, value):
-    self["value"] = min(max(self.minValue, value), self.maxValue)
-
-class FloatSocket(bpy.types.NodeSocket, UMOGSocket):
+class BooleanSocket(bpy.types.NodeSocket, UMOGSocket):
     # Description string
-    '''Custom Float socket type'''
+    '''Custom Boolean socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.
-    bl_idname = 'FloatSocketType'
+    bl_idname = 'BooleanSocketType'
     # Label for nice name display
-    bl_label = 'Float Socket'
-    dataType = "Float"
+    bl_label = 'Boolean Socket'
+    dataType = "Boolean"
     allowedInputTypes = ["Float", "Integer", "Boolean"]
 
     useIsUsedProperty = False
@@ -28,9 +23,7 @@ class FloatSocket(bpy.types.NodeSocket, UMOGSocket):
     comparable = True
     storable = True
 
-    value = FloatProperty(default = 0.0,
-        set = setValue, get = getValue,
-        update = propUpdate)
+    value = FloatProperty(default = 0.0, update = propUpdate)
 
     minValue = FloatProperty(default = -1e10)
     maxValue = FloatProperty(default = sys.float_info.max)

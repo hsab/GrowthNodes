@@ -6,6 +6,8 @@ import random
 from ... sockets.info import toIdName as toSocketIdName
 from ... operators.callbacks import newNodeCallback
 from ... operators.dynamic_operators import getInvokeFunctionOperator
+from ... utils.events import propUpdate
+
 
 class UMOGNodeExecutionProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_NodeExecutionProperties"
@@ -63,11 +65,6 @@ class UMOGNode:
 
     def draw_buttons(self, context, layout):
         self.draw(layout)
-
-    def updated(self, context):
-        if self in self.nodeTree.linearizedNodes:
-            print("updated", self.name)
-            self.nodeTree.updateFrom(self)
 
     def refreshInputs(self):
         for socket in self.inputs:
@@ -259,5 +256,14 @@ def createIdentifier():
 def nodeToID(node):
     return (node.id_data.name, node.name)
 
+def isUMOGNode(node):
+    return getattr(node, "_isUMOGNode", False)
+
 def register():
     bpy.types.Node.toID = nodeToID
+    bpy.types.Node.isUMOGNode = BoolProperty(
+        default=False, get=isUMOGNode)
+
+def unregister():
+    del bpy.types.Node.toID
+    del bpy.types.Node.isUMOGNode
