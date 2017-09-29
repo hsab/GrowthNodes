@@ -5,48 +5,50 @@ from ... utils.recursion import noRecursion
 from ... operators.callbacks import newSocketCallback
 from ... utils.names import getRandomString, toVariableName
 from ... operators.dynamic_operators import getInvokeFunctionOperator
+from ... utils.events import propUpdate
+from ... utils.debug import *
 
 class SocketTextProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_SocketTextProperties"
-    unique = BoolProperty(default = False)
-    editable = BoolProperty(default = False)
-    variable = BoolProperty(default = False)
+    unique = BoolProperty(default=False)
+    editable = BoolProperty(default=False)
+    variable = BoolProperty(default=False)
+
 
 class SocketDisplayProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_SocketDisplayProperties"
-    text = BoolProperty(default = False)
-    textInput = BoolProperty(default = False)
-    moveOperators = BoolProperty(default = False)
-    removeOperator = BoolProperty(default = False)
-    isRefreshable = BoolProperty(default = True)
-    isSelfContained = BoolProperty(default = True)
+    text = BoolProperty(default=False)
+    textInput = BoolProperty(default=False)
+    moveOperators = BoolProperty(default=False)
+    removeOperator = BoolProperty(default=False)
+    isRefreshable = BoolProperty(default=True)
+    isSelfContained = BoolProperty(default=True)
 
-    drawIsRefreshable = BoolProperty(name = "Draw Is Refreshable", default = True,
-        description = 
-        '''Refreshable [ON]
+    drawIsRefreshable = BoolProperty(name="Draw Is Refreshable", default=True,
+                                     description='''Refreshable [ON]
         Refresh this socket on change
         Value of this socket will be refreshed on node-tree changes''')
-    drawNotRefreshable = BoolProperty(name = "Draw Is Not Refreshable", default = True,
-        description = 
-        '''Refreshable [OFF]
+    drawNotRefreshable = BoolProperty(name="Draw Is Not Refreshable", default=True,
+                                      description='''Refreshable [OFF]
         Don't refresh this socket on change
         Value of this socket is refreshed only at the beginning of bake''')
-    drawIsSelfContained = BoolProperty(name = "Draw Is Self-contained", default = True,
-        description = 
-        '''Self-contained [ON]
+    drawIsSelfContained = BoolProperty(name="Draw Is Self-contained", default=True,
+                                       description='''Self-contained [ON]
         Stores the initial value of this socket
         Value of this socket affects this node's calculations only at the beginning of bake''')
-    drawNotSelfContained = BoolProperty(name = "Draw Is Not Self-contained", default = True,
-        description = 
-        '''Self-contained [OFF]
+    drawNotSelfContained = BoolProperty(name="Draw Is Not Self-contained", default=True,
+                                        description='''Self-contained [OFF]
         Updates the value of this socket
         Value of this socket will affects this node's calculations on every frame''')
 
+
 class SocketExecutionProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_SocketExecutionProperties"
-    neededCopies = IntProperty(default = 0, min = 0)
+    neededCopies = IntProperty(default=0, min=0)
+
 
 alternativeIdentifiersPerSocket = defaultdict(list)
+
 
 class UMOGSocket:
     storable = True
@@ -54,52 +56,52 @@ class UMOGSocket:
     _isUMOGSocket = True
     drawColor = (1, 1, 1, 1)
 
-    display = PointerProperty(type = SocketDisplayProperties)
-    removeable = BoolProperty(default = False)
-    moveable = BoolProperty(default = False)
-    moveGroup = IntProperty(default = 0)
+    display = PointerProperty(type=SocketDisplayProperties)
+    removeable = BoolProperty(default=False)
+    moveable = BoolProperty(default=False)
+    moveGroup = IntProperty(default=0)
 
-    textProps = PointerProperty(type = SocketTextProperties)
+    drawOutput = BoolProperty(default=False)
 
-    def updated(self, context):
-        if not self.wasRecentlyRefreshed:
-            print("updated from socket", self.name)
-            self.isDataModified = True
-            node = self.node
-            if node in self.nodeTree.linearizedNodes:
-                print("updated from socket", self.name)
-                self.nodeTree.updateFrom(node)
-        else:
-            self.wasRecentlyRefreshed = False
+    textProps = PointerProperty(type=SocketTextProperties)
 
     def textChanged(self, context):
         updateText(self)
-        self.updated(context)
+        propUpdate(context)
 
-    text = StringProperty(default = "Default Name", update = textChanged)
-    defaultDrawType = StringProperty(default = "TEXT_PROPERTY")
+    text = StringProperty(default="Default Name", update=textChanged)
+    defaultDrawType = StringProperty(default="TEXT_PROPERTY")
 
-    isUsed = BoolProperty(name = "Is Used", default = True,
-        description = "Enable this socket (orange point means that the socket will be evaluated)", update = updated)
-    useIsUsedProperty = BoolProperty(default = False)
+    isUsed = BoolProperty(name="Is Used", default=True,
+                          description="Enable this socket (orange point means that the socket will be evaluated)", update=propUpdate)
+    useIsUsedProperty = BoolProperty(default=False)
 
-    isRefreshable = BoolProperty(name = "Is Refreshable", default = True,
-        description = "Enabling refreshing this socket on node-tree change if necessary", update = updated)
-    isSelfContained = BoolProperty(name = "Is Refreshable", default = False,
-        description = "Enabling refreshing this socket on node-tree change if necessary", update = updated)
+    isRefreshable = BoolProperty(name="Is Refreshable", default=True,
+                                 description="Enabling refreshing this socket on node-tree change if necessary", update=propUpdate)
+    isSelfContained = BoolProperty(name="Is Refreshable", default=False,
+                                   description="Enabling refreshing this socket on node-tree change if necessary", update=propUpdate)
 
-    isDataModified = BoolProperty(default = False)
-    wasRecentlyRefreshed = BoolProperty(default = False)
+    isDataModified = BoolProperty(default=False)
+    wasRecentlyRefreshed = BoolProperty(default=False)
 
     # Refresh
     ##########################################################
     def refreshSocket(self):
         if self.isRefreshable and self.isDataModified:
             if self.isInput and self.isLinked:
-                print(self, self.node)
                 self.wasRecentlyRefreshed = True
+                beforeValue = self.getProperty()
+                afterValue = self.getFromSocket.getProperty()
                 self.setProperty(self.getFromSocket.getProperty())
                 self.refresh()
+                DBG("SOCKET SUCCESSFULLY REFRESHED:",
+                "Type:   "+self.dataType,
+                "Name:   "+self.name,
+                "Path:   "+self.path_from_id(),
+                "Before: "+str(beforeValue),
+                "After:  "+str(afterValue),
+                trace = True)
+                
 
     def refresh(self):
         pass
@@ -115,7 +117,8 @@ class UMOGSocket:
 
     @classmethod
     def getDefaultValue(cls):
-        raise NotImplementedError("All sockets have to define a getDefaultValue method")
+        raise NotImplementedError(
+            "All sockets have to define a getDefaultValue method")
 
     @classmethod
     def correctValue(cls, value):
@@ -125,7 +128,8 @@ class UMOGSocket:
           If the value has a correctable type: (corrected_value, 1)
           if the value has a uncorrectable type: (default_value, 2)
         '''
-        raise NotImplementedError("All sockets have to define a correctValue method")
+        raise NotImplementedError(
+            "All sockets have to define a correctValue method")
 
     @classmethod
     def getConversionCode(cls, dataType):
@@ -139,50 +143,60 @@ class UMOGSocket:
         if self.display.isRefreshable:
             if self.isRefreshable:
                 icon = "RECOVER_LAST"
-                subrow.prop(self.display, "drawIsRefreshable", text = "", icon = icon)
+                subrow.prop(self.display, "drawIsRefreshable",
+                            text="", icon=icon)
             else:
                 icon = "TIME"
-                subrow.prop(self.display, "drawNotRefreshable", text = "", icon = icon)
-           
+                subrow.prop(self.display, "drawNotRefreshable",
+                            text="", icon=icon)
+
         if self.display.isSelfContained:
             if self.isSelfContained:
                 icon = "DISK_DRIVE"
-                subrow.prop(self.display, "drawIsSelfContained", text = "", icon = icon)
+                subrow.prop(self.display, "drawIsSelfContained",
+                            text="", icon=icon)
             else:
                 icon = "LOAD_FACTORY"
-                subrow.prop(self.display, "drawNotSelfContained", text = "", icon = icon)
+                subrow.prop(self.display, "drawNotSelfContained",
+                            text="", icon=icon)
 
     def drawMoveOperators(self, context, subrow, node):
         if self.moveable and self.display.moveOperators:
-            if self.isInput: subrow.separator()
-            self.invokeFunction(subrow, node, "moveUpInGroup", icon = "TRIA_UP")
-            self.invokeFunction(subrow, node, "moveDownInGroup", icon = "TRIA_DOWN")
-            if not self.isInput: subrow.separator()
+            if self.isInput:
+                subrow.separator()
+            self.invokeFunction(subrow, node, "moveUpInGroup", icon="TRIA_UP")
+            self.invokeFunction(
+                subrow, node, "moveDownInGroup", icon="TRIA_DOWN")
+            if not self.isInput:
+                subrow.separator()
 
     def drawRemoveOperators(self, context, subrow, node):
         if self.removeable and self.display.removeOperator:
-            if self.isInput: subrow.separator()
-            self.invokeFunction(subrow, node, "remove", icon = "X")
-            if not self.isInput: subrow.separator()
+            if self.isInput:
+                subrow.separator()
+            self.invokeFunction(subrow, node, "remove", icon="X")
+            if not self.isInput:
+                subrow.separator()
 
     def drawIsUsedProperty(self, context, subrow, node):
         icon = "LAYER_ACTIVE" if self.isUsed else "LAYER_USED"
         if self.useIsUsedProperty:
-            if not self.isInput: subrow.prop(self, "isUsed", text = "", icon = icon) 
+            if not self.isInput:
+                subrow.prop(self, "isUsed", text="", icon=icon)
             if self.is_linked and not self.isUsed:
                 if self.isInput:
-                    subrow.label("", icon = "QUESTION")
-                    subrow.label("", icon = "TRIA_RIGHT")
+                    subrow.label("", icon="QUESTION")
+                    subrow.label("", icon="TRIA_RIGHT")
                 else:
-                    subrow.label("", icon = "TRIA_RIGHT")
-                    subrow.label("", icon = "QUESTION")
-            if self.isInput: subrow.prop(self, "isUsed", text = "", icon = icon)
-
+                    subrow.label("", icon="TRIA_RIGHT")
+                    subrow.label("", icon="QUESTION")
+            if self.isInput:
+                subrow.prop(self, "isUsed", text="", icon=icon)
 
     def draw(self, context, layout, node, text):
         displayText = self.getDisplayedName()
 
-        row = layout.row(align = True)
+        row = layout.row(align=True)
 
         col = row.column()
         leftSubrow = col.row(align=True)
@@ -192,19 +206,26 @@ class UMOGSocket:
 
         col = row.column()
         rightSubrow = col.row(align=True)
-          
+
         if self.textProps.editable and self.display.textInput:
             self.drawRefreshContain(leftSubrow)
-            middleSubrow.prop(self, "text", text = "")
+            middleSubrow.prop(self, "text", text="")
 
         else:
             if self.isInput and self.isUnlinked and self.isUsed:
                 self.drawRefreshContain(leftSubrow)
-                self.drawSocket(middleSubrow, displayText, node, self.defaultDrawType)
+                self.drawSocket(context, middleSubrow,
+                                displayText, node, self.defaultDrawType)
             else:
                 if self.isOutput:
                     middleSubrow.alignment = "RIGHT"
-                    self.drawRefreshContain(rightSubrow)
+                    if not self.drawOutput:
+                        self.drawRefreshContain(rightSubrow)
+                    else:
+                        self.drawSocket(context, middleSubrow,
+                                        displayText, node, self.defaultDrawType)
+                        self.drawRefreshContain(rightSubrow)
+
                 else:
                     self.drawRefreshContain(leftSubrow)
                 middleSubrow.label(displayText)
@@ -221,7 +242,7 @@ class UMOGSocket:
             self.drawMoveOperators(context, subrow, node)
             self.drawIsUsedProperty(context, subrow, node)
 
-    def drawSocket(self, layout, text, node, drawType = "TEXT_PROPERTY"):
+    def drawSocket(self, context, layout, text, node, drawType="TEXT_PROPERTY"):
         '''
         Draw Types:
             TEXT_PROPERTY_OR_NONE: Draw only if a property exists
@@ -231,17 +252,23 @@ class UMOGSocket:
             TEXT_ONLY: Ignore the property; Just label the text
         '''
         if drawType == "TEXT_PROPERTY_OR_NONE":
-            if self.hasProperty(): drawType = "TEXT_PROPERTY"
+            if self.hasProperty():
+                drawType = "TEXT_PROPERTY"
 
         if drawType == "PREFER_PROPERTY":
-            if self.hasProperty(): drawType = "PROPERTY_ONLY"
-            else: drawType = "TEXT_ONLY"
+            if self.hasProperty():
+                drawType = "PROPERTY_ONLY"
+            else:
+                drawType = "TEXT_ONLY"
 
         if drawType == "TEXT_PROPERTY":
-            if self.hasProperty(): self.drawProperty(layout, text, node)
-            else: layout.label(text)
+            if self.hasProperty():
+                self.drawProperty(context, layout, text, node)
+            else:
+                layout.label(text)
         elif drawType == "PROPERTY_ONLY":
-            if self.hasProperty(): self.drawProperty(layout, text = "", node = node)
+            if self.hasProperty():
+                self.drawProperty(context, layout, text="", node=node)
         elif drawType == "TEXT_ONLY":
             layout.label(text)
 
@@ -259,11 +286,11 @@ class UMOGSocket:
         self.display.moveOperators = other.display.moveOperators
         self.display.removeOperator = other.display.removeOperator
 
-    def invokeFunction(self, layout, node, functionName, text = "", icon = "NONE",
-                       description = "", emboss = True, confirm = False,
-                       data = None, passEvent = False):
+    def invokeFunction(self, layout, node, functionName, text="", icon="NONE",
+                       description="", emboss=True, confirm=False,
+                       data=None, passEvent=False):
         idName = getInvokeFunctionOperator(description)
-        props = layout.operator(idName, text = text, icon = icon, emboss = emboss)
+        props = layout.operator(idName, text=text, icon=icon, emboss=emboss)
         props.callback = self.newCallback(node, functionName)
         props.invokeWithData = data is not None
         props.confirm = confirm
@@ -277,10 +304,14 @@ class UMOGSocket:
     ##########################################################
 
     def free(self):
-        try: del alternativeIdentifiersPerSocket[self.getTemporaryIdentifier()]
-        except: pass
-        try: del colorOverwritePerSocket[self.getTemporaryIdentifier()]
-        except: pass
+        try:
+            del alternativeIdentifiersPerSocket[self.getTemporaryIdentifier()]
+        except:
+            pass
+        try:
+            del colorOverwritePerSocket[self.getTemporaryIdentifier()]
+        except:
+            pass
 
     @property
     def alternativeIdentifiers(self):
@@ -299,7 +330,7 @@ class UMOGSocket:
     def moveUp(self):
         self.moveTo(self.getIndex() - 1)
 
-    def moveTo(self, index, node = None):
+    def moveTo(self, index, node=None):
         ownIndex = self.getIndex(node)
         if ownIndex != index:
             self.sockets.move(ownIndex, index)
@@ -307,16 +338,18 @@ class UMOGSocket:
 
     def moveUpInGroup(self):
         """Cares about moveable sockets"""
-        self.moveInGroup(moveUp = True)
+        self.moveInGroup(moveUp=True)
 
     def moveDownInGroup(self):
         """Cares about moveable sockets"""
-        self.moveInGroup(moveUp = False)
+        self.moveInGroup(moveUp=False)
 
-    def moveInGroup(self, moveUp = True):
+    def moveInGroup(self, moveUp=True):
         """Cares about moveable sockets"""
-        if not self.moveable: return
-        moveableSocketIndices = [index for index, socket in enumerate(self.sockets) if socket.moveable and socket.moveGroup == self.moveGroup]
+        if not self.moveable:
+            return
+        moveableSocketIndices = [index for index, socket in enumerate(
+            self.sockets) if socket.moveable and socket.moveGroup == self.moveGroup]
         currentIndex = list(self.sockets).index(self)
 
         targetIndex = -1
@@ -329,17 +362,20 @@ class UMOGSocket:
 
         if targetIndex != -1:
             self.sockets.move(currentIndex, targetIndex)
-            if moveUp: self.sockets.move(targetIndex + 1, currentIndex)
-            else: self.sockets.move(targetIndex - 1, currentIndex)
+            if moveUp:
+                self.sockets.move(targetIndex + 1, currentIndex)
+            else:
+                self.sockets.move(targetIndex - 1, currentIndex)
             self.node.socketMoved()
-
 
     # Link/Remove Utilities
     ##########################################################
 
     def linkWith(self, socket):
-        if self.isOutput: return self.nodeTree.links.new(socket, self)
-        else: return self.nodeTree.links.new(self, socket)
+        if self.isOutput:
+            return self.nodeTree.links.new(socket, self)
+        else:
+            return self.nodeTree.links.new(self, socket)
 
     def remove(self):
         self.free()
@@ -358,7 +394,6 @@ class UMOGSocket:
 
     def isLinkedToType(self, dataType):
         return any(socket.dataType == dataType for socket in self.linkedSockets)
-
 
     # Properties
     ##########################################################
@@ -423,9 +458,11 @@ class UMOGSocket:
     def getCopyExpression(cls):
         return "value[:]"
 
+
 @noRecursion
 def updateText(socket):
     correctText(socket)
+
 
 def correctText(socket):
     if socket.textProps.variable:
@@ -433,8 +470,9 @@ def correctText(socket):
     if socket.textProps.unique:
         text = socket.text
         socket.text = "temporary name to avoid some errors"
-        socket.text = getNotUsedText(socket.node, prefix = text)
+        socket.text = getNotUsedText(socket.node, prefix=text)
     socket.node.customSocketNameChanged(socket)
+
 
 def getNotUsedText(node, prefix):
     text = prefix
@@ -442,26 +480,34 @@ def getNotUsedText(node, prefix):
         text = prefix + "_" + getRandomString(2)
     return text
 
+
 def isTextUsed(node, name):
     for socket in node.sockets:
-        if socket.text == name: return True
+        if socket.text == name:
+            return True
     return False
 
     # Register
 ##################################
 
-def getSocketIndex(socket, node = None):
-    if node is None: node = socket.node
+
+def getSocketIndex(socket, node=None):
+    if node is None:
+        node = socket.node
     if socket.is_output:
         return list(node.outputs).index(socket)
     return list(node.inputs).index(socket)
 
+
 def isUMOGNodeSocket(socket):
     return getattr(socket, "_isUMOGSocket", False)
 
+
 def register():
     bpy.types.NodeSocket.getIndex = getSocketIndex
-    bpy.types.NodeSocket.isUMOGNodeSocket = BoolProperty(default = False, get = isUMOGNodeSocket)
+    bpy.types.NodeSocket.isUMOGNodeSocket = BoolProperty(
+        default=False, get=isUMOGNodeSocket)
+
 
 def unregister():
 

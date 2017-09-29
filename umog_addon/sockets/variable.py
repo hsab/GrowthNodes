@@ -28,7 +28,7 @@ class VariableSocket(bpy.types.NodeSocket, UMOGSocket):
 
     socketCreationType = StringProperty(default = "")
 
-    def drawProperty(self, layout, text, node):
+    def drawProperty(self, context, layout, text, node):
         layout.label(text=text)
         row = layout.row()
         self.invokeFunction(row, node, "addIntegerNode", icon = "PLUS", emboss = False,

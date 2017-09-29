@@ -18,9 +18,8 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
     mod_midlevel = bpy.props.FloatProperty(min=0.0, max=1.0, default=0.5)
     mod_strength = bpy.props.FloatProperty(default=1.0)
 
-    def init(self, context):
+    def create(self):
         self.inputs.new("TextureSocketType", "Texture")
-        super().init(context)
 
     def draw_buttons(self, context, layout):
         # layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
@@ -51,7 +50,7 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
             mod.texture = bpy.data.textures[self.texture_name_temp]
             mod.mid_level = self.mod_midlevel
             mod.strength = self.mod_strength
-            bpy.ops.object.modifier_apply(modifier=oname)
+            bpy.ops.object.modifier_apply(modifier=oname, apply_as="SHAPE")
         else:
             print("no texture specified")
 
