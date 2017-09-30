@@ -53,5 +53,27 @@ cdef class Mesh:
 
         return vertices, [], faces
 
+cdef class Texture2D:
+    cdef float[:,:,:] data
+
+    def __init__(self, int width, int height, channels):
+        self.data = np.ndarray(shape=(width,height,channels), dtype=np.float32)
+
+    @staticmethod
+    def from_texture(object texture, int width, int height):
+        texture = Texture2D(width, height, 4)
+
+        cdef int x, y, i
+        cdef list pixel
+        for x in range(width):
+            for y in range(height):
+                pixel = object.evaluate(x, y)
+                texture.data[x,y,0] = pixel[0]
+                texture.data[x,y,1] = pixel[1]
+                texture.data[x,y,2] = pixel[2]
+                texture.data[x,y,3] = pixel[3]
+
+        return texture
+
 def compile(node_tree):
     pass
