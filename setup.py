@@ -44,6 +44,7 @@ import shutil
 import traceback
 from os.path import abspath, dirname, join, relpath
 import textwrap
+import numpy
 
 addonName = "umog_addon"
 currentDirectory = dirname(abspath(__file__))
@@ -213,7 +214,7 @@ def compileCythonFiles():
 
     sys.argv = [sys.argv[0], "build_ext", "--inplace"]
     extensions = cythonize(getPathsToCythonFiles(sourceDirectory))
-    setup(name = 'UMOG', ext_modules = extensions)
+    setup(name = 'UMOG', ext_modules = extensions, include_dirs=[numpy.get_include()])
     printInd("Compilation Successful.")
 
 def getPathsToCythonFiles(directory):
