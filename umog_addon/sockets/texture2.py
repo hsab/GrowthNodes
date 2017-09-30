@@ -16,32 +16,29 @@ class Texture2Socket(bpy.types.NodeSocket, UMOGSocket):
     allowedInputTypes = ["Texture2"]
 
     useIsUsedProperty = False
-    defaultDrawType = "TEXT_PROPERTY"
+    defaultDrawType = "PREFER_PROPERTY"
 
-    drawColor = (1, 0, 0, 0.5)
+    drawColor = (0.91372549, 0.117647059, 0.388235294, 1)
 
-    comparable = False
-    storable = True
 
-    texture = StringProperty(update = propUpdate)
+    value = StringProperty(update = propUpdate)
 
-    def addTextureToContext(self, context):
-        context.texture = self.texture
-
-    def drawProperty(self, context, layout, text, node):
-        layout.prop_search(self, "texture", bpy.data, "textures", icon="TEXTURE_DATA", text="")
-        if self.texture is not "":
+    def drawProperty(self, context, layout, layoutParent, text, node):
+        layout.prop_search(self, "value", bpy.data, "textures", icon="TEXTURE_DATA", text="")
+        if self.value is not "":
            pass
 
     def getValue(self):
         pass
 
     def setProperty(self, data):
-        self.texture = data
+        self.value = data
 
     def getProperty(self):
-        return self.texture
-
+        return self.value
 
     def refresh(self):
-        pass
+        self.name = self.value
+
+    def getTexture(self):
+        return bpy.data.textures[self.value]

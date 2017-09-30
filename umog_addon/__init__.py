@@ -25,6 +25,17 @@ menus = OrderedDict([
             ("umog_ScriptNode", "Script Node")
         ]
     }),
+    ("object_menu", {
+        "bl_idname": "umog_object_menu",
+        "bl_label": "Object Menu",
+        "text": "Object",
+        "bl_description": "Lorem Ipsum",
+        "icon": "MESH_CUBE",
+        "nodes": [
+            ("umog_ObjectNode", "Object"),
+            ("umog_ObjectAlternatorNode", "Object Alternator")
+        ]
+    }),
     ("bmesh_menu", {
         "bl_idname": "umog_bmesh_menu",
         "bl_label": "Bmesh Menu",
@@ -54,12 +65,36 @@ menus = OrderedDict([
         "bl_label": "Integer Menu",
         "text": "Integer",
         "bl_description": "Lorem Ipsum",
-        "icon": "LINENUMBERS_ON",
+        "icon": "LINENUMBERS_OFF",
         "nodes": [
             ("umog_IntegerNode", "Integer"),
+            ("umog_IntegerMathNode", "Integer Math"),
+            ("umog_IntegerCompareNode", "Integer Compare"),
             ("umog_IntegerFrameNode", "Integer Frame"),
-            ("umog_IntegerSubframeNode", "Integer Subframe"),
-            ("umog_IntegerMathNode", "Integer Math")
+            ("umog_IntegerSubframeNode", "Integer Subframe")
+        ]
+    }),
+    ("float_menu", {
+        "bl_idname": "umog_float_menu",
+        "bl_label": "Float Menu",
+        "text": "Float",
+        "bl_description": "Lorem Ipsum",
+        "icon": "LINENUMBERS_ON",
+        "nodes": [
+            ("umog_FloatNode", "Float"),
+            ("umog_FloatMathNode", "Float Math"),
+            ("umog_FloatCompareNode", "Float Compare")
+        ]
+    }),
+    ("boolean_menu", {
+        "bl_idname": "umog_boolean_menu",
+        "bl_label": "Boolean Menu",
+        "text": "Boolean",
+        "bl_description": "Lorem Ipsum",
+        "icon": "CLIPUV_DEHLT",
+        "nodes": [
+            ("umog_BooleanNode", "Boolean"),
+            ("umog_BooleanOpshNode", "Boolean Operations")
         ]
     }),
     ("matrix_menu", {
@@ -83,10 +118,9 @@ menus = OrderedDict([
         "bl_description": "Lorem Ipsum",
         "icon": "IMGDISPLAY",
         "nodes": [
-            ("umog_GetTextureNode", "Get Texture"),
-            ("umog_SetTextureNode", "Set Texture"),
-            ("umog_SaveTextureNode", "Save Texture"),
-            ("umog_LoadTextureNode", "Load Texture(s)"),
+            ("umog_TextureNode", "Texture"),
+            ("umog_TextureColorsNode", "Texture Colors"),
+            ("umog_TextureSettingsNode", "Texture Settings"),
             ("umog_TextureAlternatorNode", "Texture Alternator")
             
         ]

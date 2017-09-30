@@ -1,35 +1,49 @@
 import bpy
 from ... base_types import UMOGNode
 
-class TextureAlternatorNode(bpy.types.Node, UMOGNode):
-    bl_idname = "umog_TextureAlternatorNode"
-    bl_label = "Texture Alternator"
+class TextureColorsNode(bpy.types.Node, UMOGNode):
+    bl_idname = "umog_TextureColorsNode"
+    bl_label = "Texture Colors"
 
     assignedType = "Texture2"
 
-    texture = bpy.props.StringProperty()
-
     def create(self):
+        self.width = 220
         self.newInput(self.assignedType, "Texture")
-        self.newInput(self.assignedType, "Texture")
-        self.newInput("Boolean", "Condition")
-
         socket = self.newOutput(self.assignedType, "Texture")
 
     def draw(self, layout):
         try:
-            # only one template_preview can exist per screen area https://developer.blender.org/T46733
-            # make sure that at most one preview can be opened at any time
             if self.select and (len(bpy.context.selected_nodes) == 1):
                 layout.template_preview(self.outputs[0].getTexture())
         except:
             pass
+        if self.inputs[0].value is not "":
+            tex = self.inputs[0].getTexture()
+            layout.prop(tex, "use_color_ramp", text="Ramp")
+            if tex.use_color_ramp:
+                layout.template_color_ramp(tex, "color_ramp", expand=True)
+
+            split = layout.split()
+
+            col = split.column()
+            col.label(text="RGB Multiply:")
+            sub = col.column(align=True)
+            sub.prop(tex, "factor_red", text="R")
+            sub.prop(tex, "factor_green", text="G")
+            sub.prop(tex, "factor_blue", text="B")
+
+            col = split.column()
+            col.label(text="Adjust:")
+            col.prop(tex, "intensity")
+            col.prop(tex, "contrast")
+            col.prop(tex, "saturation")
+
+            col = layout.column()
+            col.prop(tex, "use_clamp", text="Clamp")
 
     def refresh(self):
-        if self.inputs[2].value == True:
-            self.outputs[0].value = self.inputs[0].value
-        else:
-            self.outputs[0].value = self.inputs[1].value
+        self.outputs[0].value = self.inputs[0].value
         self.outputs[0].refresh()
 
     def execute(self, refholder):

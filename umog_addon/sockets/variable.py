@@ -18,8 +18,6 @@ class VariableSocket(bpy.types.NodeSocket, UMOGSocket):
     defaultDrawType = "TEXT_PROPERTY"
 
     drawColor = (1, 1, 1, 0.5)
-    storable = False
-    comparable = True
 
     def textChanged(self, context):
         pass
@@ -28,7 +26,7 @@ class VariableSocket(bpy.types.NodeSocket, UMOGSocket):
 
     socketCreationType = StringProperty(default = "")
 
-    def drawProperty(self, context, layout, text, node):
+    def drawProperty(self, context, layout, layoutParent, text, node):
         layout.label(text=text)
         row = layout.row()
         self.invokeFunction(row, node, "addIntegerNode", icon = "PLUS", emboss = False,

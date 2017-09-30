@@ -2,12 +2,11 @@ import bpy
 from ... base_types import UMOGNode
 from ... utils.events import propUpdate
 
+class FloatMathNode(bpy.types.Node, UMOGNode):
+    bl_idname = "umog_FloatMathNode"
+    bl_label = "Float Math"
 
-class IntegerMathNode(bpy.types.Node, UMOGNode):
-    bl_idname = "umog_IntegerMathNode"
-    bl_label = "Integer Math"
-
-    assignedType = "Integer"
+    assignedType = "Float"
 
     fixed_items = bpy.props.EnumProperty(items=(('0', '+', 'addition'),
                                                 ('1', '-', 'subtraction'),
@@ -61,7 +60,7 @@ class IntegerMathNode(bpy.types.Node, UMOGNode):
             except:
                 print("mod by zero")
 
-        self.outputs[0].name = str(self.outputs[0].value)
+        self.outputs[0].name = "{:.5f}".format(self.outputs[0].value)
 
     def draw(self, layout):
         layout.prop(self, "fixed_items", 'Operation')

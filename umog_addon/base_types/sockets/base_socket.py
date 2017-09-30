@@ -8,6 +8,7 @@ from ... operators.dynamic_operators import getInvokeFunctionOperator
 from ... utils.events import propUpdate
 from ... utils.debug import *
 
+
 class SocketTextProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_SocketTextProperties"
     unique = BoolProperty(default=False)
@@ -21,23 +22,23 @@ class SocketDisplayProperties(bpy.types.PropertyGroup):
     textInput = BoolProperty(default=False)
     moveOperators = BoolProperty(default=False)
     removeOperator = BoolProperty(default=False)
-    isRefreshable = BoolProperty(default=True)
-    isSelfContained = BoolProperty(default=True)
+    refreshableIcon = BoolProperty(default=True)
+    packedIcon = BoolProperty(default=True)
 
-    drawIsRefreshable = BoolProperty(name="Draw Is Refreshable", default=True,
+    isRefreshableInfo = BoolProperty(name="Draw Is Refreshable", default=True,
                                      description='''Refreshable [ON]
         Refresh this socket on change
         Value of this socket will be refreshed on node-tree changes''')
-    drawNotRefreshable = BoolProperty(name="Draw Is Not Refreshable", default=True,
+    notRefreshableInfo = BoolProperty(name="Draw Is Not Refreshable", default=True,
                                       description='''Refreshable [OFF]
         Don't refresh this socket on change
         Value of this socket is refreshed only at the beginning of bake''')
-    drawIsSelfContained = BoolProperty(name="Draw Is Self-contained", default=True,
-                                       description='''Self-contained [ON]
+    isPackedInfo = BoolProperty(name="Draw Is Self-contained", default=True,
+                                    description='''Data Packed [ON]
         Stores the initial value of this socket
         Value of this socket affects this node's calculations only at the beginning of bake''')
-    drawNotSelfContained = BoolProperty(name="Draw Is Not Self-contained", default=True,
-                                        description='''Self-contained [OFF]
+    notPackedInfo = BoolProperty(name="Draw Is Not Self-contained", default=True,
+                                     description='''Data Packed [OFF]
         Updates the value of this socket
         Value of this socket will affects this node's calculations on every frame''')
 
@@ -51,10 +52,10 @@ alternativeIdentifiersPerSocket = defaultdict(list)
 
 
 class UMOGSocket:
-    storable = True
-    comparable = False
     _isUMOGSocket = True
     drawColor = (1, 1, 1, 1)
+
+    originalName = StringProperty(default="Default Name")
 
     display = PointerProperty(type=SocketDisplayProperties)
     removeable = BoolProperty(default=False)
@@ -62,7 +63,7 @@ class UMOGSocket:
     moveGroup = IntProperty(default=0)
 
     drawOutput = BoolProperty(default=False)
-
+    drawLabel = BoolProperty(default=True)
     textProps = PointerProperty(type=SocketTextProperties)
 
     def textChanged(self, context):
@@ -76,38 +77,41 @@ class UMOGSocket:
                           description="Enable this socket (orange point means that the socket will be evaluated)", update=propUpdate)
     useIsUsedProperty = BoolProperty(default=False)
 
-    isRefreshable = BoolProperty(name="Is Refreshable", default=True,
-                                 description="Enabling refreshing this socket on node-tree change if necessary", update=propUpdate)
-    isSelfContained = BoolProperty(name="Is Refreshable", default=False,
-                                   description="Enabling refreshing this socket on node-tree change if necessary", update=propUpdate)
+    isRefreshable = BoolProperty(
+        name="Is Refreshable", default=True, update=propUpdate)
 
-    isDataModified = BoolProperty(default=False)
-    wasRecentlyRefreshed = BoolProperty(default=False)
+    isPacked = BoolProperty(
+        name="Is Data Packed", default=False, update=propUpdate)
+
+    isDataModified = BoolProperty(default=True)
+    socketRecentlyRefreshed = BoolProperty(default=False)
 
     # Refresh
     ##########################################################
     def refreshSocket(self):
         if self.isRefreshable and self.isDataModified:
             if self.isInput and self.isLinked:
-                self.wasRecentlyRefreshed = True
+                self.socketRecentlyRefreshed = True
                 beforeValue = self.getProperty()
                 afterValue = self.getFromSocket.getProperty()
                 self.setProperty(self.getFromSocket.getProperty())
                 self.refresh()
-                DBG("SOCKET SUCCESSFULLY REFRESHED:",
-                "Type:   "+self.dataType,
-                "Name:   "+self.name,
-                "Path:   "+self.path_from_id(),
-                "Before: "+str(beforeValue),
-                "After:  "+str(afterValue),
-                trace = True)
+
+                # DBG("SOCKET SUCCESSFULLY REFRESHED:",
+                #     "Type:   " + self.dataType,
+                #     "Name:   " + self.name,
+                #     "Path:   " + self.path_from_id(),
+                #     "Before: " + str(beforeValue),
+                #     "After:  " + str(afterValue),
+                #     trace=True)
+            if self.isInput and self.isUnlinked:
+                self.reverseName()
                 
+    # Overwrite in subclasses
+    ##########################################################
 
     def refresh(self):
         pass
-
-    # Overwrite in subclasses
-    ##########################################################
 
     def setProperty(self, data):
         pass
@@ -138,26 +142,29 @@ class UMOGSocket:
     # Drawing
     ##########################################################
 
+    def reverseName(self):
+        self.name = self.originalName
+
     def drawRefreshContain(self, subrow):
         subrow.enabled = False
-        if self.display.isRefreshable:
+        if self.display.refreshableIcon:
             if self.isRefreshable:
                 icon = "RECOVER_LAST"
-                subrow.prop(self.display, "drawIsRefreshable",
+                subrow.prop(self.display, "isRefreshableInfo",
                             text="", icon=icon)
             else:
                 icon = "TIME"
-                subrow.prop(self.display, "drawNotRefreshable",
+                subrow.prop(self.display, "notRefreshableInfo",
                             text="", icon=icon)
 
-        if self.display.isSelfContained:
-            if self.isSelfContained:
-                icon = "DISK_DRIVE"
-                subrow.prop(self.display, "drawIsSelfContained",
+        if self.display.packedIcon:
+            if self.isPacked:
+                icon = "PACKAGE"
+                subrow.prop(self.display, "isPackedInfo",
                             text="", icon=icon)
             else:
                 icon = "LOAD_FACTORY"
-                subrow.prop(self.display, "drawNotSelfContained",
+                subrow.prop(self.display, "notPackedInfo",
                             text="", icon=icon)
 
     def drawMoveOperators(self, context, subrow, node):
@@ -214,7 +221,7 @@ class UMOGSocket:
         else:
             if self.isInput and self.isUnlinked and self.isUsed:
                 self.drawRefreshContain(leftSubrow)
-                self.drawSocket(context, middleSubrow,
+                self.drawSocket(context, middleSubrow, row, 
                                 displayText, node, self.defaultDrawType)
             else:
                 if self.isOutput:
@@ -222,13 +229,14 @@ class UMOGSocket:
                     if not self.drawOutput:
                         self.drawRefreshContain(rightSubrow)
                     else:
-                        self.drawSocket(context, middleSubrow,
+                        self.drawSocket(context, middleSubrow, row,
                                         displayText, node, self.defaultDrawType)
                         self.drawRefreshContain(rightSubrow)
 
                 else:
                     self.drawRefreshContain(leftSubrow)
-                middleSubrow.label(displayText)
+                if self.drawLabel:
+                    middleSubrow.label(displayText)
 
         if self.isInput:
             subrow = rightSubrow
@@ -242,7 +250,7 @@ class UMOGSocket:
             self.drawMoveOperators(context, subrow, node)
             self.drawIsUsedProperty(context, subrow, node)
 
-    def drawSocket(self, context, layout, text, node, drawType="TEXT_PROPERTY"):
+    def drawSocket(self, context, layout, layoutParent, text, node, drawType="TEXT_PROPERTY"):
         '''
         Draw Types:
             TEXT_PROPERTY_OR_NONE: Draw only if a property exists
@@ -263,12 +271,12 @@ class UMOGSocket:
 
         if drawType == "TEXT_PROPERTY":
             if self.hasProperty():
-                self.drawProperty(context, layout, text, node)
+                self.drawProperty(context, layout, layoutParent, text, node)
             else:
                 layout.label(text)
         elif drawType == "PROPERTY_ONLY":
             if self.hasProperty():
-                self.drawProperty(context, layout, text="", node=node)
+                self.drawProperty(context, layout, layoutParent, text="", node=node)
         elif drawType == "TEXT_ONLY":
             layout.label(text)
 

@@ -16,29 +16,28 @@ class BooleanSocket(bpy.types.NodeSocket, UMOGSocket):
     allowedInputTypes = ["Float", "Integer", "Boolean"]
 
     useIsUsedProperty = False
-    defaultDrawType = "TEXT_PROPERTY"
 
-    drawColor = (1, 0, 1, 0.5)
+    defaultDrawType = "PREFER_PROPERTY"
 
-    comparable = True
-    storable = True
+    drawColor = (0.247058824, 0.317647059, 0.705882353, 1)
 
-    value = FloatProperty(default = 0.0, update = propUpdate)
+    value = BoolProperty(default=True, update=propUpdate)
 
-    minValue = FloatProperty(default = -1e10)
-    maxValue = FloatProperty(default = sys.float_info.max)
+    def drawProperty(self, context, layout, layoutParent, text, node):
+        layout.prop(self, "value", text="")
+        pass
 
-    def drawProperty(self, context, layout, text, node):
-        layout.prop(self, "value", text = text)
+    def refresh(self):
+        self.name = str(self.value)
 
     def getValue(self):
         return self.value
 
     def setProperty(self, data):
-        self.value = data
+        if type(data) is bool:
+            self.value = data
+        else:
+            self.value = data > 0 
 
     def getProperty(self):
         return self.value
-
-    def refresh(self):
-        print("refresh from socket", self.name, self.node)

@@ -25,6 +25,7 @@ class UMOGNode:
     _isUMOGNode = True
     _IsUMOGOutputNode = False
 
+
     execution = PointerProperty(type = UMOGNodeExecutionProperties)
     display = PointerProperty(type = UMOGNodeDisplayProperties)
 
@@ -41,6 +42,8 @@ class UMOGNode:
 
     # can be "NONE", "ALWAYS" or "HIDDEN_ONLY"
     dynamicLabelType = "NONE"
+
+    isRefreshableOnFrame = BoolProperty( name="Is Refreshable on Frame Change", default=False, update=propUpdate)
 
     @classmethod
     def poll(cls, nodeTree):
@@ -76,6 +79,13 @@ class UMOGNode:
         self.refresh()
         self.postRefresh()
 
+    def refreshNodeOnFrameChange(self):
+        if self.isRefreshableOnFrame:
+            self.refreshInputs()
+            self.preRefresh()
+            self.refreshOnFrameChange()
+            self.postRefresh()
+
     # functions subclasses can override
     ######################################
 
@@ -95,6 +105,9 @@ class UMOGNode:
         pass
 
     def refresh(self):
+        pass
+
+    def refreshOnFrameChange(self):
         pass
 
     def postRefresh(self):
@@ -212,6 +225,7 @@ class UMOGNode:
             raise ValueError("Socket type does not exist: {}".format(repr(type)))
         if identifier is None: identifier = name
         socket = self.inputs.new(idName, name, identifier)
+        socket.originalName = socket.name
         self._setAlternativeIdentifier(socket, alternativeIdentifier)
         self._setSocketProperties(socket, kwargs)
         return socket
@@ -222,6 +236,7 @@ class UMOGNode:
             raise ValueError("Socket type does not exist: {}".format(repr(type)))
         if identifier is None: identifier = name
         socket = self.outputs.new(idName, name, identifier)
+        socket.originalName = socket.name
         self._setAlternativeIdentifier(socket, alternativeIdentifier)
         self._setSocketProperties(socket, kwargs)
         return socket

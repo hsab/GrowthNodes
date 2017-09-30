@@ -1,6 +1,7 @@
 import bpy
 from .handlers import eventUMOGHandler
 from . debug import *
+
 @eventUMOGHandler("FILE_LOAD_POST")
 def updateOnLoad():
     for area in bpy.context.screen.areas:
@@ -8,6 +9,14 @@ def updateOnLoad():
             tree = area.spaces.active.node_tree
             if getattr(tree, "bl_idname", "") == "umog_UMOGNodeTree":
                 tree.refreshExecutionPolicy()
+
+@eventUMOGHandler("FRAME_CHANGE_POST")
+def updateOnFrameChange(scene):
+    for area in bpy.context.screen.areas:
+        if area.type == "NODE_EDITOR":
+            tree = area.spaces.active.node_tree
+            if getattr(tree, "bl_idname", "") == "umog_UMOGNodeTree":
+                tree.updateOnFrameChange()
 
 def propUpdate(self = None, context = None):
 
@@ -19,19 +28,19 @@ def propUpdate(self = None, context = None):
         #  Property changed from socket
         if hasattr(self, 'isUMOGNodeSocket'):
             if self.isUMOGNodeSocket:
-                if not self.wasRecentlyRefreshed:
-                    DBG("PROPERTY CHANGED FROM SOCKET:",
-                        "Type:   "+self.dataType,
-                        "Name:   "+self.name,
-                        "Path:   "+self.path_from_id(),
-                        trace = True)
+                if not self.socketRecentlyRefreshed:
+                    # DBG("PROPERTY CHANGED FROM SOCKET:",
+                    #     "Type:   "+self.dataType,
+                    #     "Name:   "+self.name,
+                    #     "Path:   "+self.path_from_id(),
+                    #     trace = True)
 
                     self.isDataModified = True
                     nodeTreeUpdateFrom(self.node)
                 else:
-                    self.wasRecentlyRefreshed = False
+                    self.socketRecentlyRefreshed = False
                     
         # Property changed from node
         elif hasattr(self, 'isUMOGNode'):
             if self.isUMOGNode:
-                nodeTreeUpdateFrom(self.node)
+                nodeTreeUpdateFrom(self)

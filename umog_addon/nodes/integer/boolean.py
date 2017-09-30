@@ -3,10 +3,10 @@ from ... base_types import UMOGNode
 from ... utils.events import propUpdate
 
 
-class IntegerNode(bpy.types.Node, UMOGNode):
-    bl_idname = "umog_IntegerNode"
-    bl_label = "UMOG Integer"
-    assignedType = "Integer"
+class BooleanNode(bpy.types.Node, UMOGNode):
+    bl_idname = "umog_BooleanNode"
+    bl_label = "Boolean"
+    assignedType = "Boolean"
 
     input_value = bpy.props.IntProperty(update=propUpdate)
 
