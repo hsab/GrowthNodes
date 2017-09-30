@@ -5,10 +5,13 @@ from .. base_types import UMOGSocket
 from .. utils.events import propUpdate
 
 
-def getValue(self):
+def getFloatValue(self):
     return min(max(self.minValue, self.get("value", 0)), self.maxValue)
-def setValue(self, value):
+
+
+def setFloatValue(self, value):
     self["value"] = min(max(self.minValue, value), self.maxValue)
+
 
 class FloatSocket(bpy.types.NodeSocket, UMOGSocket):
     # Description string
@@ -21,31 +24,35 @@ class FloatSocket(bpy.types.NodeSocket, UMOGSocket):
     allowedInputTypes = ["Float", "Integer", "Boolean"]
 
     useIsUsedProperty = False
-    defaultDrawType = "TEXT_PROPERTY"
+    defaultDrawType = "PREFER_PROPERTY"
 
-    drawColor = (1, 0, 1, 0.5)
+    drawColor = (0.99, 0.59, 0, 1)
 
-    comparable = True
-    storable = True
+    value = FloatProperty(default=0.0,
+                          set=setFloatValue, get=getFloatValue,
+                          update=propUpdate)
 
-    value = FloatProperty(default = 0.0,
-        set = setValue, get = getValue,
-        update = propUpdate)
+    minValue = FloatProperty(default=-1e10)
+    maxValue = FloatProperty(default=sys.float_info.max)
 
-    minValue = FloatProperty(default = -1e10)
-    maxValue = FloatProperty(default = sys.float_info.max)
+    def drawProperty(self, context, layout, layoutParent, text, node):
+        layout.prop(self, "value", text=text)
 
-    def drawProperty(self, context, layout, text, node):
-        layout.prop(self, "value", text = text)
+    def refresh(self):
+        self.name = "{:.3f}".format(self.value)
 
     def getValue(self):
         return self.value
 
     def setProperty(self, data):
-        self.value = data
+        if type(data) is bool:
+            self.value = int(data)
+        else:
+            self.value = data
 
     def getProperty(self):
         return self.value
 
-    def refresh(self):
-        print("refresh from socket", self.name, self.node)
+    def setRange(self, min, max):
+        self.minValue = min
+        self.maxValue = max

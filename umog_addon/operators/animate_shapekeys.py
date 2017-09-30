@@ -3,9 +3,9 @@ import bpy
 import time
 
 
-class bakeMeshes(bpy.types.Operator):
-    bl_idname = 'umog.bake_meshes'
-    bl_label = 'Bake Mesh(es)'
+class animateShapeKeys(bpy.types.Operator):
+    bl_idname = 'umog.animate_shapekeys'
+    bl_label = 'Animate Shapekeys'
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
@@ -14,7 +14,7 @@ class bakeMeshes(bpy.types.Operator):
         start_time = time.time()
 
         refholder = UMOGReferenceHolder()
-        node_tree.execute(refholder)
+        node_tree.execute(refholder, context.scene.StartFrame, context.scene.EndFrame, context.scene.SubFrames)
                 
         diff_time = time.time() - start_time
         print("the bake took " + str(diff_time))

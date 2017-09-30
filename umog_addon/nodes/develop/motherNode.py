@@ -99,6 +99,7 @@ class MotherNode(bpy.types.Node, UMOGNode):
         # socket.display.text = True
         socket.text = "Texture2"
         socket.drawOutput = True
+        socket.drawLabel = False
         # socket.removeable = True
         # socket.moveable = True
         # socket.display.removeOperator = True
@@ -126,11 +127,11 @@ class MotherNode(bpy.types.Node, UMOGNode):
     def newWithDrawPropertySocket(self):
         socket = self.newInput(self.assignedType, "Float")
         socket.isDataModified = True
-        socket.display.text = True
-        socket.text = "Output"
-        socket.moveable = True
-        socket.display.moveOperators = True
-        socket.defaultDrawType = "TEXT_PROPERTY"
+        # socket.display.text = True
+        # socket.text = "Output"
+        # socket.moveable = True
+        # socket.display.moveOperators = True
+        # socket.defaultDrawType = "TEXT_PROPERTY"
 
         self.updateOutputName()
         return socket

@@ -1,33 +1,44 @@
 import bpy
+import sys
+import types
+
 from bpy.props import *
-from bpy.types import Object
 from .. base_types import UMOGSocket
-from .. utils.nodes import newNodeAtCursor
-
+from .. utils.events import propUpdate
 class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
+    # Description string
     '''Custom Object socket type'''
-
+    # Optional identifier string. If not explicitly defined, the python class name is used.
     bl_idname = 'ObjectSocketType'
+    # Label for nice name display
     bl_label = 'Object Socket'
     dataType = "Object"
     allowedInputTypes = ["Object"]
 
-    isDataModified = True
+    useIsUsedProperty = False
+    defaultDrawType = "PREFER_PROPERTY"
 
-    text = "Object"
-    useIsUsedProperty = True
-    defaultDrawType = "TEXT_PROPERTY"
+    drawColor = (0, 0.588235294, 0.533333333, 1)
 
-    drawColor = (0, 1, 1, 0.5)
-    storable = False
-    comparable = True
 
-    def drawProperty(self, context, layout, text, node):
-        layout.label(text=text)
-        row = layout.row()
-        self.invokeFunction(row, node, "addIntegerNode", icon = "PLUS", emboss = False,
-                description = "Create a new node node")
+    value = StringProperty(update = propUpdate)
 
-    def addIntegerNode(self):
-        node = newNodeAtCursor("umog_IntegerNode")
-        self.linkWith(node.outputs[0])
+    def drawProperty(self, context, layout, layoutParent, text, node):
+        layout.prop_search(self, "value", bpy.data, "objects", icon="MESH_CUBE", text="")
+        if self.value is not "":
+           pass
+
+    def getValue(self):
+        pass
+
+    def setProperty(self, data):
+        self.value = data
+
+    def getProperty(self):
+        return self.value
+
+    def refresh(self):
+        self.name = self.value
+
+    def getObject(self):
+        return bpy.data.objects[self.value]
