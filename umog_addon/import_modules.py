@@ -3,15 +3,15 @@ import pkgutil
 import importlib
 from os.path import join
 
-def importAllSubmodules(path, packageName, addonDirecotry):
+def importAllSubmodules(path, packageName, addonDirectory):
     modules = []
-    path = join(path, addonDirecotry)
+    path = join(path, addonDirectory)
     for name in sorted(iterSubModuleNames(path)):
         try:
-            module = importlib.import_module("." + addonDirecotry + "." + name, packageName)
+            module = importlib.import_module("." + addonDirectory + "." + name, packageName)
             modules.append(module)
         except:
-            print("FAILED TO LOAD\t" + "." + addonDirecotry + "." + name, packageName)
+            print("FAILED TO LOAD\t" + "." + addonDirectory + "." + name, packageName)
             raise
 
     return modules
