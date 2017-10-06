@@ -1,30 +1,35 @@
 import math
 import bpy
 from bpy.props import *
-from ... utils.debug import *
+from ...utils.debug import *
 import random
-from ... sockets.info import toIdName as toSocketIdName
-from ... operators.callbacks import newNodeCallback
-from ... operators.dynamic_operators import getInvokeFunctionOperator
-from ... utils.events import propUpdate
+from ...sockets.info import toIdName as toSocketIdName
+from ...operators.callbacks import newNodeCallback
+from ...operators.dynamic_operators import getInvokeFunctionOperator
+from ...utils.events import propUpdate
 
 
 class UMOGNodeExecutionProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_NodeExecutionProperties"
     visited = BoolProperty(name = "Visited in Topological Sort", default = False)
-    connectedComponent = IntProperty(name = "Connected Component Network of Node", default = 0)
+    connectedComponent = IntProperty(name = "Connected Component Network of Node",
+                                     default = 0)
+
 
 class UMOGNodeDisplayProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_NodeDisplayProperties"
     useCustomColor = BoolProperty(name = "Use Custom Color", default = False)
-    customColor = FloatVectorProperty(name="Custom Color", default=(0.0, 0.0, 0.0), min=0, max=1)
-    highlightColor = FloatVectorProperty(name="Highlight Color", default=(0.6, 0.4, 0.4), min=0, max=1)
+    customColor = FloatVectorProperty(name = "Custom Color", default = (0.0, 0.0, 0.0),
+                                      min = 0, max = 1)
+    highlightColor = FloatVectorProperty(name = "Highlight Color",
+                                         default = (0.6, 0.4, 0.4), min = 0, max = 1)
+
+
 class UMOGNode:
     bl_width_min = 40
     bl_width_max = 5000
     _isUMOGNode = True
     _IsUMOGOutputNode = False
-
 
     execution = PointerProperty(type = UMOGNodeExecutionProperties)
     display = PointerProperty(type = UMOGNodeDisplayProperties)
@@ -56,6 +61,10 @@ class UMOGNode:
         self.setup()
 
     def free(self):
+        for socket in self.inputs:
+            socket.destroy()
+        for socket in self.outputs:
+            socket.destroy()
         self.destroy()
         print("freed")
 
@@ -85,7 +94,7 @@ class UMOGNode:
             socket.packSocket()
         for socket in self.outputs:
             socket.packSocket()
-            
+
     # functions subclasses can override
     ######################################
 
@@ -121,7 +130,7 @@ class UMOGNode:
 
     def newCallback(self, functionName):
         return newNodeCallback(self, functionName)
-    
+
     # this will be called when the node is executed by bake meshes
     # will be called each iteration
     def execute(self, refholder):
@@ -159,16 +168,21 @@ class UMOGNode:
     def removeSocket(self, socket):
         index = socket.index
         if socket.isOutput:
-            if index < self.activeOutputIndex: self.activeOutputIndex -= 1
+            if index < self.activeOutputIndex:
+                self.activeOutputIndex -= 1
         else:
-            if index < self.activeInputIndex: self.activeInputIndex -= 1
+            if index < self.activeInputIndex:
+                self.activeInputIndex -= 1
         socket.sockets.remove(socket)
 
     def storeCustomColor(self):
         currentColor = self.color
-        redIsClose = math.isclose(currentColor[0], self.display.highlightColor[0], abs_tol=0.01)
-        greenIsClose = math.isclose(currentColor[1], self.display.highlightColor[1], abs_tol=0.01)
-        blueIsClose = math.isclose(currentColor[2], self.display.highlightColor[2], abs_tol=0.01)
+        redIsClose = math.isclose(currentColor[0], self.display.highlightColor[0],
+                                  abs_tol = 0.01)
+        greenIsClose = math.isclose(currentColor[1], self.display.highlightColor[1],
+                                    abs_tol = 0.01)
+        blueIsClose = math.isclose(currentColor[2], self.display.highlightColor[2],
+                                   abs_tol = 0.01)
 
         if not redIsClose or not greenIsClose or not blueIsClose:
             self.display.customColor = self.color
@@ -207,34 +221,40 @@ class UMOGNode:
 
     @property
     def activeInputSocket(self):
-        if len(self.inputs) == 0: return None
+        if len(self.inputs) == 0:
+            return None
         return self.inputs[self.activeInputIndex]
 
     @property
     def activeOutputSocket(self):
-        if len(self.outputs) == 0: return None
+        if len(self.outputs) == 0:
+            return None
         return self.outputs[self.activeOutputIndex]
 
     @property
     def sockets(self):
         return list(self.inputs) + list(self.outputs)
 
-    def newInput(self, type, name, identifier = None, alternativeIdentifier = None, **kwargs):
+    def newInput(self, type, name, identifier = None, alternativeIdentifier = None,
+                 **kwargs):
         idName = toSocketIdName(type)
         if idName is None:
             raise ValueError("Socket type does not exist: {}".format(repr(type)))
-        if identifier is None: identifier = name
+        if identifier is None:
+            identifier = name
         socket = self.inputs.new(idName, name, identifier)
         socket.originalName = socket.name
         self._setAlternativeIdentifier(socket, alternativeIdentifier)
         self._setSocketProperties(socket, kwargs)
         return socket
 
-    def newOutput(self, type, name, identifier = None, alternativeIdentifier = None, **kwargs):
+    def newOutput(self, type, name, identifier = None, alternativeIdentifier = None,
+                  **kwargs):
         idName = toSocketIdName(type)
         if idName is None:
             raise ValueError("Socket type does not exist: {}".format(repr(type)))
-        if identifier is None: identifier = name
+        if identifier is None:
+            identifier = name
         socket = self.outputs.new(idName, name, identifier)
         socket.originalName = socket.name
         self._setAlternativeIdentifier(socket, alternativeIdentifier)
@@ -252,8 +272,8 @@ class UMOGNode:
             setattr(socket, key, value)
 
     def invokeFunction(self, layout, functionName, text = "", icon = "NONE",
-                       description = "", emboss = True, confirm = False,
-                       data = None, passEvent = False):
+                       description = "", emboss = True, confirm = False, data = None,
+                       passEvent = False):
         idName = getInvokeFunctionOperator(description)
         props = layout.operator(idName, text = text, icon = icon, emboss = emboss)
         props.callback = self.newCallback(functionName)
@@ -262,22 +282,26 @@ class UMOGNode:
         props.data = str(data)
         props.passEvent = passEvent
 
+
 def createIdentifier():
     identifierLength = 15
     characters = "abcdefghijklmnopqrstuvwxyz" + "0123456789"
     choice = random.SystemRandom().choice
     return "_" + ''.join(choice(characters) for _ in range(identifierLength))
 
+
 def nodeToID(node):
     return (node.id_data.name, node.name)
+
 
 def isUMOGNode(node):
     return getattr(node, "_isUMOGNode", False)
 
+
 def register():
     bpy.types.Node.toID = nodeToID
-    bpy.types.Node.isUMOGNode = BoolProperty(
-        default=False, get=isUMOGNode)
+    bpy.types.Node.isUMOGNode = BoolProperty(default = False, get = isUMOGNode)
+
 
 def unregister():
     del bpy.types.Node.toID

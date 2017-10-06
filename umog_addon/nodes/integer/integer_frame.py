@@ -1,6 +1,7 @@
 import bpy
-from ... base_types import UMOGNode
-from ... utils.events import propUpdate
+from ...base_types import UMOGNode
+from ...utils.events import propUpdate
+
 
 class IntegerFrameNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_IntegerFrameNode"
@@ -11,8 +12,7 @@ class IntegerFrameNode(bpy.types.Node, UMOGNode):
     input_value = bpy.props.IntProperty(update=propUpdate)
 
     def create(self):
-        socket = self.newOutput(
-            self.assignedType, "Frame: ")
+        socket = self.newOutput(self.assignedType, "Frame: ")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
         socket.value = bpy.context.scene.frame_current

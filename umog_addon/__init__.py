@@ -123,10 +123,10 @@ menus = OrderedDict([
             ("umog_TextureColorsNode", "Texture Colors"),
             ("umog_TextureSettingsNode", "Texture Settings"),
             ("umog_TextureAlternatorNode", "Texture Alternator")
-            
+
         ]
     })
-])
+])# yapf: disable
 
 def UMOGCreateMenus():
     for key, value in menus.items():
@@ -140,7 +140,7 @@ def UMOGCreateMenus():
 
             menu_class = type(
                 "UMOGMenu%s" % menu["text"],
-                (bpy.types.Menu,),
+                (bpy.types.Menu, ),
                 {
                     "menu": menu,
                     "bl_idname": menu["bl_idname"],
@@ -154,6 +154,7 @@ def UMOGCreateMenus():
 
 UMOGCreateMenus()
 
+
 def drawMenu(self, context):
     if context.space_data.tree_type != "umog_UMOGNodeTree": return
 
@@ -162,12 +163,13 @@ def drawMenu(self, context):
     for key, value in menus.items():
         menu = value
         if menu is not "separator":
-            layout.menu(menu["bl_idname"], text=menu["text"], icon=menu["icon"])
+            layout.menu(menu["bl_idname"], text = menu["text"], icon = menu["icon"])
         else:
             layout.separator()
 
-def insertNode(layout, type, text, settings={}, icon="NONE"):
-    operator = layout.operator("node.add_node", text=text, icon=icon)
+
+def insertNode(layout, type, text, settings = {}, icon = "NONE"):
+    operator = layout.operator("node.add_node", text = text, icon = icon)
     operator.type = type
     operator.use_transform = True
     for name, value in settings.items():
@@ -180,6 +182,6 @@ def insertNode(layout, type, text, settings={}, icon="NONE"):
 def register():
     bpy.types.NODE_MT_add.append(drawMenu)
 
+
 def unregister():
     bpy.types.NODE_MT_add.remove(drawMenu)
-
