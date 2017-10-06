@@ -94,7 +94,6 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def newOutputNode(self):
         socket = self.newOutput(self.assignedType, "Texture2")
-        # socket.isDataModified = True
         # socket.textProps.editable = True
         # socket.display.text = True
         socket.text = "Texture2"
@@ -109,7 +108,6 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def newEditableSocket(self):
         socket = self.newInput(self.assignedType, "Float")
-        socket.isDataModified = True
         socket.textProps.editable = True
         socket.display.textInput = True
         socket.display.text = True
@@ -126,7 +124,6 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def newWithDrawPropertySocket(self):
         socket = self.newInput(self.assignedType, "Float")
-        socket.isDataModified = True
         # socket.display.text = True
         # socket.text = "Output"
         # socket.moveable = True
@@ -138,7 +135,6 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def newMoveableSocket(self):
         socket = self.newInput(self.assignedType, "Float")
-        socket.isDataModified = True
         socket.display.text = True
         socket.text = "Moveable"
         socket.moveable = True
@@ -150,7 +146,6 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def newRemoveableSocket(self):
         socket = self.newInput(self.assignedType, "Float")
-        socket.isDataModified = True
         socket.display.text = True
         socket.text = "Removeable"
         socket.removeable = True
@@ -163,7 +158,6 @@ class MotherNode(bpy.types.Node, UMOGNode):
 
     def newUseIsUsedProperty(self):
         socket = self.newInput(self.assignedType, "Float")
-        socket.isDataModified = True
         socket.display.text = True
         socket.text = "Toggle Use"
         socket.moveable = True

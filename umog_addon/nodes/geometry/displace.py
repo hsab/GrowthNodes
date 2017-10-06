@@ -33,6 +33,7 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
         self.outputs[0].refresh()
 
     def execute(self, refholder):
+        print("in execute displace")
         obj = self.inputs[0].getObject()
         texture = self.inputs[1].getTexture()
         midLevel = self.inputs[2].value
@@ -51,7 +52,7 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
 
             shapekey = obj.data.shape_keys.key_blocks[-1]
             shapekey.value = 1
-            bakeCount = self.nodeTree.bakeCount
+            bakeCount = self.nodeTree.properties.bakeCount
             shapekey.name = \
                 "baked_umog_" + \
                 str(bakeCount) + \

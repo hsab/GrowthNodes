@@ -15,7 +15,8 @@ def DBG(*messages, **options):
     
     executionInfoExists = False
 
-    print()
+    if isTraceEnabled or isExecutionInfoEnabled:
+        print()
 
     if isExecutionInfoEnabled and len(messages)>0:
         executionInfoExists = True

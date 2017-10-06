@@ -10,6 +10,7 @@ menus = OrderedDict([
         "icon": "STICKY_UVS_LOC",
         "nodes": [
             ("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
+            ("umog_ReactionDiffusionNode2", "Reaction Diffusion 2"),
             ("umog_ConvolveNode", "Convolve")
         ]
     }),

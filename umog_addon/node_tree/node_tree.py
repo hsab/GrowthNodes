@@ -5,15 +5,11 @@ from .. utils.debug import *
 from .. utils.handlers import eventUMOGHandler
 from collections import defaultdict
 
-
-class UMOGNodeTree(NodeTree):
-    bl_idname = "umog_UMOGNodeTree"
-    bl_label = "UMOG"
-    bl_icon = "SCULPTMODE_HLT"
-
-    linearizedNodes = []
-    unlinkedNodes = []
-    connectedComponents = 0
+class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
+    bl_idname = "umog_NodeTreeProperties"
+    unique = BoolProperty(default=False)
+    editable = BoolProperty(default=False)
+    variable = BoolProperty(default=False)
 
     def updateTimeInfo(self, context):
         if self.StartFrame >= self.EndFrame:
@@ -62,8 +58,22 @@ class UMOGNodeTree(NodeTree):
         min=64,
         update=updateTimeInfo)
 
+class UMOGNodeTree(NodeTree):
+    bl_idname = "umog_UMOGNodeTree"
+    bl_label = "UMOG"
+    bl_icon = "SCULPTMODE_HLT"
+
+    linearizedNodes = []
+    unlinkedNodes = []
+    connectedComponents = 0
+
     updateInProgress = BoolProperty(
         name="Is an update in progress?", default=False)
+
+    executeInProgress = BoolProperty(
+        name="Is an execution in progress?", default=False)
+
+    properties = PointerProperty(type=UMOGNodeTreeProperties)
 
     def update(self):
         self.refreshExecutionPolicy()
@@ -71,14 +81,10 @@ class UMOGNodeTree(NodeTree):
 
     def updateOnFrameChange(self):
         for node in self.nodes:
-            try:
-                node.refreshOnFrameChange()
-            except:
-                pass
+            node.refreshOnFrameChange()
 
     def updateFrom(self, node=None):
         if not self.updateInProgress:
-            print(self.connectedComponents)
             self.updateInProgress = True
 
             if node is None:
@@ -172,53 +178,30 @@ class UMOGNodeTree(NodeTree):
             node.disableUnlinkedHighlight()
 
     def execute(self, refholder):
+        self.update()
+        
+        for node in self.linearizedNodes:
+            node.packSockets()
+            node.preExecute(refholder)
 
-        nodes = self.topological_sort()
+        self.executeInProgress = True
 
-        # for node in nodes:
-        # node.preExecute(refholder)
-        # if write_keyframes and node._IsUMOGOutputNode:
-        # node.write_keyframe(refholder, start_frame)
-
-        # TODO: fix draw, possible different execution mechanism
-        # TODO: separate refresh and execute
-        # TODO:
-        for frame in range(self.StartFrame, self.EndFrame):
+        for frame in range(self.properties.StartFrame, self.properties.EndFrame):
+            # Update the frame
             bpy.context.scene.frame_current = frame
-            for sub_frame in range(0, self.SubFrames):
-                for node in nodes:
+
+            for sub_frame in range(0, self.properties.SubFrames):
+                for node in self.linearizedNodes:
                     node.refreshNode()
                     node.execute(refholder)
 
-        self.bakeCount = self.bakeCount + 1
-        # for node in nodes:
-        #     node.postFrame(refholder)
-        #     if write_keyframes and node._IsUMOGOutputNode:
-        #         node.write_keyframe(refholder, frame)
+            for node in self.linearizedNodes:
+                node.postFrame(refholder)
 
-        # for node in nodes:
-        #     node.postBake(refholder)
+        self.executeInProgress = False
 
-    def topological_sort(self):
-        stack = []
-        nodes = []
-        visited = defaultdict(lambda: False)
+        for node in self.linearizedNodes:
+            node.postBake(refholder)
 
-        # initialize stack with output nodes
-        for node in self.nodes:
-            if node._IsUMOGOutputNode:
-                stack.append(node)
-                nodes.append(node)
-                visited[node.name] = True
+        self.properties.bakeCount = self.properties.bakeCount + 1
 
-        # perform a breadth-first traversal of the node graph
-        while len(stack) > 0:
-            node = stack.pop()
-            for input in node.inputs:
-                for link in input.links:
-                    if not visited[link.from_node.name]:
-                        stack.append(link.from_node)
-                        nodes.append(link.from_node)
-                        visited[link.from_node.name] = True
-
-        return nodes
