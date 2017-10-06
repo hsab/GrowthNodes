@@ -11,7 +11,6 @@ class VariableSocket(bpy.types.NodeSocket, UMOGSocket):
     dataType = "Variable"
     allowedInputTypes = ["All"]
 
-    isDataModified = True
 
     text = "varName"
     useIsUsedProperty = True

@@ -71,7 +71,6 @@ class ScriptNode(bpy.types.Node, UMOGNode):
 
     def newVariable(self):
         socket = self.newInput(self.assignedType, "Variable")
-        socket.isDataModified = True
         socket.textProps.editable = True
         socket.display.textInput = True
         socket.display.text = True

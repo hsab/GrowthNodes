@@ -43,8 +43,6 @@ class UMOGNode:
     # can be "NONE", "ALWAYS" or "HIDDEN_ONLY"
     dynamicLabelType = "NONE"
 
-    isRefreshableOnFrame = BoolProperty( name="Is Refreshable on Frame Change", default=False, update=propUpdate)
-
     @classmethod
     def poll(cls, nodeTree):
         return nodeTree.bl_idname == "umog_UMOGNodeTree"
@@ -79,13 +77,15 @@ class UMOGNode:
         self.refresh()
         self.postRefresh()
 
-    def refreshNodeOnFrameChange(self):
-        if self.isRefreshableOnFrame:
-            self.refreshInputs()
-            self.preRefresh()
-            self.refreshOnFrameChange()
-            self.postRefresh()
+    def refreshOnFrameChange(self):
+        pass
 
+    def packSockets(self):
+        for socket in self.inputs:
+            socket.packSocket()
+        for socket in self.outputs:
+            socket.packSocket()
+            
     # functions subclasses can override
     ######################################
 
@@ -107,10 +107,10 @@ class UMOGNode:
     def refresh(self):
         pass
 
-    def refreshOnFrameChange(self):
+    def postRefresh(self):
         pass
 
-    def postRefresh(self):
+    def refreshOnFrameChange(self):
         pass
 
     def draw(self, layout):
@@ -157,7 +157,7 @@ class UMOGNode:
         pass
 
     def removeSocket(self, socket):
-        index = socket.getIndex(self)
+        index = socket.index
         if socket.isOutput:
             if index < self.activeOutputIndex: self.activeOutputIndex -= 1
         else:

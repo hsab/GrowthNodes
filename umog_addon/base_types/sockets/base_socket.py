@@ -83,13 +83,12 @@ class UMOGSocket:
     isPacked = BoolProperty(
         name="Is Data Packed", default=False, update=propUpdate)
 
-    isDataModified = BoolProperty(default=True)
     socketRecentlyRefreshed = BoolProperty(default=False)
 
-    # Refresh
+    # Refresh and free 
     ##########################################################
     def refreshSocket(self):
-        if self.isRefreshable and self.isDataModified:
+        if self.isRefreshable and not (self.isPacked and self.nodeTree.executeInProgress):
             if self.isInput and self.isLinked:
                 self.socketRecentlyRefreshed = True
                 beforeValue = self.getProperty()
@@ -107,8 +106,20 @@ class UMOGSocket:
             if self.isInput and self.isUnlinked:
                 self.reverseName()
                 
+    def freeSocket(self):
+        self.destroy()
+    
+    def packSocket(self):
+        if self.isPacked:
+            self.pack()
     # Overwrite in subclasses
     ##########################################################
+
+    def destroy(self):
+        pass
+
+    def pack(self):
+        pass
 
     def refresh(self):
         pass
@@ -336,10 +347,10 @@ class UMOGSocket:
     ##########################################################
 
     def moveUp(self):
-        self.moveTo(self.getIndex() - 1)
+        self.moveTo(self.index - 1)
 
     def moveTo(self, index, node=None):
-        ownIndex = self.getIndex(node)
+        ownIndex = self.index
         if ownIndex != index:
             self.sockets.move(ownIndex, index)
             self.node.socketMoved()
@@ -428,6 +439,12 @@ class UMOGSocket:
             for link in self.links:
                 nodes.append(link.from_node)
         return nodes
+
+    @property
+    def index(self):
+        if self.is_output:
+            return list(self.node.outputs).index(self)
+        return list(self.node.inputs).index(self)
 
     @property
     def isOutput(self):

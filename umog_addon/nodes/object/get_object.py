@@ -24,5 +24,6 @@ class GetTextureNode(bpy.types.Node, UMOGNode):
         pass
 
     def preExecute(self, refholder):
+        pass
         # consider saving the result from this
-        self.outputs[0].texture_index = refholder.getRefForTexture2d(self.texture)
+        # self.outputs[0].texture_index = refholder.getRefForTexture2d(self.texture)

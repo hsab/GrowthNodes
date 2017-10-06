@@ -8,7 +8,7 @@ def updateOnLoad():
         if area.type == "NODE_EDITOR":
             tree = area.spaces.active.node_tree
             if getattr(tree, "bl_idname", "") == "umog_UMOGNodeTree":
-                tree.refreshExecutionPolicy()
+                tree.update()
 
 @eventUMOGHandler("FRAME_CHANGE_POST")
 def updateOnFrameChange(scene):
@@ -35,7 +35,6 @@ def propUpdate(self = None, context = None):
                     #     "Path:   "+self.path_from_id(),
                     #     trace = True)
 
-                    self.isDataModified = True
                     nodeTreeUpdateFrom(self.node)
                 else:
                     self.socketRecentlyRefreshed = False
