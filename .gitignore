@@ -2,4 +2,4 @@ __pycache__/
 .idea/
 build/
 umog_addon/compilation_info.json
-
+.DS_Store
