@@ -38,28 +38,54 @@ class DisplaceNode(UMOGOutputNode):
                                 bpy.data.images[self.texture_name_temp])
 
         obj = bpy.data.objects[self.mesh_name]
+        texture = bpy.data.textures[self.texture_name_temp]
 
         if self.inputs["Texture"].is_linked:
 
-            if self.use_subdiv:
-                oname = "SUBDIV"
-                mod = obj.modifiers.new(name=oname, type='SUBSURF')
-                bpy.ops.object.modifier_apply(modifier=oname)
+            # if self.use_subdiv:
+            #     oname = "SUBDIV"
+            #     mod = obj.modifiers.new(name=oname, type='SUBSURF')
+            #     bpy.ops.object.modifier_apply(modifier=oname)
 
-            oname = "DISPLACE"
-            mod = obj.modifiers.new(name=oname, type='DISPLACE')
-            dir(mod)
-            mod.texture = bpy.data.textures[self.texture_name_temp]
+            new_obj = obj.copy()
+            new_obj.data = obj.data.copy()
+            bpy.context.scene.objects.link(new_obj)
+            bpy.context.scene.objects.active = new_obj
+            new_obj.select = True
+
+            if new_obj.data.shape_keys is not None:
+                for k in new_obj.data.shape_keys.key_blocks:
+                    new_obj.shape_key_remove(k)
+
+            oname = 'DISPLACE'
+            mod = new_obj.modifiers.new(name=oname, type='DISPLACE')
+            mod.texture = texture
             mod.mid_level = self.mod_midlevel
             mod.strength = self.mod_strength
             bpy.ops.object.modifier_apply(modifier=oname)
+
+            bpy.context.scene.objects.active = obj
+            obj.select = False
+            new_obj.select = True
+            bpy.ops.object.join_shapes()
+
+            bpy.context.scene.objects.active = new_obj
+            obj.select = False
+            bpy.ops.object.delete()
+
+            obj.active_shape_key_index = len(obj.data.shape_keys.key_blocks) - 1
+            obj.select = True
         else:
             print("no texture specified")
 
     def write_keyframe(self, refholder, frame):
         obj = bpy.data.objects[self.mesh_name]
-        for vertex in obj.data.vertices:
-            vertex.keyframe_insert(data_path='co', frame=frame)
+        if obj.data.shape_keys is not None and len(obj.data.shape_keys.key_blocks) > 0:
+            obj.data.shape_keys.key_blocks[-1].value = 1.0
+            obj.data.shape_keys.key_blocks[-1].keyframe_insert("value", frame=frame)
+            obj.data.shape_keys.key_blocks[-1].value = 0.0
+            obj.data.shape_keys.key_blocks[-1].keyframe_insert("value", frame=frame - 1)
+            obj.data.shape_keys.key_blocks[-1].keyframe_insert("value", frame=frame + 1)
 
     def preExecute(self, refholder):
         image = bpy.data.images.new(self.temp_texture_prefix + self.name, width=bpy.context.scene.TextureResolution,
