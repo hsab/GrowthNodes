@@ -13,7 +13,7 @@ class UMOGNodeTree(NodeTree):
 
     linearizedNodes = []
     unlinkedNodes = []
-
+    connectedComponents = 0
 
     def updateTimeInfo(self, context):
         if self.StartFrame >= self.EndFrame:
@@ -34,7 +34,6 @@ class UMOGNodeTree(NodeTree):
         default=1,
         min=1,
         update=updateTimeInfo)
-
 
     StartFrame = IntProperty(
         name="StartFrame",
@@ -79,6 +78,7 @@ class UMOGNodeTree(NodeTree):
 
     def updateFrom(self, node=None):
         if not self.updateInProgress:
+            print(self.connectedComponents)
             self.updateInProgress = True
 
             if node is None:
@@ -90,12 +90,11 @@ class UMOGNodeTree(NodeTree):
                         *self.linearizedNodes, TRACE=False)
             else:
                 index = self.linearizedNodes.index(node)
-                subgraph = node.execution.subgraph
+                currentCC = node.execution.connectedComponent
                 nodesToBeUpdated = []
                 for node in self.linearizedNodes[index:]:
-                    # TODO: Fix SCC
-                    # if node.execution.subgraph == subgraph:
-                    nodesToBeUpdated.append(node)
+                    if node.execution.connectedComponent == currentCC:
+                        nodesToBeUpdated.append(node)
 
                 if len(self.linearizedNodes) > 0:
                     DBG("FOLLOWING EXECUTABLE NODES REFRESHED:",
@@ -112,36 +111,59 @@ class UMOGNodeTree(NodeTree):
                 socket.reverseName()
 
     def refreshExecutionPolicy(self):
+        self.markUnvisited()
+        self.connectedComponent()
+        self.markUnvisited()
         self.topologicalSort()
+        self.markUnvisited()
         self.updateNodeColors()
 
-    def execute(self, refholder):
-        nodes = self.topological_sort()
+    def markUnvisited(self):
+        for node in self.nodes:
+            node.execution.visited = False
 
-        # for node in nodes:
-            # node.preExecute(refholder)
-            # if write_keyframes and node._IsUMOGOutputNode:
-                # node.write_keyframe(refholder, start_frame)
+    def topologicalSort(self):
+        del self.linearizedNodes[:]
+        del self.unlinkedNodes[:]
 
-        # TODO: fix draw, possible different execution mechanism
-        # TODO: separate refresh and execute
-        # TODO: 
-        for frame in range(self.StartFrame, self.EndFrame):
-            bpy.context.scene.frame_current = frame
-            for sub_frame in range(0, self.SubFrames):
-                for node in nodes:
-                    node.refreshNode()
-                    node.execute(refholder)
-            
+        for node in self.nodes:
+            if node.isLinked is False:
+                self.unlinkedNodes.append(node)
+            elif node.execution.visited is False:
+                self.topologicalSortUtil(node)
 
-        self.bakeCount = self.bakeCount + 1
-            # for node in nodes:
-            #     node.postFrame(refholder)
-            #     if write_keyframes and node._IsUMOGOutputNode:
-            #         node.write_keyframe(refholder, frame)
+    def topologicalSortUtil(self, node):
+        node.execution.visited = True
 
-        # for node in nodes:
-        #     node.postBake(refholder)
+        for socket in node.outputs:
+            connectedNodes = socket.getConnectedNodes
+            for adjacentNode in connectedNodes:
+                if adjacentNode.execution.visited == False:
+                    self.topologicalSortUtil(adjacentNode)
+
+        self.linearizedNodes.insert(0, node)
+
+    def connectedComponent(self):
+        connectedComponent = 1
+        for node in self.nodes:
+            if node.isLinked is False:
+                node.execution.connectedComponent = -1
+            elif node.execution.visited is False:
+                self.connectedComponentUtil(node, connectedComponent)
+                connectedComponent += 1
+
+        self.connectedComponents = connectedComponent
+
+    def connectedComponentUtil(self, node, connectedComponent):
+        node.execution.visited = True
+        node.execution.connectedComponent = connectedComponent
+
+        for socket in node.sockets:
+            connectedNodes = socket.getConnectedNodes
+            for adjacentNode in connectedNodes:
+                if adjacentNode.execution.visited == False:
+                    self.connectedComponentUtil(
+                        adjacentNode, connectedComponent)
 
     def updateNodeColors(self):
         for node in self.unlinkedNodes:
@@ -149,41 +171,33 @@ class UMOGNodeTree(NodeTree):
         for node in self.linearizedNodes:
             node.disableUnlinkedHighlight()
 
-    # A recursive function used by topologicalSort
-    def topologicalSortUtil(self, node, subgraph):
-        # Mark the current node as visited.
-        node.execution.visited = True
-        node.execution.subgraph = subgraph
-        # Recur for all the nodes adjacent to this node
-        for socket in node.outputs:
-            connectedNodes = socket.getConnectedNodes
-            for adjacentNode in connectedNodes:
-                if adjacentNode.execution.visited == False:
-                    self.topologicalSortUtil(adjacentNode, subgraph)
-                else:
-                    node.execution.subgraph = adjacentNode.execution.subgraph
+    def execute(self, refholder):
 
-        # Push current vertex to stack which stores result
-        self.linearizedNodes.insert(0, node)
+        nodes = self.topological_sort()
 
-    # The function to do Topological Sort. It uses recursive
-    # topologicalSortUtil()
-    def topologicalSort(self):
-        del self.linearizedNodes[:]
-        del self.unlinkedNodes[:]
-        # Call the recursive helper function to store Topological
-        # Sort starting from all vertices one by one
-        subgraph = 1
-        for node in self.nodes:
-            if node.isLinked is False:
-                node.execution.subgraph = 0
-                self.unlinkedNodes.append(node)
-            elif node.execution.visited is False:
-                self.topologicalSortUtil(node, subgraph)
-                subgraph += 1
+        # for node in nodes:
+        # node.preExecute(refholder)
+        # if write_keyframes and node._IsUMOGOutputNode:
+        # node.write_keyframe(refholder, start_frame)
 
-        for node in self.nodes:
-            node.execution.visited = False
+        # TODO: fix draw, possible different execution mechanism
+        # TODO: separate refresh and execute
+        # TODO:
+        for frame in range(self.StartFrame, self.EndFrame):
+            bpy.context.scene.frame_current = frame
+            for sub_frame in range(0, self.SubFrames):
+                for node in nodes:
+                    node.refreshNode()
+                    node.execute(refholder)
+
+        self.bakeCount = self.bakeCount + 1
+        # for node in nodes:
+        #     node.postFrame(refholder)
+        #     if write_keyframes and node._IsUMOGOutputNode:
+        #         node.write_keyframe(refholder, frame)
+
+        # for node in nodes:
+        #     node.postBake(refholder)
 
     def topological_sort(self):
         stack = []

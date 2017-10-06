@@ -12,7 +12,7 @@ from ... utils.events import propUpdate
 class UMOGNodeExecutionProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_NodeExecutionProperties"
     visited = BoolProperty(name = "Visited in Topological Sort", default = False)
-    subgraph = IntProperty(name = "Strongly Connected Component Node Belongs To", default = 0)
+    connectedComponent = IntProperty(name = "Connected Component Network of Node", default = 0)
 
 class UMOGNodeDisplayProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_NodeDisplayProperties"
