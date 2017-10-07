@@ -1,6 +1,18 @@
 import bpy
 from collections import OrderedDict
 
+
+import sys
+import bpy
+
+import os
+path = os.path.dirname(os.path.realpath(__file__))
+print(os.getcwd())
+print(path)
+sys.path.append(path + "/packages")
+sys.path.append(path + "/packages/pyglet")
+
+
 menus = OrderedDict([
     ("algorithm_menu", {
         "bl_idname": "umog_algorithm_menu",
@@ -11,6 +23,7 @@ menus = OrderedDict([
         "nodes": [
             #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
             ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node"),
+            ("PyGLNode", "PyGL Node"),
             ("umog_ConvolveNode", "Convolve"),
             ("umog_ConvolveGLNode", "Convolve opengl")
         ]
