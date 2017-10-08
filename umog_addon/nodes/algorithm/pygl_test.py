@@ -7,10 +7,9 @@ Example code for using glsl and vertex buffer objects with pyglet
 from ..output_node import UMOGOutputNode
 from ... events import pyglet_helper
 
-import pyglet
-from pyglet import gl
 import ctypes
 
+from multiprocessing import Process
 import threading
 import bpy
 import copy
@@ -50,21 +49,48 @@ class PyGLNode(UMOGOutputNode):
     def update(self):
         pass
 
-
+    def preExecute(self, refholder):
+        refholder.execution_scratch[self.name] = {}
+        refholder.execution_scratch[self.name]["buffer"] = (ctypes.c_uint32* (512*512*4))()
+        refholder.execution_scratch[self.name]["buffer"] = 0
         
 
     def execute(self, refholder):
         try:
             #start a new thread to avoid poluting blender's opengl context
-            t = threading.Thread(target=OffScreenRender, args=(self.steps,))
+            t = threading.Thread(target=OffScreenRender, args=(self.steps,refholder.execution_scratch[self.name]["buffer"],
+                refholder.execution_scratch[self.name]))
             t.start()
             t.join()
             print("OpenglRender done")
+            #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
+            print(refholder.execution_scratch[self.name]["buffer"])
         except:
             print("thread start failed")
+            
+    #def execute(self, refholder):
+        #try:
+            ##start a new thread to avoid poluting blender's opengl context
+            #p = Process(target=OffScreenRender, args=(self.steps,refholder.execution_scratch[self.name]["buffer"],refholder.execution_scratch[self.name]["buffer"]))
+            
+            ##p = Process(target=Dummy, args=(self.steps,refholder.execution_scratch[self.name]["buffer"], refholder.execution_scratch[self.name]["buffer"]))
+            
+            #p.start()
+            #p.join()
+            #print("OpenglRender done")
+            #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
+            #print(buf)
+        #except:
+            #print("process failed")
+        
+def Dummy(steps, in_buffer, out_buffer):
+    print("dummy")
+    return True
 
-
-def OffScreenRender(steps):
+def OffScreenRender(steps, in_buffer, out_buffer):
+    import pyglet
+    from pyglet import gl
+    print("start of osr, for " + str(steps))
     class ControledRender(pyglet.window.Window):
         vertex_source = b"""
         #version 330
@@ -138,6 +164,7 @@ def OffScreenRender(steps):
             self.vao = gl.GLuint(0)
             self.framebuffer = gl.GLuint(0)
             self.temp_tex = gl.GLuint(0)
+            self.prev_program = (gl.GLint * 1)()
             self.dim = 512
             
             gl.glGenFramebuffers(1, ctypes.byref(self.framebuffer))
@@ -164,7 +191,9 @@ def OffScreenRender(steps):
             gl.glAttachShader(self.program, pyglet_helper.compile_shader(gl.GL_VERTEX_SHADER, self.vertex_source))
             gl.glAttachShader(self.program, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source))
             pyglet_helper.link_program(self.program)
+            gl.glGetIntegerv(gl.GL_CURRENT_PROGRAM, self.prev_program)
             
+            gl.glUseProgram(self.program)
             
             data = [-1.0, -1.0,
                     1.0, -1.0,
@@ -191,7 +220,14 @@ def OffScreenRender(steps):
             gl.glVertexAttribPointer(pos_pos, 2, gl.GL_FLOAT, False, 0, 0)
             
         def cleanUP(self):
-            pass
+            a = (gl.GLuint * (512*512*4))()
+            gl.glReadPixels(0, 0, self.dim, self.dim , gl.GL_RGBA, gl.GL_UNSIGNED_INT, a)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
+            gl.glUseProgram(self.prev_program[0])
+            
+            
+            buf = np.frombuffer(a, dtype=np.float)
+            out_buffer["buffer"] = buf
         
         def on_draw(self):
             self.render()
@@ -221,13 +257,13 @@ def OffScreenRender(steps):
                 # but is required for the GUI to not freeze.
                 # Basically it flushes the event pool that otherwise
                 # fill up and block the buffers and hangs stuff.
-                #event = self.dispatch_events()
+                event = self.dispatch_events()
                 
     cr = ControledRender(steps)
     cr.run()
-    cr.close()
     cr.cleanUP()
-    #print(dir(cr))
-    del cr
-    cr = None
+    cr.close()
+    #del cr
+    #cr = None
+    print("end of osr")
     
