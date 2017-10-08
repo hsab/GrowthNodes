@@ -8,8 +8,6 @@ from ..output_node import UMOGOutputNode
 from ... events import pyglet_helper
 
 import ctypes
-
-from multiprocessing import Process
 import threading
 import bpy
 import copy
@@ -88,8 +86,8 @@ def Dummy(steps, in_buffer, out_buffer):
     return True
 
 def OffScreenRender(steps, in_buffer, out_buffer):
-    import pyglet
-    from pyglet import gl
+    from ... packages import pyglet
+    from ...packages.pyglet import gl
     print("start of osr, for " + str(steps))
     class ControledRender(pyglet.window.Window):
         vertex_source = b"""
