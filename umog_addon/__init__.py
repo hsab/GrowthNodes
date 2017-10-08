@@ -1,18 +1,6 @@
 import bpy
 from collections import OrderedDict
 
-
-import sys
-import bpy
-
-import os
-path = os.path.dirname(os.path.realpath(__file__))
-print(os.getcwd())
-print(path)
-sys.path.append(path + "/packages")
-sys.path.append(path + "/packages/pyglet")
-
-
 menus = OrderedDict([
     ("algorithm_menu", {
         "bl_idname": "umog_algorithm_menu",
