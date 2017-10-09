@@ -147,8 +147,8 @@ def OffScreenRender(steps, in_buffer, out_buffer):
 
         //color = vec4(clamp(scaledU, 0.0, 1.0), clamp(scaledV, 0.0, 1.0), clamp(newU, 0.0, 1.0), 1.0);
         
-        //color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
-        color = vec4(0.5, 0.75, 1.0, 1.0);
+        color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
+        //color = vec4(0.5, 0.75, 1.0, 1.0);
         }
         """
         
@@ -162,16 +162,33 @@ def OffScreenRender(steps, in_buffer, out_buffer):
             self.vertex_buffer = gl.GLuint(0)
             self.vao = gl.GLuint(0)
             self.framebuffer = gl.GLuint(0)
+            self.framebuffer0 = gl.GLuint(0)
             self.temp_tex = gl.GLuint(0)
+            self.temp_tex0 = gl.GLuint(0)
             self.prev_program = (gl.GLint * 1)()
             self.dim = 512
             
             gl.glGenFramebuffers(1, ctypes.byref(self.framebuffer))
+            gl.glGenFramebuffers(1, ctypes.byref(self.framebuffer0))
             gl.glGenTextures(1, ctypes.byref(self.temp_tex))
+            gl.glGenTextures(1, ctypes.byref(self.temp_tex0))
             
 
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer)
+            gl.glActiveTexture(gl.GL_TEXTURE0)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer0)
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.temp_tex0)
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dim, self.dim, 0, gl.GL_RGBA, gl.GL_INT, 0)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.temp_tex0, 0)
+            self.draw_buffers0 = (gl.GLenum * 1)(gl.GL_COLOR_ATTACHMENT0)
+            gl.glDrawBuffers(1, self.draw_buffers0)
 
+            assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
+            
+            
+            gl.glActiveTexture(gl.GL_TEXTURE1)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer)
             # Set up the texture as the target for color output
             gl.glBindTexture(gl.GL_TEXTURE_2D, self.temp_tex)
             gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dim, self.dim, 0, gl.GL_RGBA, gl.GL_INT, 0)
@@ -210,11 +227,14 @@ def OffScreenRender(steps, in_buffer, out_buffer):
             gl.glGenVertexArrays(1, ctypes.byref(self.vao))
             gl.glBindVertexArray(self.vao)
             
-            pos_pos = gl.glGetAttribLocation(self.program, ctypes.create_string_buffer(b"a_position"))
-            assert(pos_pos >= 0)
-            gl.glEnableVertexAttribArray(pos_pos)
+            self.pos_pos = gl.glGetAttribLocation(self.program, ctypes.create_string_buffer(b"a_position"))
+            assert(self.pos_pos >= 0)
+            gl.glEnableVertexAttribArray(self.pos_pos)
             gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertex_buffer)
-            gl.glVertexAttribPointer(pos_pos, 2, gl.GL_FLOAT, False, 0, 0)
+            gl.glVertexAttribPointer(self.pos_pos, 2, gl.GL_FLOAT, False, 0, 0)
+            
+            self.tex_pos = gl.glGetUniformLocation(self.program, b"myTexture")
+            
             
         def cleanUP(self):
             a = (gl.GLint * (512*512*3))()
@@ -233,9 +253,21 @@ def OffScreenRender(steps, in_buffer, out_buffer):
             self.alive = 0
 
         def render(self):
+            
+            
+            self.clear()
+            gl.glUniform1i(self.tex_pos, 1)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer0);
+            gl.glViewport(0,0,self.dim,self.dim)
+            
+            gl.glClearColor(0, 0, 0, 1.0)
+            gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+            
+            gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
             self.flip() # This updates the screen, very much important.
             
             self.clear()
+            gl.glUniform1i(self.tex_pos, 0)
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer);
             gl.glViewport(0,0,self.dim,self.dim)
             
@@ -244,7 +276,7 @@ def OffScreenRender(steps, in_buffer, out_buffer):
             
             gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
             
-            
+            self.flip() # This updates the screen, very much important.
             
         
         def run(self):
