@@ -7,7 +7,6 @@ Example code for using glsl and vertex buffer objects with pyglet
 from ..output_node import UMOGOutputNode
 from ... events import pyglet_helper
 
-import ctypes
 import threading
 import bpy
 import copy
@@ -49,7 +48,6 @@ class PyGLNode(UMOGOutputNode):
 
     def preExecute(self, refholder):
         refholder.execution_scratch[self.name] = {}
-        refholder.execution_scratch[self.name]["buffer"] = (ctypes.c_uint32* (512*512*4))()
         refholder.execution_scratch[self.name]["buffer"] = 0
         
 
@@ -88,6 +86,8 @@ def Dummy(steps, in_buffer, out_buffer):
 def OffScreenRender(steps, in_buffer, out_buffer):
     from ... packages import pyglet
     from ...packages.pyglet import gl
+    import ctypes
+    
     print("start of osr, for " + str(steps))
     class ControledRender(pyglet.window.Window):
         vertex_source = b"""
@@ -145,9 +145,10 @@ def OffScreenRender(steps, in_buffer, out_buffer):
         float scaledU = oldU + newU * timestep;
         float scaledV = oldV + newV * timestep;
 
-        color = vec4(clamp(scaledU, 0.0, 1.0), clamp(scaledV, 0.0, 1.0), clamp(newU, 0.0, 1.0), 1.0);
+        //color = vec4(clamp(scaledU, 0.0, 1.0), clamp(scaledV, 0.0, 1.0), clamp(newU, 0.0, 1.0), 1.0);
         
         //color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
+        color = vec4(0.5, 0.75, 1.0, 1.0);
         }
         """
         
@@ -168,14 +169,12 @@ def OffScreenRender(steps, in_buffer, out_buffer):
             gl.glGenFramebuffers(1, ctypes.byref(self.framebuffer))
             gl.glGenTextures(1, ctypes.byref(self.temp_tex))
             
-            gl.glGenFramebuffers(1, ctypes.byref(self.framebuffer))
-            gl.glGenTextures(1, ctypes.byref(self.temp_tex))
 
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer)
 
             # Set up the texture as the target for color output
             gl.glBindTexture(gl.GL_TEXTURE_2D, self.temp_tex)
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGB, self.dim, self.dim, 0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE, 0)
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dim, self.dim, 0, gl.GL_RGBA, gl.GL_INT, 0)
             gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
             gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
             gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.temp_tex, 0)
@@ -218,13 +217,13 @@ def OffScreenRender(steps, in_buffer, out_buffer):
             gl.glVertexAttribPointer(pos_pos, 2, gl.GL_FLOAT, False, 0, 0)
             
         def cleanUP(self):
-            a = (gl.GLuint * (512*512*4))()
-            gl.glReadPixels(0, 0, self.dim, self.dim , gl.GL_RGBA, gl.GL_UNSIGNED_INT, a)
+            a = (gl.GLint * (512*512*3))()
+            gl.glReadPixels(0, 0, self.dim, self.dim , gl.GL_RGB, gl.GL_INT, a)
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
             gl.glUseProgram(self.prev_program[0])
             
             
-            buf = np.frombuffer(a, dtype=np.float)
+            buf = np.frombuffer(a, dtype=np.int32)
             out_buffer["buffer"] = buf
         
         def on_draw(self):
@@ -234,16 +233,18 @@ def OffScreenRender(steps, in_buffer, out_buffer):
             self.alive = 0
 
         def render(self):
+            self.flip() # This updates the screen, very much important.
+            
             self.clear()
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer);
             gl.glViewport(0,0,self.dim,self.dim)
             
-            #gl.glClearColor(0, 0, 0, 1.0)
+            gl.glClearColor(0, 0, 0, 1.0)
             gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
             
             gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
             
-            self.flip() # This updates the screen, very much important.
+            
             
         
         def run(self):
