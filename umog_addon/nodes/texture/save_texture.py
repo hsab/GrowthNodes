@@ -1,8 +1,9 @@
-from ... base_types import UMOGOutputNode
+from ... base_types import UMOGNode
 import bpy
+import numpy as np
 
 
-class SaveTextureNode(bpy.types.Node, UMOGOutputNode):
+class SaveTextureNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_SaveTextureNode"
     bl_label = "Save Texture"
 
@@ -28,29 +29,35 @@ class SaveTextureNode(bpy.types.Node, UMOGOutputNode):
 
 
     def execute(self, refholder):
-        # if self.input
+        texture = self.inputs[0].getFromSocket.getTexture()
+        image = texture.image
+        # image.update()
+        # nparr = np.asarray(image.pixels, dtype="float")
+        # nparr = nparr.reshape(image.size[0], image.size[0], 4)
 
+        # test = bpy.data.images.new("test", image.size[0], image.size[0], alpha = False, float_buffer = True)
+        # test.pixels = nparr.flatten()
 
-        refholder.handleToImage(self.inputs[0].links[0].from_socket.texture_index,
-                                bpy.data.images[self.texture_name_temp])
-        image = bpy.data.images[self.texture_name_temp]
         image.filepath_raw = self.file_path + self.file_name + str(self.file_name_diff) + ".png"
         image.file_format = 'PNG'
         image.save()
+
+        # print(image.source == test.source)
+
         self.file_name_diff = self.file_name_diff + 1
         pass
 
     def preExecute(self, refholder):
         self.file_name_diff = 0
-        image = bpy.data.images.new(self.temp_texture_prefix + self.name, width=bpy.context.scene.TextureResolution,
-                                    height=bpy.context.scene.TextureResolution)
-        self.texture_name_temp = image.name
-        cTex = bpy.data.textures.new(self.temp_texture_prefix + self.name, type='IMAGE')
-        cTex.image = image
-        print("texture name: " + self.texture_name_temp)
+        # image = bpy.data.images.new(self.temp_texture_prefix + self.name, width=bpy.context.scene.TextureResolution,
+        #                             height=bpy.context.scene.TextureResolution)
+        # self.texture_name_temp = image.name
+        # cTex = bpy.data.textures.new(self.temp_texture_prefix + self.name, type='IMAGE')
+        # cTex.image = image
+        # print("texture name: " + self.texture_name_temp)
         pass
 
     def postBake(self, refholder):
-        bpy.data.textures.remove(bpy.data.textures[self.texture_name_temp])
-        bpy.data.images.remove(bpy.data.images[self.texture_name_temp])
+        # bpy.data.textures.remove(bpy.data.textures[self.texture_name_temp])
+        # bpy.data.images.remove(bpy.data.images[self.texture_name_temp])
         pass

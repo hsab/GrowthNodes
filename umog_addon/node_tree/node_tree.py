@@ -182,6 +182,8 @@ class UMOGNodeTree(NodeTree):
         
         for node in self.linearizedNodes:
             node.packSockets()
+
+        for node in self.linearizedNodes:
             node.preExecute(refholder)
 
         self.executeInProgress = True

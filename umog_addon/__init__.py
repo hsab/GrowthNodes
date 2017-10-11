@@ -11,6 +11,7 @@ menus = OrderedDict([
         "nodes": [
             ("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
             ("umog_ReactionDiffusionNode2", "Reaction Diffusion 2"),
+            ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion GPU"),
             ("umog_ConvolveNode", "Convolve")
         ]
     }),
@@ -122,8 +123,8 @@ menus = OrderedDict([
             ("umog_TextureNode", "Texture"),
             ("umog_TextureColorsNode", "Texture Colors"),
             ("umog_TextureSettingsNode", "Texture Settings"),
-            ("umog_TextureAlternatorNode", "Texture Alternator")
-
+            ("umog_TextureAlternatorNode", "Texture Alternator"),
+            ("umog_SaveTextureNode", "Texture Save")
         ]
     })
 ])# yapf: disable
