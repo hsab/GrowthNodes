@@ -36,7 +36,11 @@ class TextureAlternatorNode(bpy.types.Node, UMOGNode):
         self.outputs[0].setPackedImageFromPixels(pixels)
         pixels = self.inputs[1].getPixels()
         self.outputs[1].setPackedImageFromPixels(pixels)
-
+        # print("Feed\t",self.inputs[2].value,"\t", self.inputs[2].getFromSocket.value)
+        # print("Kill\t",self.inputs[3].value,"\t", self.inputs[3].getFromSocket.value)
+        # print("Da\t",self.inputs[4].value,"\t", self.inputs[4].getFromSocket.value)
+        # print("Db\t",self.inputs[5].value,"\t", self.inputs[5].getFromSocket.value)
+        # print("Dt\t",self.inputs[6].value,"\t", self.inputs[6].getFromSocket.value)
         # try:
         #     counter_index = self.inputs[2].links[0].to_socket.integer_value
         # except:

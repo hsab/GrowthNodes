@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 *.pyd
 build/
+umog_addon/compilation_info.json
