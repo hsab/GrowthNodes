@@ -2,11 +2,20 @@ def Dummy(steps, in_buffer, out_buffer):
     print("dummy")
     return True
 
-def OffScreenRender(steps, in_buffer, out_buffer):
-    from ... packages import pyglet
-    from ...packages.pyglet import gl
-    import ctypes
-    
+def OffScreenRender(steps, in_buffer, out_buffer, test=False):
+    if test:
+        import pyglet
+        from pyglet import gl
+        import ctypes
+        import pyglet_helper
+        import numpy as np
+    else:
+        from ... events import pyglet_helper
+        from ... packages import pyglet
+        from ...packages.pyglet import gl
+        import ctypes
+        import numpy as np
+        
     print("start of osr, for " + str(steps))
     class ControledRender(pyglet.window.Window):
         vertex_source = b"""
@@ -66,8 +75,8 @@ def OffScreenRender(steps, in_buffer, out_buffer):
 
         //color = vec4(clamp(scaledU, 0.0, 1.0), clamp(scaledV, 0.0, 1.0), clamp(newU, 0.0, 1.0), 1.0);
         
-        color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
-        //color = vec4(0.5, 0.75, 1.0, 1.0);
+        //color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
+        color = vec4(0.5, 0.75, 1.0, 1.0);
         }
         """
         
@@ -154,10 +163,12 @@ def OffScreenRender(steps, in_buffer, out_buffer):
             
             self.tex_pos = gl.glGetUniformLocation(self.program, b"myTexture")
             
+            self.clear()
             
         def cleanUP(self):
             a = (gl.GLint * (512*512*3))()
             gl.glReadPixels(0, 0, self.dim, self.dim , gl.GL_RGB, gl.GL_INT, a)
+            #self.flip() # This updates the screen, very much important.
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
             gl.glUseProgram(self.prev_program[0])
             
@@ -174,7 +185,7 @@ def OffScreenRender(steps, in_buffer, out_buffer):
         def render(self):
             
             
-            self.clear()
+            
             gl.glUniform1i(self.tex_pos, 1)
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer0);
             gl.glViewport(0,0,self.dim,self.dim)
@@ -183,9 +194,7 @@ def OffScreenRender(steps, in_buffer, out_buffer):
             gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
             
             gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
-            self.flip() # This updates the screen, very much important.
-            
-            self.clear()
+
             gl.glUniform1i(self.tex_pos, 0)
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer);
             gl.glViewport(0,0,self.dim,self.dim)
@@ -194,8 +203,7 @@ def OffScreenRender(steps, in_buffer, out_buffer):
             gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
             
             gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
-            
-            self.flip() # This updates the screen, very much important.
+
             
         
         def run(self):
@@ -220,4 +228,4 @@ def OffScreenRender(steps, in_buffer, out_buffer):
 if __name__ == "__main__":
     curr = {}
     curr["buffer"] = {}
-    OffScreenRender(4,curr["buffer"],cur)
+    OffScreenRender(4,curr["buffer"],curr, test=True)
