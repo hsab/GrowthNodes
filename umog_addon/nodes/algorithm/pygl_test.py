@@ -5,8 +5,7 @@ License: GNU GENERAL PUBLIC LICENSE - Version 3, 29 June 2007
 Example code for using glsl and vertex buffer objects with pyglet
 '''
 from ..output_node import UMOGOutputNode
-from ... events import pyglet_helper
-from . import pygl_test_impl
+from . import pyglet_test_impl
 
 import threading
 import bpy

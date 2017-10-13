@@ -75,8 +75,8 @@ def OffScreenRender(steps, in_buffer, out_buffer, test=False):
 
         //color = vec4(clamp(scaledU, 0.0, 1.0), clamp(scaledV, 0.0, 1.0), clamp(newU, 0.0, 1.0), 1.0);
         
-        //color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
-        color = vec4(0.5, 0.75, 1.0, 1.0);
+        color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
+        //color = vec4(0.5, 0.75, 1.0, 1.0);
         }
         """
         
@@ -95,6 +95,12 @@ def OffScreenRender(steps, in_buffer, out_buffer, test=False):
             self.temp_tex0 = gl.GLuint(0)
             self.prev_program = (gl.GLint * 1)()
             self.dim = 512
+            
+            #c_float_p = ctypes.POINTER(ctypes.c_float_p)
+            #self.tdata = np.random.rand(self.dim,self.dim, 4)
+            #self.tdata = self.tdata.astype(np.uint8)
+            #data_p = self.tdata.ctypes.data_as(c_float_p)
+
             
             gl.glGenFramebuffers(1, ctypes.byref(self.framebuffer))
             gl.glGenFramebuffers(1, ctypes.byref(self.framebuffer0))
