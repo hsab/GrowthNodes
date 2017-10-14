@@ -32,6 +32,10 @@ class PyGLNode(UMOGOutputNode):
         name="channels")
 
     def init(self, context):
+        self.outputs.new("TextureSocketType", "A'")
+        self.outputs.new("TextureSocketType", "B'")
+        self.inputs.new("TextureSocketType", "A")
+        self.inputs.new("TextureSocketType", "B")
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -52,6 +56,9 @@ class PyGLNode(UMOGOutputNode):
         
 
     def execute(self, refholder):
+        temps = {}
+        temps["A"] = refholder.np2dtextures[self.inputs[0].links[0].from_socket.texture_index]
+        temps["B"] = refholder.np2dtextures[self.inputs[1].links[0].from_socket.texture_index]
         try:
             #start a new thread to avoid poluting blender's opengl context
             t = threading.Thread(target=pygl_test_impl.OffScreenRender, args=(self.steps,refholder.execution_scratch[self.name]["buffer"],
