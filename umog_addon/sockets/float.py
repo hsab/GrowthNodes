@@ -1,24 +1,58 @@
 import bpy
-from bpy.types import NodeSocket
+import sys
+from bpy.props import *
+from .. base_types import UMOGSocket
+from .. utils.events import propUpdate
 
-class FloatSocket(NodeSocket):
+
+def getFloatValue(self):
+    return min(max(self.minValue, self.get("value", 0)), self.maxValue)
+
+
+def setFloatValue(self, value):
+    self["value"] = min(max(self.minValue, value), self.maxValue)
+
+
+class FloatSocket(bpy.types.NodeSocket, UMOGSocket):
     # Description string
-    '''Custom Integer socket type'''
+    '''Custom Float socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.
     bl_idname = 'FloatSocketType'
     # Label for nice name display
     bl_label = 'Float Socket'
+    dataType = "Float"
+    allowedInputTypes = ["Float", "Integer", "Boolean"]
 
-    objectName = bpy.props.StringProperty()
+    useIsUsedProperty = False
+    defaultDrawType = "PREFER_PROPERTY"
 
-    float_value = bpy.props.FloatProperty()
+    drawColor = (0.99, 0.59, 0, 1)
 
-    def draw_color(self, context, node):
-        return (1, 0, 1, 0.5)
+    value = FloatProperty(default=0.0,
+                          set=setFloatValue, get=getFloatValue,
+                          update=propUpdate)
 
-    def init(self, context):
-        pass
+    minValue = FloatProperty(default=-1e10)
+    maxValue = FloatProperty(default=sys.float_info.max)
 
-    # Optional function for drawing the socket input value
-    def draw(self, context, layout, node, text):
-        layout.label(text=text)
+    def drawProperty(self, context, layout, layoutParent, text, node):
+        layout.prop(self, "value", text=text)
+
+    def refresh(self):
+        self.name = "{:.3f}".format(self.value)
+
+    def getValue(self):
+        return self.value
+
+    def setProperty(self, data):
+        if type(data) is bool:
+            self.value = int(data)
+        else:
+            self.value = data
+
+    def getProperty(self):
+        return self.value
+
+    def setRange(self, min, max):
+        self.minValue = min
+        self.maxValue = max

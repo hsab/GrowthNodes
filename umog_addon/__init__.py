@@ -12,19 +12,32 @@ menus = OrderedDict([
             #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
             ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node"),
             ("PyGLNode", "PyGL Node"),
-            ("umog_ConvolveNode", "Convolve"),
-            ("umog_ConvolveGLNode", "Convolve opengl")
+            #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
+            ("umog_ReactionDiffusionNode2", "Reaction Diffusion 2"),
+            ("umog_ConvolveNode", "Convolve")
         ]
     }),
     (" ", "separator"),
+    ("develop_menu", {
+        "bl_idname": "umog_develop_menu",
+        "bl_label": "Develop Menu",
+        "text": "Develop",
+        "bl_description": "Lorem Ipsum",
+        "icon": "RECOVER_AUTO",
+        "nodes": [
+            ("umog_MotherNode", "Mother Node"),
+            ("umog_ScriptNode", "Script Node")
+        ]
+    }),
     ("object_menu", {
         "bl_idname": "umog_object_menu",
         "bl_label": "Object Menu",
         "text": "Object",
         "bl_description": "Lorem Ipsum",
-        "icon": "OUTLINER_OB_GROUP_INSTANCE",
+        "icon": "MESH_CUBE",
         "nodes": [
-            ("", "")
+            ("umog_ObjectNode", "Object"),
+            ("umog_ObjectAlternatorNode", "Object Alternator")
         ]
     }),
     ("bmesh_menu", {
@@ -59,9 +72,33 @@ menus = OrderedDict([
         "icon": "LINENUMBERS_ON",
         "nodes": [
             ("umog_IntegerNode", "Integer"),
+            ("umog_IntegerMathNode", "Integer Math"),
+            ("umog_IntegerCompareNode", "Integer Compare"),
             ("umog_IntegerFrameNode", "Integer Frame"),
-            ("umog_IntegerSubframeNode", "Integer Subframe"),
-            ("umog_IntegerMathNode", "Integer Math")
+            ("umog_IntegerSubframeNode", "Integer Subframe")
+        ]
+    }),
+    ("float_menu", {
+        "bl_idname": "umog_float_menu",
+        "bl_label": "Float Menu",
+        "text": "Float",
+        "bl_description": "Lorem Ipsum",
+        "icon": "LINENUMBERS_ON",
+        "nodes": [
+            ("umog_FloatNode", "Float"),
+            ("umog_FloatMathNode", "Float Math"),
+            ("umog_FloatCompareNode", "Float Compare")
+        ]
+    }),
+    ("boolean_menu", {
+        "bl_idname": "umog_boolean_menu",
+        "bl_label": "Boolean Menu",
+        "text": "Boolean",
+        "bl_description": "Lorem Ipsum",
+        "icon": "CLIPUV_DEHLT",
+        "nodes": [
+            ("umog_BooleanNode", "Boolean"),
+            ("umog_BooleanOpshNode", "Boolean Operations")
         ]
     }),
     ("matrix_menu", {
@@ -85,15 +122,14 @@ menus = OrderedDict([
         "bl_description": "Nodes that operate on Textures",
         "icon": "IMGDISPLAY",
         "nodes": [
-            ("umog_GetTextureNode", "Get Texture"),
-            ("umog_SetTextureNode", "Set Texture"),
-            ("umog_SaveTextureNode", "Save Texture"),
-            ("umog_LoadTextureNode", "Load Texture(s)"),
+            ("umog_TextureNode", "Texture"),
+            ("umog_TextureColorsNode", "Texture Colors"),
+            ("umog_TextureSettingsNode", "Texture Settings"),
             ("umog_TextureAlternatorNode", "Texture Alternator")
-            
+
         ]
     })
-])
+])# yapf: disable
 
 def UMOGCreateMenus():
     for key, value in menus.items():
@@ -107,7 +143,7 @@ def UMOGCreateMenus():
 
             menu_class = type(
                 "UMOGMenu%s" % menu["text"],
-                (bpy.types.Menu,),
+                (bpy.types.Menu, ),
                 {
                     "menu": menu,
                     "bl_idname": menu["bl_idname"],
@@ -121,6 +157,7 @@ def UMOGCreateMenus():
 
 UMOGCreateMenus()
 
+
 def drawMenu(self, context):
     if context.space_data.tree_type != "umog_UMOGNodeTree": return
 
@@ -129,12 +166,13 @@ def drawMenu(self, context):
     for key, value in menus.items():
         menu = value
         if menu is not "separator":
-            layout.menu(menu["bl_idname"], text=menu["text"], icon=menu["icon"])
+            layout.menu(menu["bl_idname"], text = menu["text"], icon = menu["icon"])
         else:
             layout.separator()
 
-def insertNode(layout, type, text, settings={}, icon="NONE"):
-    operator = layout.operator("node.add_node", text=text, icon=icon)
+
+def insertNode(layout, type, text, settings = {}, icon = "NONE"):
+    operator = layout.operator("node.add_node", text = text, icon = icon)
     operator.type = type
     operator.use_transform = True
     for name, value in settings.items():
@@ -147,6 +185,6 @@ def insertNode(layout, type, text, settings={}, icon="NONE"):
 def register():
     bpy.types.NODE_MT_add.append(drawMenu)
 
+
 def unregister():
     bpy.types.NODE_MT_add.remove(drawMenu)
-

@@ -2,20 +2,24 @@ def Dummy(steps, in_buffer, out_buffer):
     print("dummy")
     return True
 
-def OffScreenRender(steps, in_buffer, out_buffer, test=False):
-    if test:
-        import pyglet
-        from pyglet import gl
-        import ctypes
-        import pyglet_helper
-        import numpy as np
-    else:
-        from ... events import pyglet_helper
-        from ... packages import pyglet
-        from ...packages.pyglet import gl
-        import ctypes
-        import numpy as np
-        
+def OffScreenRender(steps, args, test=False):
+    try:
+        if test:
+            import pyglet
+            from pyglet import gl
+            import ctypes
+            import pyglet_helper
+            import numpy as np
+        else:
+            from ... events import pyglet_helper
+            from ... packages import pyglet
+            from ...packages.pyglet import gl
+            import ctypes
+            import numpy as np
+    except:
+        print("imports failed")
+        return
+            
     print("start of osr, for " + str(steps))
     class ControledRender(pyglet.window.Window):
         vertex_source = b"""
@@ -178,7 +182,7 @@ def OffScreenRender(steps, in_buffer, out_buffer, test=False):
             
             
             buf = np.frombuffer(a, dtype=np.int32)
-            out_buffer["buffer"] = buf
+            args["Aout"] = buf
         
         def on_draw(self):
             self.render()
@@ -232,4 +236,4 @@ def OffScreenRender(steps, in_buffer, out_buffer, test=False):
 if __name__ == "__main__":
     curr = {}
     curr["buffer"] = {}
-    OffScreenRender(4,curr["buffer"],curr, test=True)
+    OffScreenRender(4,curr, test=True)

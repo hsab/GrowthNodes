@@ -14,7 +14,7 @@ class bakeMeshes(bpy.types.Operator):
         start_time = time.time()
 
         refholder = UMOGReferenceHolder()
-        node_tree.execute(refholder, context.scene.StartFrame, context.scene.EndFrame, context.scene.SubFrames)
+        node_tree.execute(refholder)
                 
         diff_time = time.time() - start_time
         print("the bake took " + str(diff_time))

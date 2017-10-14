@@ -1,10 +1,12 @@
-from ..umog_node import UMOGNode
+from ... base_types import UMOGNode
 import numpy as np
+import bpy
 import pyximport
 pyximport.install()
 from ...events import events
 
-class ConvolveNode(UMOGNode):
+
+class ConvolveNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_ConvolveNode"
     bl_label = "Convolve Node"
 
@@ -15,9 +17,6 @@ class ConvolveNode(UMOGNode):
         super().init(context)
 
     def draw_buttons(self, context, layout):
-        pass
-
-    def update(self):
         pass
 
     def execute(self, refholder):

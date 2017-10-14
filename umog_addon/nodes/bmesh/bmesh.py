@@ -1,8 +1,8 @@
-from ..output_node import UMOGOutputNode
+from ... base_types import UMOGOutputNode
 import bpy
 import bmesh
 
-class BMeshNode(UMOGOutputNode):
+class BMeshNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_BMeshNode"
     bl_label = "BMesh Node"
 
@@ -20,9 +20,6 @@ class BMeshNode(UMOGOutputNode):
     def draw_buttons(self, context, layout):
         # layout.operator("umog.select_mesh", text = "Select Mesh").pnode = self.name
         layout.prop_search(self, "mesh_name", bpy.data, "objects", icon="MESH_CUBE", text="")
-
-    def update(self):
-        pass
 
     def execute(self, refholder):
         try:

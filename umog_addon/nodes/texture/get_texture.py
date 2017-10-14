@@ -1,29 +1,28 @@
-from ..umog_node import UMOGNode
+from ... base_types import UMOGNode
 import bpy
 
-class GetTextureNode(UMOGNode):
-    bl_idname = "umog_GetTextureNode"
-    bl_label = "Get Texture Node"
+
+class GetTextureNode(bpy.types.Node, UMOGNode):
+    bl_idname = "umog_TextureNode"
+    bl_label = "Texture Node"
+    assignedType = "Texture2"
 
     texture = bpy.props.StringProperty()
 
-    def init(self, context):
-        self.outputs.new("TextureSocketType", "Output")
-        super().init(context)
+    def create(self):
+        socket = self.newOutput(
+            self.assignedType, "Texture", drawOutput=True, drawLabel=False)
+        socket.display.refreshableIcon = False
+        socket.display.packedIcon = False
 
-    def draw_buttons(self, context, layout):
-        # layout.operator("umog.select_texture", text = "Select Texture").pnode = self.name
-        layout.prop_search(self, "texture", bpy.data, "textures", icon="TEXTURE_DATA", text="")
+    def draw(self, layout):
+        # only one template_preview can exist per screen area https://developer.blender.org/T46733
+        # make sure that at most one preview can be opened at any time
         try:
-            # only one template_preview can exist per screen area https://developer.blender.org/T46733
-            # make sure that at most one preview can be opened at any time
             if self.select and (len(bpy.context.selected_nodes) == 1):
-                layout.template_preview(bpy.data.textures[self.texture])
+                layout.template_preview(self.outputs[0].getTexture())
         except:
             pass
-
-    def update(self):
-        pass
 
     def execute(self, refholder):
         # print("get texture node execution, texture: " + self.texture)
@@ -32,5 +31,7 @@ class GetTextureNode(UMOGNode):
         pass
 
     def preExecute(self, refholder):
+        pass
         # consider saving the result from this
-        self.outputs[0].texture_index = refholder.getRefForTexture2d(self.texture)
+        # self.outputs[0].texture_index = refholder.getRefForTexture2d(
+        #     self.texture)
