@@ -79,8 +79,8 @@ def OffScreenRender(steps, args, test=False):
 
         //color = vec4(clamp(scaledU, 0.0, 1.0), clamp(scaledV, 0.0, 1.0), clamp(newU, 0.0, 1.0), 1.0);
         
-        color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
-        //color = vec4(0.5, 0.75, 1.0, 1.0);
+        //color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
+        color = vec4(0.5, 0.75, 1.0, 1.0);
         }
         """
         
@@ -109,6 +109,8 @@ def OffScreenRender(steps, args, test=False):
             print("A shape " + str(A.shape))
             print(str(A.dtype))
             print(A)
+            
+            B = args["B"].astype(np.float32)
             
             #self.dp = self.tdata.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
             self.dp = A.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
@@ -178,20 +180,21 @@ def OffScreenRender(steps, args, test=False):
             gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertex_buffer)
             gl.glVertexAttribPointer(self.pos_pos, 2, gl.GL_FLOAT, False, 0, 0)
             
-            self.tex_pos = gl.glGetUniformLocation(self.program, b"myTexture")
+            self.tex_pos = gl.glGetUniformLocation(self.program, b"mydpTexture")
             
             gl.glViewport(0,0,self.dimx,self.dimy)
             #self.clear()
             
         def cleanUP(self):
-            a = (gl.GLint * (512*512*3))()
-            gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGB, gl.GL_INT, a)
+            a = (gl.GLint * (self.dimx*self.dimy*4))()
+            gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, a)
             #self.flip() # This updates the screen, very much important.
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
             gl.glUseProgram(self.prev_program[0])
             
             
-            buf = np.frombuffer(a, dtype=np.int32)
+            buf = np.frombuffer(a, dtype=np.float32)
+            #consider casting to float64
             args["Aout"] = buf
         
         def on_draw(self):
@@ -221,6 +224,7 @@ def OffScreenRender(steps, args, test=False):
             
         
         def run(self):
+            
             for i in range(self.frames):
                 self.render()
 
