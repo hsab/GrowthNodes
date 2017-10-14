@@ -32,16 +32,17 @@ def OffScreenRender(steps, args, test=False):
         }
         """
         
-        fragment_source = b"""
+        fragment_source_a = b"""
         #version 330
         out vec4 color;
         varying vec2 vTexCoord;
-        uniform sampler2D myTexture;
+        uniform sampler2D A;
+        uniform sampler2D B;
         
         uniform float step;
 
-        uniform float du;
-        uniform float dv;
+        uniform float dA;
+        uniform float dB;
 
         float distance = 1.5;
         uniform float timestep;
@@ -51,36 +52,89 @@ def OffScreenRender(steps, args, test=False):
         
         void main() {
         
-        float oldU = texture2D(myTexture, vTexCoord).r;				
-        float oldV = texture2D(myTexture, vTexCoord).g;	
+        vec4 oldA = texture2D(A, vTexCoord);				
+        vec4 oldB = texture2D(B, vTexCoord);	
 
         // [rad] Compute approximation of Laplacian for both V and U.
-        float otherU = -4.0 * oldU;
-        float otherV = -4.0 * oldV;
+        vec4 otherA = -4.0 * oldA;
+        vec4 otherB = -4.0 * oldB;
 
-        otherU += texture2D(myTexture, vTexCoord + vec2(-step, 0)).r;
-        otherU += texture2D(myTexture, vTexCoord + vec2(step, 0)).r;
-        otherU += texture2D(myTexture, vTexCoord + vec2(0, -step)).r;
-        otherU += texture2D(myTexture, vTexCoord + vec2(0, step)).r;
+        otherA += texture2D(A, vTexCoord + vec2(-step, 0));
+        otherA += texture2D(A, vTexCoord + vec2(step, 0));
+        otherA += texture2D(A, vTexCoord + vec2(0, -step));
+        otherA += texture2D(A, vTexCoord + vec2(0, step));
 
-        otherV += texture2D(myTexture, vTexCoord + vec2(-step, 0)).g;
-        otherV += texture2D(myTexture, vTexCoord + vec2(step, 0)).g;
-        otherV += texture2D(myTexture, vTexCoord + vec2(0, -step)).g;
-        otherV += texture2D(myTexture, vTexCoord + vec2(0, step)).g;
+        otherB += texture2D(B, vTexCoord + vec2(-step, 0));
+        otherB += texture2D(B, vTexCoord + vec2(step, 0));
+        otherB += texture2D(B, vTexCoord + vec2(0, -step));
+        otherB += texture2D(B, vTexCoord + vec2(0, step));
 
         float distance_squared = distance * distance;
         
         // [rad] Compute greyscott equations.
-        float newU = du * otherU / distance_squared - oldU * oldV * oldV + f * (1.0 - oldU);
-        float newV = dv * otherV / distance_squared + oldU * oldV * oldV - (f + k ) * oldV;
+        vec4 newA = dA * otherA / distance_squared - oldA * oldB * oldB + f * (1.0 - oldA);
+        vec4 newB = dB * otherB / distance_squared + oldA * oldB * oldB - (f + k ) * oldB;
 
-        float scaledU = oldU + newU * timestep;
-        float scaledV = oldV + newV * timestep;
+        vec4 scaledA = oldA + newA * timestep;
+        //vec4 scaledB = oldB + newB * timestep;
 
-        //color = vec4(clamp(scaledU, 0.0, 1.0), clamp(scaledV, 0.0, 1.0), clamp(newU, 0.0, 1.0), 1.0);
+        color = vec4(clamp(scaledA, vec4(0,0,0,0), vec4(1,1,1,1)).rgb, 1.0);
         
         //color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
-        color = vec4(0.5, 0.75, 1.0, 1.0);
+        //color = vec4(0.5, 0.75, 1.0, 1.0);
+        }
+        """
+        
+        fragment_source_b = b"""
+        #version 330
+        out vec4 color;
+        varying vec2 vTexCoord;
+        uniform sampler2D A;
+        uniform sampler2D B;
+        
+        uniform float step;
+
+        uniform float dA;
+        uniform float dB;
+
+        float distance = 1.5;
+        uniform float timestep;
+
+        uniform float k;
+        uniform float f;
+        
+        void main() {
+        
+        vec4 oldA = texture2D(A, vTexCoord);				
+        vec4 oldB = texture2D(B, vTexCoord);	
+
+        // [rad] Compute approximation of Laplacian for both V and U.
+        vec4 otherA = -4.0 * oldA;
+        vec4 otherB = -4.0 * oldB;
+
+        otherA += texture2D(A, vTexCoord + vec2(-step, 0));
+        otherA += texture2D(A, vTexCoord + vec2(step, 0));
+        otherA += texture2D(A, vTexCoord + vec2(0, -step));
+        otherA += texture2D(A, vTexCoord + vec2(0, step));
+
+        otherB += texture2D(B, vTexCoord + vec2(-step, 0));
+        otherB += texture2D(B, vTexCoord + vec2(step, 0));
+        otherB += texture2D(B, vTexCoord + vec2(0, -step));
+        otherB += texture2D(B, vTexCoord + vec2(0, step));
+
+        float distance_squared = distance * distance;
+        
+        // [rad] Compute greyscott equations.
+        vec4 newA = dA * otherA / distance_squared - oldA * oldB * oldB + f * (1.0 - oldA);
+        vec4 newB = dB * otherB / distance_squared + oldA * oldB * oldB - (f + k ) * oldB;
+
+        vec4 scaledA = oldA + newA * timestep;
+        vec4 scaledB = oldB + newB * timestep;
+
+        color = vec4(clamp(scaledB, vec4(0,0,0,0), vec4(1,1,1,1)).rgb, 1.0);
+        
+        //color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
+        //color = vec4(0.5, 0.75, 1.0, 1.0);
         }
         """
         
@@ -97,7 +151,7 @@ def OffScreenRender(steps, args, test=False):
             self.framebuffer0 = gl.GLuint(0)
             self.temp_tex = gl.GLuint(0)
             self.temp_tex0 = gl.GLuint(0)
-            self.prev_program = (gl.GLint * 1)()
+            #self.prev_program = (gl.GLint * 1)()
             
             
             self.dimx = args["A"].shape[0]
@@ -148,13 +202,18 @@ def OffScreenRender(steps, args, test=False):
 
             assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
             
-            self.program = gl.glCreateProgram()
-            gl.glAttachShader(self.program, pyglet_helper.compile_shader(gl.GL_VERTEX_SHADER, self.vertex_source))
-            gl.glAttachShader(self.program, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source))
-            pyglet_helper.link_program(self.program)
-            gl.glGetIntegerv(gl.GL_CURRENT_PROGRAM, self.prev_program)
+            self.programA = gl.glCreateProgram()
+            gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_VERTEX_SHADER, self.vertex_source))
+            gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_a))
+            pyglet_helper.link_program(self.programA)
             
-            gl.glUseProgram(self.program)
+            self.programB = gl.glCreateProgram()
+            gl.glAttachShader(self.programB, pyglet_helper.compile_shader(gl.GL_VERTEX_SHADER, self.vertex_source))
+            gl.glAttachShader(self.programB, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_b))
+            pyglet_helper.link_program(self.programB)
+            
+            
+            gl.glUseProgram(self.programA)
             
             data = [-1.0, -1.0,
                     1.0, -1.0,
@@ -174,13 +233,13 @@ def OffScreenRender(steps, args, test=False):
             gl.glGenVertexArrays(1, ctypes.byref(self.vao))
             gl.glBindVertexArray(self.vao)
             
-            self.pos_pos = gl.glGetAttribLocation(self.program, ctypes.create_string_buffer(b"a_position"))
+            self.pos_pos = gl.glGetAttribLocation(self.programA, ctypes.create_string_buffer(b"a_position"))
             assert(self.pos_pos >= 0)
             gl.glEnableVertexAttribArray(self.pos_pos)
             gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertex_buffer)
             gl.glVertexAttribPointer(self.pos_pos, 2, gl.GL_FLOAT, False, 0, 0)
             
-            self.tex_pos = gl.glGetUniformLocation(self.program, b"mydpTexture")
+            self.tex_pos = gl.glGetUniformLocation(self.programA, b"myTexture")
             
             gl.glViewport(0,0,self.dimx,self.dimy)
             #self.clear()
@@ -190,7 +249,6 @@ def OffScreenRender(steps, args, test=False):
             gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, a)
             #self.flip() # This updates the screen, very much important.
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
-            gl.glUseProgram(self.prev_program[0])
             
             
             buf = np.frombuffer(a, dtype=np.float32)
