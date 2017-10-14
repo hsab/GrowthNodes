@@ -1,4 +1,4 @@
-from ..umog_node import UMOGNode
+from ... base_types import UMOGNode
 import bpy
 import copy
 import numpy as np
@@ -6,7 +6,7 @@ import pyximport
 pyximport.install()
 from ...events import events
 
-class ReactionDiffusionNode(UMOGNode):
+class ReactionDiffusionNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_ReactionDiffusionNode"
     bl_label = "Reaction Diffusion Node"
 
@@ -30,8 +30,6 @@ class ReactionDiffusionNode(UMOGNode):
         layout.prop(self, "Db", "Db")
         layout.prop(self, "dt", "dt")
 
-    def update(self):
-        pass
 
     def execute(self, refholder):
         # compute A'

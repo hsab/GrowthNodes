@@ -1,8 +1,8 @@
-from ..umog_node import UMOGNode
+from ... base_types import UMOGNode
 import bpy
 import numpy as np
 
-class Mat3Node(UMOGNode):
+class Mat3Node(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Mat3Node"
     bl_label = "Matrix"
 
@@ -10,6 +10,8 @@ class Mat3Node(UMOGNode):
     
     def init(self, context):
         self.outputs.new("Mat3SocketType", "Output")
+        self.newInput("Float", "Alpha", "alpha", value = 1.0)
+        self.newOutput("Float", "Test", "text")
         super().init(context)
 
     def draw_buttons(self, context, layout):

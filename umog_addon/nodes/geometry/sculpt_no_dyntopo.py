@@ -1,7 +1,7 @@
-from ..output_node import UMOGOutputNode
+from ... base_types import UMOGOutputNode
 import bpy
 
-class SculptNDNode(UMOGOutputNode):
+class SculptNDNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SculptNDNode"
     bl_label = "Sculpt ND Node"
 
@@ -19,8 +19,6 @@ class SculptNDNode(UMOGOutputNode):
         layout.prop(self, "stroke_pressure", text="Stroke Pressure")
         layout.prop(self, "stroke_size", text="Stroke Size")
 
-    def update(self):
-        pass
 
     def execute(self, refholder):
         # print("sculpt node execution, mesh: " + self.mesh_name)

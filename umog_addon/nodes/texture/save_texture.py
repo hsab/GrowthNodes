@@ -1,13 +1,16 @@
-from ..output_node import UMOGOutputNode
+from ... base_types import UMOGOutputNode
 import bpy
 
 
-class SaveTextureNode(UMOGOutputNode):
+class SaveTextureNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SaveTextureNode"
-    bl_label = "Save Texture Node"
+    bl_label = "Save Texture"
+
+    assignedType = "Texture2"
 
     temp_texture_prefix = "__umog_texture_saver_"
     texture_name_temp = bpy.props.StringProperty()
+
     file_path = bpy.props.StringProperty(subtype='DIR_PATH')
     file_name = bpy.props.StringProperty(default="img")
 
@@ -15,18 +18,19 @@ class SaveTextureNode(UMOGOutputNode):
 
     texture_index = bpy.props.IntProperty()
 
-    def init(self, context):
-        self.inputs.new("TextureSocketType", "Input")
-        super().init(context)
+    def create(self):
+        socket = self.newInput(self.assignedType, "Texture")
+        socket.drawLabel = False
 
-    def draw_buttons(self, context, layout):
+    def draw(self, layout):
         layout.prop(self, "file_path", text="Path")
         layout.prop(self, "file_name", text="File Name")
 
-    def update(self):
-        pass
 
     def execute(self, refholder):
+        # if self.input
+
+
         refholder.handleToImage(self.inputs[0].links[0].from_socket.texture_index,
                                 bpy.data.images[self.texture_name_temp])
         image = bpy.data.images[self.texture_name_temp]

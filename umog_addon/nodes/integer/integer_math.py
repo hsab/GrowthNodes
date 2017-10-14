@@ -1,58 +1,67 @@
-from ..umog_node import UMOGNode
 import bpy
+from ... base_types import UMOGNode
+from ... utils.events import propUpdate
 
-class IntegerMathNode(UMOGNode):
+
+class IntegerMathNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_IntegerMathNode"
-    bl_label = "UMOG Integer Math"
+    bl_label = "Integer Math"
 
-    fixed_items = bpy.props.EnumProperty(items=
-                                         (('0', '+', 'addition'),
-                                          ('1', '-', 'subtraction'),
-                                          ('2', '*', 'multiplication'),
-                                          ('3', '/', 'division'),
-                                          ('4', '^', 'exponentiation'),
-                                          ('5', '%', 'modulus'),
-                                          ),
-                                         name="fixed list")
+    assignedType = "Integer"
 
-    def init(self, context):
-        self.outputs.new("IntegerSocketType", "Integer0")
-        self.inputs.new("IntegerSocketType", "Integer0")
-        self.inputs.new("IntegerSocketType", "Integer0")
-        self.outputs[0].integer_value = 0
-        super().init(context)
+    fixed_items = bpy.props.EnumProperty(items=(('0', '+', 'addition'),
+                                                ('1', '-', 'subtraction'),
+                                                ('2', '*', 'multiplication'),
+                                                ('3', '/', 'division'),
+                                                ('4', '^', 'exponentiation'),
+                                                ('5', '%', 'modulus'),
+                                                ),
+                                         name="fixed list",
+                                         update = propUpdate)
+
+    def create(self):
+        self.newInput(self.assignedType, "A")
+        self.newInput(self.assignedType, "B")
+        self.newOutput(self.assignedType, "Result")
+
+    def refresh(self):
+        self.applyOperation()
 
     def execute(self, refholder):
+        self.applyOperation()
+    
+    def applyOperation(self):
         if self.fixed_items == '0':
-            print("addition")
-            self.outputs[0].integer_value = (self.inputs[0].links[0].from_socket.integer_value +
-                                             self.inputs[1].links[0].from_socket.integer_value)
+            # Addition
+            self.outputs[0].value = self.inputs[0].value + self.inputs[1].value
+
         elif self.fixed_items == '1':
-            print("subtraction")
-            self.outputs[0].integer_value = (self.inputs[0].links[0].from_socket.integer_value -
-                                             self.inputs[1].links[0].from_socket.integer_value)
+            # Subtraction
+            self.outputs[0].value = self.inputs[0].value - self.inputs[1].value
+
         elif self.fixed_items == '2':
-            print("multiplication")
-            self.outputs[0].integer_value = (self.inputs[0].links[0].from_socket.integer_value *
-                                             self.inputs[1].links[0].from_socket.integer_value)
+            # Mult
+            self.outputs[0].value = self.inputs[0].value * self.inputs[1].value
+
         elif self.fixed_items == '3':
-            print("division")
+            # Div
             try:
-                self.outputs[0].integer_value = (self.inputs[0].links[0].from_socket.integer_value /
-                                                 self.inputs[1].links[0].from_socket.integer_value)
+                self.outputs[0].value = self.inputs[0].value / self.inputs[1].value
             except:
                 print("div by zero")
+
         elif self.fixed_items == '4':
-            print("exponentiation")
-            self.outputs[0].integer_value = (self.inputs[0].links[0].from_socket.integer_value ^
-                                             self.inputs[1].links[0].from_socket.integer_value)
+            # Expo
+            self.outputs[0].value = self.inputs[0].value ^ self.inputs[1].value
+
         elif self.fixed_items == '5':
-            print("modulus")
+            # Mod
             try:
-                self.outputs[0].integer_value = (self.inputs[0].links[0].from_socket.integer_value %
-                                                 self.inputs[1].links[0].from_socket.integer_value)
+                self.outputs[0].value = self.inputs[0].value % self.inputs[1].value
             except:
                 print("mod by zero")
 
-    def draw_buttons(self, context, layout):
+        self.outputs[0].name = str(self.outputs[0].value)
+
+    def draw(self, layout):
         layout.prop(self, "fixed_items", 'Operation')

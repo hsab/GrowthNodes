@@ -1,4 +1,4 @@
-from ..output_node import UMOGOutputNode
+from ... base_types import UMOGOutputNode
 import bpy
 import glob
 import os
@@ -6,7 +6,7 @@ import re
 
 
 
-class LoadTextureNode(UMOGOutputNode):
+class LoadTextureNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_LoadTextureNode"
     bl_label = "Load Texture Node"
 
@@ -25,8 +25,6 @@ class LoadTextureNode(UMOGOutputNode):
         layout.prop(self, "file_path", text="Path")
         layout.prop(self, "file_name", text="File Name")
 
-    def update(self):
-        pass
 
     def execute(self, refholder):
         index = refholder.execution_scratch[self.name]["index"]

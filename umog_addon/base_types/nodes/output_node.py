@@ -1,7 +1,7 @@
 from .umog_node import UMOGNode
 
 class UMOGOutputNode(UMOGNode):
-    _IsOutputNode = True
+    _IsUMOGOutputNode = True
 
     def init(self, context):
         super().init(context)

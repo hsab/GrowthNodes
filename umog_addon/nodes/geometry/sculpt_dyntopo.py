@@ -1,7 +1,7 @@
-from ..output_node import UMOGOutputNode
+from ... base_types import UMOGOutputNode
 import bpy
 
-class SculptNode(UMOGOutputNode):
+class SculptNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SculptNode"
     bl_label = "Sculpt Node"
 

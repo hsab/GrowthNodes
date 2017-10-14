@@ -1,4 +1,4 @@
-from ..umog_node import UMOGNode
+from ... base_types import UMOGNode
 import bpy
 import numpy as np
 
