@@ -77,7 +77,7 @@ class PyGLNode(bpy.types.Node, UMOGOutputNode):
             t.join()
             print("OpenglRender done")
             #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
-            #print(refholder.execution_scratch[self.name]["buffer"])
+            print(temps["Aout"])
         except:
             print("thread start failed")
             print("Unexpected error:", sys.exc_info()[0])
