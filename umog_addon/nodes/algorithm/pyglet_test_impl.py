@@ -98,11 +98,20 @@ def OffScreenRender(steps, args, test=False):
             self.temp_tex = gl.GLuint(0)
             self.temp_tex0 = gl.GLuint(0)
             self.prev_program = (gl.GLint * 1)()
-            self.dim = 512
             
-            self.tdata = np.random.rand(self.dim,self.dim, 4)
-            self.dp = self.tdata.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
-
+            
+            self.dimx = args["A"].shape[0]
+            self.dimy = args["A"].shape[1]
+            
+            
+            
+            A = args["A"].astype(np.float32)
+            print("A shape " + str(A.shape))
+            print(str(A.dtype))
+            print(A)
+            
+            #self.dp = self.tdata.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
+            self.dp = A.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
             
             gl.glGenFramebuffers(1, ctypes.byref(self.framebuffer))
             gl.glGenFramebuffers(1, ctypes.byref(self.framebuffer0))
@@ -113,7 +122,7 @@ def OffScreenRender(steps, args, test=False):
             gl.glActiveTexture(gl.GL_TEXTURE0)
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer0)
             gl.glBindTexture(gl.GL_TEXTURE_2D, self.temp_tex0)
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dim, self.dim, 0, gl.GL_RGBA, gl.GL_INT, self.dp)
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.dp)
             gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
             gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
             gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.temp_tex0, 0)
@@ -127,7 +136,7 @@ def OffScreenRender(steps, args, test=False):
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer)
             # Set up the texture as the target for color output
             gl.glBindTexture(gl.GL_TEXTURE_2D, self.temp_tex)
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dim, self.dim, 0, gl.GL_RGBA, gl.GL_INT, self.dp)
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.dp)
             gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
             gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
             gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.temp_tex, 0)
@@ -171,12 +180,12 @@ def OffScreenRender(steps, args, test=False):
             
             self.tex_pos = gl.glGetUniformLocation(self.program, b"myTexture")
             
-            gl.glViewport(0,0,self.dim,self.dim)
+            gl.glViewport(0,0,self.dimx,self.dimy)
             #self.clear()
             
         def cleanUP(self):
             a = (gl.GLint * (512*512*3))()
-            gl.glReadPixels(0, 0, self.dim, self.dim , gl.GL_RGB, gl.GL_INT, a)
+            gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGB, gl.GL_INT, a)
             #self.flip() # This updates the screen, very much important.
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
             gl.glUseProgram(self.prev_program[0])
