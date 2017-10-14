@@ -67,6 +67,12 @@ class PyGLNode(bpy.types.Node, UMOGOutputNode):
         temps = {}
         temps["A"] = self.inputs[0].getPixels()
         temps["B"] = self.inputs[1].getPixels()
+        temps["feed"] = self.inputs[2].getValue()
+        temps["kill"] = self.inputs[3].getValue()
+        temps["dA"] = self.inputs[4].getValue()
+        temps["dB"] = self.inputs[5].getValue()
+        temps["dt"] = self.inputs[6].getValue()
+        
         steps = self.inputs[-1].getValue()
         try:
             #start a new thread to avoid poluting blender's opengl context
@@ -77,7 +83,7 @@ class PyGLNode(bpy.types.Node, UMOGOutputNode):
             t.join()
             print("OpenglRender done")
             #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
-            print(temps["Aout"])
+            #print(temps["Aout"])
         except:
             print("thread start failed")
             print("Unexpected error:", sys.exc_info()[0])

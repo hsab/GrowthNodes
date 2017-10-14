@@ -138,70 +138,7 @@ def OffScreenRender(steps, args, test=False):
         }
         """
         
-        def __init__(self, frames):
-            #consider bumping opengl version if apple supports it
-            #amdgpu-mesa currently supports up to 4.5
-            super(ControledRender, self).__init__(512, 512, fullscreen = False, config=gl.Config(major_version=4, minor_version=1), visible=False)
-            print(self.context.get_info().get_version())
-            
-            self.frames = frames
-            self.vertex_buffer = gl.GLuint(0)
-            self.vao = gl.GLuint(0)
-            self.framebuffer = gl.GLuint(0)
-            self.framebuffer0 = gl.GLuint(0)
-            self.temp_tex = gl.GLuint(0)
-            self.temp_tex0 = gl.GLuint(0)
-            #self.prev_program = (gl.GLint * 1)()
-            
-            
-            self.dimx = args["A"].shape[0]
-            self.dimy = args["A"].shape[1]
-            
-            
-            
-            A = args["A"].astype(np.float32)
-            print("A shape " + str(A.shape))
-            print(str(A.dtype))
-            print(A)
-            
-            B = args["B"].astype(np.float32)
-            
-            #self.dp = self.tdata.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
-            self.dp = A.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
-            
-            gl.glGenFramebuffers(1, ctypes.byref(self.framebuffer))
-            gl.glGenFramebuffers(1, ctypes.byref(self.framebuffer0))
-            gl.glGenTextures(1, ctypes.byref(self.temp_tex))
-            gl.glGenTextures(1, ctypes.byref(self.temp_tex0))
-            
-
-            gl.glActiveTexture(gl.GL_TEXTURE0)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer0)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, self.temp_tex0)
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.dp)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-            gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.temp_tex0, 0)
-            self.draw_buffers0 = (gl.GLenum * 1)(gl.GL_COLOR_ATTACHMENT0)
-            gl.glDrawBuffers(1, self.draw_buffers0)
-
-            assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
-            
-            
-            gl.glActiveTexture(gl.GL_TEXTURE1)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer)
-            # Set up the texture as the target for color output
-            gl.glBindTexture(gl.GL_TEXTURE_2D, self.temp_tex)
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.dp)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-            gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.temp_tex, 0)
-
-            self.draw_buffers = (gl.GLenum * 1)(gl.GL_COLOR_ATTACHMENT0)
-            gl.glDrawBuffers(1, self.draw_buffers)
-
-            assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
-            
+        def setupShaders(self):
             self.programA = gl.glCreateProgram()
             gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_VERTEX_SHADER, self.vertex_source))
             gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_a))
@@ -212,8 +149,119 @@ def OffScreenRender(steps, args, test=False):
             gl.glAttachShader(self.programB, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_b))
             pyglet_helper.link_program(self.programB)
             
+        def setupFBOandTextures(self):
+            self.framebufferA0 = gl.GLuint(0)
+            self.framebufferA1 = gl.GLuint(0)
+            self.framebufferB0 = gl.GLuint(0)
+            self.framebufferB1 = gl.GLuint(0)
             
-            gl.glUseProgram(self.programA)
+            self.A0_tex = gl.GLuint(0)
+            self.A1_tex = gl.GLuint(0)
+            self.B0_tex = gl.GLuint(0)
+            self.B1_tex = gl.GLuint(0)
+            
+            self.draw_buffersA0 = (gl.GLenum * 1)(gl.GL_COLOR_ATTACHMENT0)
+            self.draw_buffersA1 = (gl.GLenum * 1)(gl.GL_COLOR_ATTACHMENT0)
+            self.draw_buffersB0 = (gl.GLenum * 1)(gl.GL_COLOR_ATTACHMENT0)
+            self.draw_buffersB1 = (gl.GLenum * 1)(gl.GL_COLOR_ATTACHMENT0)
+            
+            gl.glGenFramebuffers(1, ctypes.byref(self.framebufferA0))
+            gl.glGenFramebuffers(1, ctypes.byref(self.framebufferA1))
+            gl.glGenFramebuffers(1, ctypes.byref(self.framebufferB0))
+            gl.glGenFramebuffers(1, ctypes.byref(self.framebufferB1))
+            
+            gl.glGenTextures(1, ctypes.byref(self.A0_tex))
+            gl.glGenTextures(1, ctypes.byref(self.A1_tex))
+            gl.glGenTextures(1, ctypes.byref(self.B0_tex))
+            gl.glGenTextures(1, ctypes.byref(self.B1_tex))
+            
+            #A
+            gl.glActiveTexture(gl.GL_TEXTURE0)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0)
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.A0_tex)
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.Ap)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.A0_tex, 0)
+            gl.glDrawBuffers(1, self.draw_buffersA0)
+
+            assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
+            
+            
+            gl.glActiveTexture(gl.GL_TEXTURE1)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1)
+            # Set up the texture as the target for color output
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.A1_tex)
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.Ap)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.A1_tex, 0)
+
+            gl.glDrawBuffers(1, self.draw_buffersA1)
+
+            assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
+            
+            #B
+            
+            gl.glActiveTexture(gl.GL_TEXTURE2)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB0)
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.B0_tex)
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.Bp)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.B0_tex, 0)
+            gl.glDrawBuffers(1, self.draw_buffersB0)
+
+            assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
+            
+            
+            gl.glActiveTexture(gl.GL_TEXTURE3)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB1)
+            # Set up the texture as the target for color output
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.B1_tex)
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.Bp)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.B1_tex, 0)
+
+            gl.glDrawBuffers(1, self.draw_buffersB1)
+
+            assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
+        
+        def __init__(self, frames):
+            #consider bumping opengl version if apple supports it
+            #amdgpu-mesa currently supports up to 4.5
+            super(ControledRender, self).__init__(512, 512, fullscreen = False, config=gl.Config(major_version=4, minor_version=1), visible=False)
+            print(self.context.get_info().get_version())
+            
+            self.frames = frames
+            self.vertex_buffer = gl.GLuint(0)
+            self.vao = gl.GLuint(0)
+            #self.prev_program = (gl.GLint * 1)()
+            
+            
+            self.dimx = args["A"].shape[0]
+            self.dimy = args["A"].shape[1]
+            
+            
+            
+            A = args["A"].astype(np.float32)
+            #print("A shape " + str(A.shape))
+            #print(str(A.dtype))
+            #print(A)
+            
+            B = args["B"].astype(np.float32)
+            
+            #self.dp = self.tdata.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
+            self.Ap = A.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
+            self.Bp = B.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
+            
+            self.setupFBOandTextures()
+            
+            self.setupShaders()
+            
+            
+            
             
             data = [-1.0, -1.0,
                     1.0, -1.0,
@@ -232,28 +280,71 @@ def OffScreenRender(steps, args, test=False):
             
             gl.glGenVertexArrays(1, ctypes.byref(self.vao))
             gl.glBindVertexArray(self.vao)
-            
-            self.pos_pos = gl.glGetAttribLocation(self.programA, ctypes.create_string_buffer(b"a_position"))
-            assert(self.pos_pos >= 0)
-            gl.glEnableVertexAttribArray(self.pos_pos)
+            gl.glUseProgram(self.programA)
+            self.pos_posA = gl.glGetAttribLocation(self.programA, ctypes.create_string_buffer(b"a_position"))
+            assert(self.pos_posA >= 0)
+            gl.glEnableVertexAttribArray(self.pos_posA)
             gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertex_buffer)
-            gl.glVertexAttribPointer(self.pos_pos, 2, gl.GL_FLOAT, False, 0, 0)
+            gl.glVertexAttribPointer(self.pos_posA, 2, gl.GL_FLOAT, False, 0, 0)
             
-            self.tex_pos = gl.glGetUniformLocation(self.programA, b"myTexture")
+            self.tex_pos_A_A = gl.glGetUniformLocation(self.programA, b"A")
+            self.tex_pos_A_B = gl.glGetUniformLocation(self.programA, b"B")
+            self.feed_pos_A  = gl.glGetUniformLocation(self.programA, b"f")
+            self.kill_pos_A  = gl.glGetUniformLocation(self.programA, b"k")
+            self.dA_pos_A    = gl.glGetUniformLocation(self.programA, b"dA")
+            self.dB_pos_A    = gl.glGetUniformLocation(self.programA, b"dB")
+            self.dt_pos_A    = gl.glGetUniformLocation(self.programA, b"timestep")
+            self.step_pos_A  = gl.glGetUniformLocation(self.programA, b"step")
+            gl.glUniform1f(self.feed_pos_A, args["feed"])
+            gl.glUniform1f(self.kill_pos_A, args["kill"])
+            gl.glUniform1f(self.dA_pos_A, args["dA"])
+            gl.glUniform1f(self.dB_pos_A, args["dB"])
+            gl.glUniform1f(self.dt_pos_A, args["dt"])
+            #may need changed for nonsquare textures
+            gl.glUniform1f(self.step_pos_A, 1/self.dimx)
+            
+            
+            gl.glUseProgram(self.programB)
+            self.pos_posB = gl.glGetAttribLocation(self.programB, ctypes.create_string_buffer(b"a_position"))
+            assert(self.pos_posB >= 0)
+            gl.glEnableVertexAttribArray(self.pos_posB)
+            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertex_buffer)
+            gl.glVertexAttribPointer(self.pos_posB, 2, gl.GL_FLOAT, False, 0, 0)
+            
+            self.tex_pos_B_A = gl.glGetUniformLocation(self.programB, b"A")
+            self.tex_pos_B_B = gl.glGetUniformLocation(self.programB, b"B")
+            self.feed_pos_B  = gl.glGetUniformLocation(self.programB, b"f")
+            self.kill_pos_B  = gl.glGetUniformLocation(self.programB, b"k")
+            self.dA_pos_B    = gl.glGetUniformLocation(self.programB, b"dA")
+            self.dB_pos_B    = gl.glGetUniformLocation(self.programB, b"dB")
+            self.dt_pos_B    = gl.glGetUniformLocation(self.programB, b"timestep")
+            self.step_pos_B  = gl.glGetUniformLocation(self.programB, b"step")
+            gl.glUniform1f(self.feed_pos_B, args["feed"])
+            gl.glUniform1f(self.kill_pos_B, args["kill"])
+            gl.glUniform1f(self.dA_pos_B, args["dA"])
+            gl.glUniform1f(self.dB_pos_B, args["dB"])
+            gl.glUniform1f(self.dt_pos_B, args["dt"])
+            #may need changed for nonsquare textures
+            gl.glUniform1f(self.step_pos_B, 1/self.dimx)
             
             gl.glViewport(0,0,self.dimx,self.dimy)
             #self.clear()
             
         def cleanUP(self):
             a = (gl.GLint * (self.dimx*self.dimy*4))()
+            b = (gl.GLint * (self.dimx*self.dimy*4))()
+            gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, b)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1);
             gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, a)
+            
             #self.flip() # This updates the screen, very much important.
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
             
-            
-            buf = np.frombuffer(a, dtype=np.float32)
+            bufA = np.frombuffer(b, dtype=np.float32)
+            bufB = np.frombuffer(b, dtype=np.float32)
             #consider casting to float64
-            args["Aout"] = buf
+            args["Bout"] = bufB
+            args["Aout"] = bufA
         
         def on_draw(self):
             self.render()
@@ -262,19 +353,41 @@ def OffScreenRender(steps, args, test=False):
             self.alive = 0
 
         def render(self):
-            gl.glUniform1i(self.tex_pos, 1)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer0);
+            gl.glUseProgram(self.programA)
+            gl.glUniform1i(self.tex_pos_A_A, 1)
+            gl.glUniform1i(self.tex_pos_A_B, 3)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0);
             
-            gl.glClearColor(0, 0, 0, 1.0)
             gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
             
             gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
-
-            gl.glUniform1i(self.tex_pos, 0)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer);
+            gl.glUseProgram(self.programB)
+            
+            gl.glUniform1i(self.tex_pos_B_A, 1)
+            gl.glUniform1i(self.tex_pos_B_B, 3)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB0);
+            
+            gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+            
+            gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
             
             
-            gl.glClearColor(0, 0, 0, 1.0)
+            
+            gl.glUseProgram(self.programA)
+            gl.glUniform1i(self.tex_pos_A_A, 0)
+            gl.glUniform1i(self.tex_pos_A_B, 2)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1);
+            
+            
+            gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+            
+            gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
+            
+            gl.glUseProgram(self.programB)
+            gl.glUniform1i(self.tex_pos_B_A, 0)
+            gl.glUniform1i(self.tex_pos_B_B, 2)
+            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB1);
+            
             gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
             
             gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
