@@ -171,6 +171,7 @@ def OffScreenRender(steps, args, test=False):
             
             self.tex_pos = gl.glGetUniformLocation(self.program, b"myTexture")
             
+            gl.glViewport(0,0,self.dim,self.dim)
             #self.clear()
             
         def cleanUP(self):
@@ -191,12 +192,8 @@ def OffScreenRender(steps, args, test=False):
             self.alive = 0
 
         def render(self):
-            
-            
-            
             gl.glUniform1i(self.tex_pos, 1)
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer0);
-            gl.glViewport(0,0,self.dim,self.dim)
             
             gl.glClearColor(0, 0, 0, 1.0)
             gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
@@ -205,7 +202,7 @@ def OffScreenRender(steps, args, test=False):
 
             gl.glUniform1i(self.tex_pos, 0)
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer);
-            gl.glViewport(0,0,self.dim,self.dim)
+            
             
             gl.glClearColor(0, 0, 0, 1.0)
             gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
