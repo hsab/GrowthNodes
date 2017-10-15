@@ -342,6 +342,10 @@ def OffScreenRender(steps, args, test=False):
             
             bufA = np.frombuffer(b, dtype=np.float32)
             bufB = np.frombuffer(b, dtype=np.float32)
+            
+            bufA = bufA.reshape(args["A"].shape)
+            bufB = bufB.reshape(args["B"].shape)
+            
             #consider casting to float64
             args["Bout"] = bufB
             args["Aout"] = bufA

@@ -112,11 +112,35 @@ class Texture2Socket(bpy.types.NodeSocket, UMOGSocket):
 
         return pixels
 
-    def setPackedImageFromPixels(self, newPixels):
+    def setPackedImageFromPixels(self, newPixels, flatten=True):
         if self.isOutput and self.isPacked:
             texture = self.getTexture()
             image = texture.image
-            image.pixels = newPixels.flatten()
+            if flatten:
+                image.pixels = newPixels.flatten()
+            else:
+                image.pixels = newPixels
+            image.update()
+
+        else:
+            assert(False)
+
+    def setPackedImageFromChannels(self, newPixels, channel, flatten=True):
+        if self.isOutput and self.isPacked:
+            texture = self.getTexture()
+            image = texture.image
+            npImage = np.asarray(image.pixels, dtype = "float")
+            npImage = npImage.reshape(image.size[0], image.size[0], image.channels)
+            npImage[:,:,channel] = newPixels
+            if flatten:
+                image.pixels = npImage.flatten()
+            else:
+                image.pixels = npImage
+            image.update()
+
+        elif self.isInput and self.isPacked:
+            self.data[self.identifier][:,:,channel] = newPixels
+            
 
     def setPixels(self, newPixels):
         self.data[self.identifier] = newPixels
@@ -140,4 +164,5 @@ class Texture2Socket(bpy.types.NodeSocket, UMOGSocket):
         return bpy.data.textures[self.value]
 
     def destroy(self):
-        del self.data[self.identifier]
+        if self.isPacked:
+            del self.data[self.identifier]
