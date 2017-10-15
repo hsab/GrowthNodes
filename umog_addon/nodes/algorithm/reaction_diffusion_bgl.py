@@ -1,16 +1,26 @@
-from ..umog_node import UMOGNode
-from ... events import bgl_helper
 import bpy
 import bgl
 import copy
 import numpy as np
+from ... base_types import UMOGNode
+from ... events import bgl_helper
 import pyximport
 pyximport.install()
 from ...events import events
 
-class ReactionDiffusionBGLNode(UMOGNode):
+class UMOGReactionDiffusionData(dict):
+    bl_idname = "umog_ReactionDiffusionData"
+
+    def __init__(self):
+        pass
+
+class ReactionDiffusionBGLNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_ReactionDiffusionBGLNode"
-    bl_label = "Reaction Diffusion Node"
+    bl_label = "Reaction Diffusion GPU"
+
+    assignedType = "Texture2"
+    rdData = UMOGReactionDiffusionData()
+
 
     feed = bpy.props.FloatProperty(default=0.014, soft_min=0.0, soft_max=1.0, step=1, precision=4)
     kill = bpy.props.FloatProperty(default=0.046, soft_min=0.0, soft_max=1.0, step=1, precision=4)
@@ -22,7 +32,7 @@ class ReactionDiffusionBGLNode(UMOGNode):
         (('0', 'R', 'Just do the reaction on one channel'),
          ('1', 'RGB', 'Do the reaction on all color channels'),
         ),
-        name="channels")
+        name="Channels")
     
     
     temp_texture_prefix = "__umog_internal_"
@@ -87,46 +97,48 @@ class ReactionDiffusionBGLNode(UMOGNode):
     }
     """
 
-    def init(self, context):
-        self.outputs.new("TextureSocketType", "A'")
-        self.outputs.new("TextureSocketType", "B'")
-        self.inputs.new("TextureSocketType", "A")
-        self.inputs.new("TextureSocketType", "B")
-        super().init(context)
+    def create(self):
+        self.newInput(self.assignedType, "A").isPacked = True
+        self.newInput(self.assignedType, "B").isPacked = True
+        self.newInput("Float", "Feed", value=0.055, minValue = 0.0, maxValue = 1.0).isPacked = True
+        self.newInput("Float", "Kill", value=0.062, minValue = 0.0, maxValue = 1.0).isPacked = True
+        self.newInput("Float", "A Rate", value=1.0, minValue = 0.0, maxValue = 1.0).isPacked = True
+        self.newInput("Float", "B Rate", value=0.5, minValue = 0.0, maxValue = 1.0).isPacked = True
+        self.newInput("Float", "Delta Time", value=1.0, minValue = 0.0, maxValue = 1.0).isPacked = True
+        self.newInput("Integer", "Steps", value=1, minValue = 1).isPacked = True
+        self.newOutput(self.assignedType, "A'").isPacked = True
+        self.newOutput(self.assignedType, "B'").isPacked = True
+        self.newOutput(self.assignedType, "Combined").isPacked = True
 
-    def draw_buttons(self, context, layout):
-        layout.prop(self, "feed", "Feed")
-        layout.prop(self, "kill", "Kill")
-        layout.prop(self, "Da", "Da")
-        layout.prop(self, "Db", "Db")
-        layout.prop(self, "dt", "dt")
-        layout.prop(self, "steps", "steps")
-        layout.prop(self, "channels", "channels")
+    def draw(self, layout):
+        layout.prop(self, "channels", "Channels")
+
         
-    def update(self):
+    def refresh(self):
         pass
 
     def execute(self, refholder):
-        tr = bpy.context.scene.TextureResolution
+        # pass
+        tr = self.nodeTree.properties.TextureResolution
         print("begining execution " + str(tr))
         # compute A'
         mask = np.array([[0.05, 0.2, 0.05], [0.2, -1, 0.2], [0.05, 0.2, 0.05]])
-        Ap = refholder.np2dtextures[self.outputs[0].texture_index]
-        A = refholder.np2dtextures[self.inputs[0].links[0].from_socket.texture_index]
-
-        Bp = refholder.np2dtextures[self.outputs[1].texture_index]
-        B = refholder.np2dtextures[self.inputs[1].links[0].from_socket.texture_index]
+        # Input data pixels
+        A = self.inputs[0].getPixels()
+        B = self.inputs[1].getPixels()
         
-        bgl.glGetIntegerv(bgl.GL_CURRENT_PROGRAM, refholder.execution_scratch[self.name]["prev_program"])
-        bgl.glUseProgram(refholder.execution_scratch[self.name]["program"])
+        # print(A)
+
+        bgl.glGetIntegerv(bgl.GL_CURRENT_PROGRAM, self.rdData[self.name]["prev_program"])
+        bgl.glUseProgram(self.rdData[self.name]["program"])
         
         #set any uniforms needed
-        bgl.glUniform1f(refholder.execution_scratch[self.name]["dt_loc"], self.dt)
-        bgl.glUniform1f(refholder.execution_scratch[self.name]["step_loc"], 1/tr)
-        bgl.glUniform1f(refholder.execution_scratch[self.name]["da_loc"], self.Da)
-        bgl.glUniform1f(refholder.execution_scratch[self.name]["db_loc"], self.Db)
-        bgl.glUniform1f(refholder.execution_scratch[self.name]["kill_loc"], self.kill)
-        bgl.glUniform1f(refholder.execution_scratch[self.name]["feed_loc"], self.feed)
+        bgl.glUniform1f(self.rdData[self.name]["feed_loc"], self.inputs[2].value)
+        bgl.glUniform1f(self.rdData[self.name]["kill_loc"], self.inputs[3].value)
+        bgl.glUniform1f(self.rdData[self.name]["da_loc"], self.inputs[4].value)
+        bgl.glUniform1f(self.rdData[self.name]["db_loc"], self.inputs[5].value)
+        bgl.glUniform1f(self.rdData[self.name]["dt_loc"], self.inputs[6].value)
+        bgl.glUniform1f(self.rdData[self.name]["step_loc"], 1/tr)
         
         
         bgl.glDisable(bgl.GL_SCISSOR_TEST)
@@ -151,18 +163,20 @@ class ReactionDiffusionBGLNode(UMOGNode):
             channels = [0,1,2]
         
         for j in channels:
-            refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:,:,0] = A[:,:,j]
-            refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:,:,1] = B[:,:,j]
+            self.rdData[self.name]["npArray"][:,:,0] = A[:,:,j]
+            self.rdData[self.name]["npArray"][:,:,1] = B[:,:,j]
             
-            refholder.handleToImage(refholder.execution_scratch[self.name]["handle"],
-                                    refholder.execution_scratch[self.name]["image"])
+            # Caution: Interfacing with Cython requires toList()
+            self.rdData[self.name]["image"].pixels = self.rdData[self.name]["npArray"].flatten()
+
             
-            refholder.execution_scratch[self.name]["image"].gl_load(0, bgl.GL_LINEAR, bgl.GL_LINEAR)
-            bgl.glBindTexture(bgl.GL_TEXTURE_2D, refholder.execution_scratch[self.name]["image"].bindcode[0])
+            self.rdData[self.name]["image"].gl_load(0, bgl.GL_LINEAR, bgl.GL_LINEAR)
+
+            bgl.glBindTexture(bgl.GL_TEXTURE_2D, self.rdData[self.name]["image"].bindcode[0])
             bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_REPEAT)
             bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_REPEAT)
             
-            for i in range(self.steps):
+            for i in range(self.inputs[7].value):
                 bgl.glClearDepth(1.0)
                 bgl.glClearColor(0.0, 0.0, 0.0, 0.0)
                 bgl.glClear(
@@ -203,50 +217,71 @@ class ReactionDiffusionBGLNode(UMOGNode):
                 #glFlush glFinish or none here?
                 bgl.glFinish()
         
-            bgl.glReadPixels(0, 0, tr, tr , bgl.GL_RGBA, bgl.GL_FLOAT, refholder.execution_scratch[self.name]["buffer"])
-            refholder.execution_scratch[self.name]["image"].pixels = refholder.execution_scratch[self.name]["buffer"][:]
+            bgl.glReadPixels(0, 0, tr, tr , bgl.GL_RGBA, bgl.GL_FLOAT, self.rdData[self.name]["buffer"])
+            self.rdData[self.name]["image"].pixels = self.rdData[self.name]["buffer"][:]
             #write the image channel
+            npImage = np.asarray(self.rdData[self.name]["image"].pixels, dtype = "float")
+            self.rdData[self.name]["npArray"] = npImage.reshape(tr, tr, self.rdData[self.name]["image"].channels)
+
+            self.outputs[0].setPackedImageFromChannels(self.rdData[self.name]["npArray"][:,:,0], j, flatten = True)
+            self.outputs[1].setPackedImageFromChannels(self.rdData[self.name]["npArray"][:,:,1], j,flatten = True)
+            self.outputs[2].setPackedImageFromPixels(self.rdData[self.name]["npArray"])
             
-            refholder.imageToHandle(refholder.execution_scratch[self.name]["image"],
-                refholder.execution_scratch[self.name]["handle"])
-            Ap[:,:,j] = refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:,:,0]
-            Bp[:,:,j] = refholder.np2dtextures[refholder.execution_scratch[self.name]["handle"]][:,:,1]
-            refholder.execution_scratch[self.name]["image"].gl_free()
+            self.inputs[0].setPackedImageFromChannels(self.rdData[self.name]["npArray"][:,:,0], j,flatten = True)
+            self.inputs[1].setPackedImageFromChannels(self.rdData[self.name]["npArray"][:,:,1], j,flatten = True)
+            
+            # ================================= Test bed
+            # self.outputs[0].getTexture().image.copy()
+            # self.outputs[1].getTexture().image.copy()
+            # self.outputs[2].getTexture().image.copy()
+
+            # nparr = np.asarray(self.outputs[0].getTexture().image.pixels, dtype="float")
+            # nparr = nparr.reshape(tr, tr, 4)
+            # print(nparr)
+            
+            self.rdData[self.name]["image"].gl_free()
         
         
         #restore the state so blender wont break
         bgl.glEnable(bgl.GL_SCISSOR_TEST)
-        bgl.glUseProgram(refholder.execution_scratch[self.name]["prev_program"][0])
+        bgl.glUseProgram(self.rdData[self.name]["prev_program"][0])
         bgl.glActiveTexture(bgl.GL_TEXTURE0)
 
+    # TODO: Handle refholder!
     def preExecute(self, refholder):
-        self.outputs[0].texture_index = refholder.createRefForTexture2d()
-        self.outputs[1].texture_index = refholder.createRefForTexture2d()
-        refholder.execution_scratch[self.name] = {}
-        refholder.execution_scratch[self.name]["image"] = bpy.data.images.new(self.temp_texture_prefix + self.name, width=bpy.context.scene.TextureResolution,
-                                    height=bpy.context.scene.TextureResolution)
-        refholder.execution_scratch[self.name]["handle"] = refholder.createRefForTexture2d() 
+        # pass
+        self.rdData[self.name] = {}
+
+        D = bpy.data
+        textureName = self.nodeTree.name + " - " + self.identifier
+        resolution = self.nodeTree.properties.TextureResolution
+        if textureName in D.images:
+            D.images.remove(D.images[textureName])
+
+        image  = bpy.data.images.new(textureName, width=resolution, height=resolution)
+
+        self.rdData[self.name]["image"] = image
+        npImage = np.asarray(image.pixels, dtype = "float")
+        self.rdData[self.name]["npArray"] = npImage.reshape(resolution, resolution, image.channels)
+
         vertex_shader = bgl_helper.createShader(bgl.GL_VERTEX_SHADER, self.vertex_source)
         fragment_shader = bgl_helper.createShader(bgl.GL_FRAGMENT_SHADER,
                                                   self.fragment_source)
-        refholder.execution_scratch[self.name]["program"] = bgl_helper.createProgram(vertex_shader, fragment_shader)
-        refholder.execution_scratch[self.name]["prev_program"] = bgl.Buffer(bgl.GL_INT, [1])
-        refholder.execution_scratch[self.name]["buffer"] = bgl.Buffer(bgl.GL_FLOAT, (bpy.context.scene.TextureResolution ** 2) * 4)
+        self.rdData[self.name]["program"] = bgl_helper.createProgram(vertex_shader, fragment_shader)
+        self.rdData[self.name]["prev_program"] = bgl.Buffer(bgl.GL_INT, [1])
+        self.rdData[self.name]["buffer"] = bgl.Buffer(bgl.GL_FLOAT, (resolution ** 2) * 4)
         
-        program = refholder.execution_scratch[self.name]["program"]
+        program = self.rdData[self.name]["program"]
         
-        #dt_loc = bgl.glGetUniformLocation(program,"timestep"​)
-        refholder.execution_scratch[self.name]["dt_loc"] = bgl.glGetUniformLocation(program, "timestep")
-        refholder.execution_scratch[self.name]["step_loc"] = bgl.glGetUniformLocation(program, "step")
-        refholder.execution_scratch[self.name]["da_loc"] = bgl.glGetUniformLocation(program, "du")
-        refholder.execution_scratch[self.name]["db_loc"] = bgl.glGetUniformLocation(program, "dv")
-        refholder.execution_scratch[self.name]["kill_loc"] = bgl.glGetUniformLocation(program, "k")
-        refholder.execution_scratch[self.name]["feed_loc"] = bgl.glGetUniformLocation(program, "f")
+        self.rdData[self.name]["dt_loc"] = bgl.glGetUniformLocation(program, "timestep")
+        self.rdData[self.name]["step_loc"] = bgl.glGetUniformLocation(program, "step")
+        self.rdData[self.name]["da_loc"] = bgl.glGetUniformLocation(program, "du")
+        self.rdData[self.name]["db_loc"] = bgl.glGetUniformLocation(program, "dv")
+        self.rdData[self.name]["kill_loc"] = bgl.glGetUniformLocation(program, "k")
+        self.rdData[self.name]["feed_loc"] = bgl.glGetUniformLocation(program, "f")
         
         
 def postBake(self, refholder):
-        bpy.data.images.remove(refholder.execution_scratch[self.name]["image"])
-        #TODO clean up the shader stuff
         pass
     
 def render(self):
