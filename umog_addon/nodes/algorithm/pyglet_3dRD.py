@@ -5,7 +5,7 @@ License: GNU GENERAL PUBLIC LICENSE - Version 3, 29 June 2007
 Example code for using glsl and vertex buffer objects with pyglet
 '''
 from ... base_types import UMOGOutputNode
-from . import pyglet_test_impl
+from . import pyglet_3dRD_impl
 
 import threading
 import sys
@@ -23,18 +23,6 @@ class PyGLNode(bpy.types.Node, UMOGOutputNode):
     assignedType = "Texture2"
     
     texture = bpy.props.StringProperty()
-    
-    #feed = bpy.props.FloatProperty(default=0.014, soft_min=0.0, soft_max=1.0, step=1, precision=4)
-    #kill = bpy.props.FloatProperty(default=0.046, soft_min=0.0, soft_max=1.0, step=1, precision=4)
-    #Da = bpy.props.FloatProperty(default=0.2, soft_min=0.0, soft_max=1.0, step=1, precision=4)
-    #Db = bpy.props.FloatProperty(default=0.09, soft_min=0.0, soft_max=1.0, step=1, precision=4)
-    #dt = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=1.0, step=1, precision=4)
-    #steps = bpy.props.IntProperty(default=2, min=1, step=500)
-    channels = bpy.props.EnumProperty(items=
-        (('0', 'R', 'Just do the reaction on one channel'),
-         ('1', 'RGB', 'Do the reaction on all color channels'),
-        ),
-        name="channels")
 
     def init(self, context):
         self.newInput(self.assignedType, "A").isPacked = True
@@ -76,7 +64,7 @@ class PyGLNode(bpy.types.Node, UMOGOutputNode):
         steps = self.inputs[-1].getValue()
         try:
             #start a new thread to avoid poluting blender's opengl context
-            t = threading.Thread(target=pyglet_test_impl.OffScreenRender, 
+            t = threading.Thread(target=pyglet_3dRD_impl.OffScreenRender, 
                                 args=(steps, temps,))
             
             t.start()
@@ -92,21 +80,6 @@ class PyGLNode(bpy.types.Node, UMOGOutputNode):
         except:
             print("thread start failed")
             print("Unexpected error:", sys.exc_info()[0])
-            
-    #def execute(self, refholder):
-        #try:
-            ##start a new thread to avoid poluting blender's opengl context
-            #p = Process(target=OffScreenRender, args=(self.steps,refholder.execution_scratch[self.name]["buffer"],refholder.execution_scratch[self.name]["buffer"]))
-            
-            ##p = Process(target=Dummy, args=(self.steps,refholder.execution_scratch[self.name]["buffer"], refholder.execution_scratch[self.name]["buffer"]))
-            
-            #p.start()
-            #p.join()
-            #print("OpenglRender done")
-            #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
-            #print(buf)
-        #except:
-            #print("process failed")
         
 
     
