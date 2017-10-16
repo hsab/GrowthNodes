@@ -1,6 +1,6 @@
+from ..engine import engine
 import bpy
 from bpy.types import NodeTree
-
 from collections import defaultdict
 
 class UMOGNodeTree(NodeTree):
@@ -12,7 +12,8 @@ class UMOGNodeTree(NodeTree):
         print('Executing node tree')
 
         nodes = self.topological_sort()
-        
+        eng = engine.Engine(nodes)
+
         for (node, _) in nodes:
             node.preExecute(refholder)
             if write_keyframes and node._IsOutputNode:
