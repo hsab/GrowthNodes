@@ -39,6 +39,16 @@ menus = OrderedDict([
         ]
     }),
     ("  ", "separator"),
+    ("math_menu", {
+        "bl_idname": "umog_math_menu",
+        "bl_label": "Math Menu",
+        "text": "Math",
+        "bl_description": "",
+        "icon": "LINENUMBERS_ON",
+        "nodes": [
+            ("umog_AddNode", "Add"),
+        ]
+    }),
     ("integer_menu", {
         "bl_idname": "umog_integer_menu",
         "bl_label": "Integer Menu",
