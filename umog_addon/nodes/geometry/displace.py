@@ -1,4 +1,5 @@
 from ..output_node import UMOGOutputNode
+from ...engine import types
 import bpy
 
 class DisplaceNode(UMOGOutputNode):
@@ -28,6 +29,12 @@ class DisplaceNode(UMOGOutputNode):
         layout.prop(self, "use_subdiv", text="Subdivide")
         layout.prop(self, "mod_midlevel", text="Midlevel")
         layout.prop(self, "mod_strength", text="Strength")
+
+    def input_types(self):
+        return [types.Type.mesh(), types.Type.function(1, 2, 0)]
+
+    def output_types(self):
+        return [types.Type.mesh()]
 
     def update(self):
         pass

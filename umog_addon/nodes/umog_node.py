@@ -15,6 +15,13 @@ class UMOGNode(bpy.types.Node):
 
     def init(self, context):
         pass
+
+    def input_types(self):
+        return []
+
+    def output_types(self):
+        return []
+
     # this will be called when the node is executed by bake meshes
     # will be called each iteration
     def execute(self, refholder):
