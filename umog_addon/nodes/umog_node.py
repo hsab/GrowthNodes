@@ -1,4 +1,5 @@
 import bpy
+from ..engine import types, ops
 
 class UMOGNode(bpy.types.Node):
     bl_width_min = 10
@@ -15,6 +16,9 @@ class UMOGNode(bpy.types.Node):
 
     def init(self, context):
         pass
+
+    def operation(self):
+        return ops.NOP
 
     def input_types(self):
         return []
