@@ -26,17 +26,6 @@ menus = OrderedDict([
             ("", "")
         ]
     }),
-    ("bmesh_menu", {
-        "bl_idname": "umog_bmesh_menu",
-        "bl_label": "Bmesh Menu",
-        "text": "Bmesh",
-        "bl_description": "Nodes that modify meshes",
-        "icon": "SURFACE_NSPHERE",
-        "nodes": [
-            ("umog_BMeshNode", "Bmesh Node"),
-            ("umog_BMeshCurlNode", "Bmesh Curl Node")
-        ]
-    }),
     ("geometry_menu", {
         "bl_idname": "umog_geometry_menu",
         "bl_label": "Geometry Menu",
