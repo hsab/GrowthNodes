@@ -13,44 +13,61 @@ class UMOGNodeTree(NodeTree):
 
         nodes = self.topological_sort()
         
-        for node in nodes:
+        for (node, _) in nodes:
             node.preExecute(refholder)
             if write_keyframes and node._IsOutputNode:
                 node.write_keyframe(refholder, start_frame)
 
         for frame in range(start_frame + 1, end_frame + 1):
             for sub_frame in range(0, sub_frames):
-                for node in nodes:
+                for (node, _) in nodes:
                     node.execute(refholder)
 
-            for node in nodes:
+            for (node, _) in nodes:
                 node.postFrame(refholder)
                 if write_keyframes and node._IsOutputNode:
                     node.write_keyframe(refholder, frame)
 
-        for node in nodes:
+        for (node, _) in nodes:
             node.postBake(refholder)
 
+    # returns [(node, [(node_index, socket_index)])]
     def topological_sort(self):
-        stack = []
-        nodes = []
-        visited = defaultdict(lambda: False)
+        permanent = defaultdict(lambda: False)
+        temporary = defaultdict(lambda: False)
 
-        # initialize stack with output nodes
+        nodes = []
+
+        def visit(node):
+            if permanent[node.name]:
+                return
+            if temporary[node.name]:
+                raise CyclicNodeGraphError()
+
+            temporary[node.name] = True
+
+            input_indices = []
+            for input in node.inputs:
+                if len(input.links) == 0:
+                    input_indices.append(None)
+                else:
+                    index = visit(input.links[0].from_node)
+                    input_indices.append((index, list(input.links[0].from_node.outputs).index(input.links[0].from_socket)))
+
+            permanent[node.name] = True
+
+            index = len(nodes)
+            nodes.append((node, input_indices))
+            return index
+
         for node in self.nodes:
             if node._IsOutputNode:
-                stack.append(node)
-                nodes.append(node)
-                visited[node.name] = True
+                visit(node)
 
-        # perform a breadth-first traversal of the node graph
-        while len(stack) > 0:
-            node = stack.pop()
-            for input in node.inputs:
-                for link in input.links:
-                    if not visited[link.from_node.name]:
-                        stack.append(link.from_node)
-                        nodes.append(link.from_node)
-                        visited[link.from_node.name] = True
-        nodes.reverse()
         return nodes
+
+class CompilationError(Exception):
+    pass
+
+class CyclicNodeGraphError(CompilationError):
+    pass
