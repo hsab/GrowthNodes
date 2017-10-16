@@ -1,3 +1,11 @@
+import numpy as np
+import sys
+
+def trace(frame, event, arg):
+    print("%s, %s:%d" % (event, frame.f_code.co_filename, frame.f_lineno))
+    return trace
+
+
 def Dummy(steps, in_buffer, out_buffer):
     print("dummy")
     return True
@@ -49,6 +57,7 @@ def OffScreenRender(steps, args, test=False):
 
         uniform float k;
         uniform float f;
+        uniform int slice;
         
         void main() {
         
@@ -78,10 +87,10 @@ def OffScreenRender(steps, args, test=False):
         vec4 scaledA = oldA + newA * timestep;
         //vec4 scaledB = oldB + newB * timestep;
 
-        color = vec4(clamp(scaledA, vec4(0,0,0,0), vec4(1,1,1,1)).rgb, 1.0);
+        //color = vec4(clamp(scaledA, vec4(0,0,0,0), vec4(1,1,1,1)).rgb, 1.0);
         
         //color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
-        //color = vec4(0.5, 0.75, 1.0, 1.0);
+        color = vec4(0.5, 0.75, 1.0, 1.0);
         }
         """
         
@@ -150,10 +159,10 @@ def OffScreenRender(steps, args, test=False):
             pyglet_helper.link_program(self.programB)
             
         def setupFBOandTextures(self):
-            self.framebufferA0 = gl.GLuint(self.dimz)
-            self.framebufferA1 = gl.GLuint(self.dimz)
-            self.framebufferB0 = gl.GLuint(self.dimz)
-            self.framebufferB1 = gl.GLuint(self.dimz)
+            self.framebufferA0 = (gl.GLuint * self.dimz)()
+            self.framebufferA1 = (gl.GLuint * self.dimz)()
+            self.framebufferB0 = (gl.GLuint * self.dimz)()
+            self.framebufferB1 = (gl.GLuint * self.dimz)()
             
             self.A0_tex = gl.GLuint(0)
             self.A1_tex = gl.GLuint(0)
@@ -165,10 +174,14 @@ def OffScreenRender(steps, args, test=False):
             self.draw_buffersB0 = (gl.GLenum * self.dimz)(gl.GL_COLOR_ATTACHMENT0)
             self.draw_buffersB1 = (gl.GLenum * self.dimz)(gl.GL_COLOR_ATTACHMENT0)
             
-            gl.glGenFramebuffers(self.dimz), ctypes.byref(self.framebufferA0))
-            gl.glGenFramebuffers(self.dimz, ctypes.byref(self.framebufferA1))
-            gl.glGenFramebuffers(self.dimz, ctypes.byref(self.framebufferB0))
-            gl.glGenFramebuffers(self.dimz, ctypes.byref(self.framebufferB1))
+            #gl.glGenFramebuffers(self.dimz, ctypes.byref(self.framebufferA0))
+            #gl.glGenFramebuffers(self.dimz, ctypes.byref(self.framebufferA1))
+            #gl.glGenFramebuffers(self.dimz, ctypes.byref(self.framebufferB0))
+            #gl.glGenFramebuffers(self.dimz, ctypes.byref(self.framebufferB1))
+            gl.glGenFramebuffers(self.dimz, self.framebufferA0)
+            gl.glGenFramebuffers(self.dimz, self.framebufferA1)
+            gl.glGenFramebuffers(self.dimz, self.framebufferB0)
+            gl.glGenFramebuffers(self.dimz, self.framebufferB1)
             
             gl.glGenTextures(1, ctypes.byref(self.A0_tex))
             gl.glGenTextures(1, ctypes.byref(self.A1_tex))
@@ -292,6 +305,7 @@ def OffScreenRender(steps, args, test=False):
             self.dB_pos_A    = gl.glGetUniformLocation(self.programA, b"dB")
             self.dt_pos_A    = gl.glGetUniformLocation(self.programA, b"timestep")
             self.step_pos_A  = gl.glGetUniformLocation(self.programA, b"step")
+            self.slice_pos_A  = gl.glGetUniformLocation(self.programA, b"slice")
             gl.glUniform1f(self.feed_pos_A, args["feed"])
             gl.glUniform1f(self.kill_pos_A, args["kill"])
             gl.glUniform1f(self.dA_pos_A, args["dA"])
@@ -316,6 +330,7 @@ def OffScreenRender(steps, args, test=False):
             self.dB_pos_B    = gl.glGetUniformLocation(self.programB, b"dB")
             self.dt_pos_B    = gl.glGetUniformLocation(self.programB, b"timestep")
             self.step_pos_B  = gl.glGetUniformLocation(self.programB, b"step")
+            self.slice_pos_B  = gl.glGetUniformLocation(self.programB, b"slice")
             gl.glUniform1f(self.feed_pos_B, args["feed"])
             gl.glUniform1f(self.kill_pos_B, args["kill"])
             gl.glUniform1f(self.dA_pos_B, args["dA"])
@@ -364,6 +379,7 @@ def OffScreenRender(steps, args, test=False):
             gl.glUniform1i(self.tex_pos_A_A, 1)
             gl.glUniform1i(self.tex_pos_A_B, 3)
             for i in range(self.dimz):
+                gl.glUniform1i(self.slice_pos_A, i)
                 gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0[i])
                 gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
                 gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
@@ -372,6 +388,7 @@ def OffScreenRender(steps, args, test=False):
             gl.glUniform1i(self.tex_pos_B_A, 1)
             gl.glUniform1i(self.tex_pos_B_B, 3)
             for i in range(self.dimz):
+                gl.glUniform1i(self.slice_pos_B, i)
                 gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB0[i])
                 gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
                 gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
@@ -380,6 +397,7 @@ def OffScreenRender(steps, args, test=False):
             gl.glUniform1i(self.tex_pos_A_A, 0)
             gl.glUniform1i(self.tex_pos_A_B, 2)
             for i in range(self.dimz):
+                gl.glUniform1i(self.slice_pos_A, i)
                 gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1[i])
                 gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
                 gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
@@ -388,6 +406,7 @@ def OffScreenRender(steps, args, test=False):
             gl.glUniform1i(self.tex_pos_B_A, 0)
             gl.glUniform1i(self.tex_pos_B_B, 2)
             for i in range(self.dimz):
+                gl.glUniform1i(self.slice_pos_B, i)
                 gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB1[i])
                 gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
                 gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
@@ -415,6 +434,13 @@ def OffScreenRender(steps, args, test=False):
     print("end of osr")
     
 if __name__ == "__main__":
-    curr = {}
-    curr["buffer"] = {}
-    OffScreenRender(4,curr, test=True)
+    #sys.settrace(trace)
+    temps = {}
+    temps["A"] = np.random.rand(256, 256, 256)
+    temps["B"] = np.random.rand(256, 256, 256)
+    temps["feed"] = 0.05
+    temps["kill"] = 0.05
+    temps["dA"] = 1.0
+    temps["dB"] = 0.5
+    temps["dt"] = 0.2
+    OffScreenRender(4,temps, test=True)
