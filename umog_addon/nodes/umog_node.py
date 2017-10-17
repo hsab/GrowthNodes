@@ -48,7 +48,7 @@ class UMOGOutputNode(UMOGNode):
     def init(self, context):
         super().init(context)
 
-    def write_keyframe(self, refholder, frame):
+    def output_value(self, value):
         pass
 
 class UMOGInputNode(UMOGNode):

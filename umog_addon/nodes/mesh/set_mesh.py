@@ -26,5 +26,11 @@ class SetMeshNode(UMOGOutputNode):
     def get_buffer_values(self):
         return []
 
+    def output_value(self, value):
+        blender_mesh = bpy.data.meshes.new(self.mesh_name)
+        vertices, edges, faces = mesh.to_pydata(value)
+        blender_mesh.from_pydata(vertices, edges, faces)
+        bpy.data.meshes[self.mesh_name].user_remap(blender_mesh)
+
     def update(self):
         pass
