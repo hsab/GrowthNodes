@@ -12,7 +12,7 @@ menus = OrderedDict([
             #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
             ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node"),
             ("umog_ConvolveNode", "Convolve"),
-            ("umog_ConvolveGLNode", "Convolve opengl")
+            ("umog_ConvolveGLNode", "Convolve opengl"),
         ]
     }),
     (" ", "separator"),
@@ -23,7 +23,9 @@ menus = OrderedDict([
         "bl_description": "Nodes that deal with meshes",
         "icon": "MESH_UVSPHERE",
         "nodes": [
-            ("umog_DisplaceNode", "Displace Node")
+            ("umog_GetMeshNode", "Get Mesh"),
+            ("umog_SetMeshNode", "Set Mesh"),
+            ("umog_DisplaceNode", "Displace Node"),
         ]
     }),
     ("  ", "separator"),
@@ -48,7 +50,7 @@ menus = OrderedDict([
             ("umog_IntegerNode", "Integer"),
             ("umog_IntegerFrameNode", "Integer Frame"),
             ("umog_IntegerSubframeNode", "Integer Subframe"),
-            ("umog_IntegerMathNode", "Integer Math")
+            ("umog_IntegerMathNode", "Integer Math"),
         ]
     }),
     ("matrix_menu", {
@@ -61,7 +63,7 @@ menus = OrderedDict([
             ("umog_Mat3Node", "Matrix 3x3 Node"),
             ("umog_MatrixMathNode", "Matrix Math"),
             ("umog_GaussNode", "Gaussian Blur"),
-            ("umog_LaplaceNode", "Laplacian Filter")
+            ("umog_LaplaceNode", "Laplacian Filter"),
         ]
     }),
     ("  ", "separator"),
@@ -76,7 +78,7 @@ menus = OrderedDict([
             ("umog_SetTextureNode", "Set Texture"),
             ("umog_SaveTextureNode", "Save Texture"),
             ("umog_LoadTextureNode", "Load Texture(s)"),
-            ("umog_TextureAlternatorNode", "Texture Alternator")
+            ("umog_TextureAlternatorNode", "Texture Alternator"),
             
         ]
     })

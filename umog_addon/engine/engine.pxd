@@ -17,6 +17,7 @@ cpdef enum Opcode:
     DISPLACE
     LOOP
     CONST
+    OUT
     NOP
 
 cdef class Instruction:
