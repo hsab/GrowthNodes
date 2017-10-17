@@ -3,3 +3,5 @@ cdef struct Mesh:
     float[:,:] normals
     int[:] polygon_vertices
     int[:,:] polygons
+
+cpdef void displace(Mesh mesh, float[:,:,:,:,:] texture)
