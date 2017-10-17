@@ -1,5 +1,5 @@
 from ..umog_node import UMOGNode
-from ...engine import types, ops
+from ...engine import types, engine
 import bpy
 
 class AddNode(UMOGNode):

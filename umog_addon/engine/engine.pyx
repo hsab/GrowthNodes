@@ -10,15 +10,25 @@ from libc.stdlib cimport malloc, free
 
 import types
 cimport types
-from ops cimport *
-from data cimport *
 import mesh
 cimport mesh
+
+# data
+
+cdef class ArrayData:
+    def __init__(self):
+        self.tag = ARRAY
+
+cdef class MeshData:
+    def __init__(self):
+        self.tag = MESH
+
+# engine
 
 cdef class Engine:
     cdef size_t buffers_count
     cdef Data *buffers
-
+    
     cdef size_t instructions_count
     cdef Instruction *instructions
 
