@@ -39,10 +39,12 @@ cdef class MeshData:
 cdef class Engine:
     cdef list buffers
     cdef list instructions
+    cdef list outputs
 
     def __init__(self, list nodes):
         self.instructions = []
         self.buffers = []
+        self.outputs = []
 
         index = 0
         indices = {}
@@ -83,6 +85,8 @@ cdef class Engine:
 
                 self.instructions.append(instruction)
 
+            if node._IsOutputNode:
+                self.outputs.append((node, instruction.ins[0]))
     def run(self):
         cdef Instruction instruction
         for instruction in self.instructions:
@@ -103,6 +107,12 @@ cdef class Engine:
             elif instruction.op == NOP:
                 pass
 
+        # output values
+        for (output_node, buffer_i) in self.outputs:
+            if (<Data>self.buffers[buffer_i]).tag == ARRAY:
+                output_node.output_value((<ArrayData>self.buffers[buffer_i]).array)
+            elif (<Data>self.buffers[buffer_i]).tag == MESH:
+                output_node.output_value((<MeshData>self.buffers[buffer_i]).mesh)
 def create_buffer(buffer_type, value=None):
     if buffer_type.tag == types.SCALAR:
         array_data = ArrayData()
@@ -133,6 +143,6 @@ def create_buffer(buffer_type, value=None):
     elif buffer_type.tag == types.MESH:
         mesh_data = MeshData()
         if value is not None:
-            mesh_data.mesh = value
+            mesh_data.mesh = <mesh.Mesh>value
         return mesh_data
 
