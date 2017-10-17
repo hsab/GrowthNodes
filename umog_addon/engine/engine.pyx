@@ -13,6 +13,8 @@ cimport types
 import mesh
 cimport mesh
 
+from ..node_tree.umog_node import *
+
 # data
 
 cdef class ArrayData:
@@ -26,61 +28,86 @@ cdef class MeshData:
 # engine
 
 cdef class Engine:
-    cdef size_t buffers_count
-    cdef Data *buffers
-    
-    cdef size_t instructions_count
-    cdef Instruction *instructions
+    cdef list buffers
+    cdef list instructions
 
     def __init__(self, list nodes):
+        self.instructions = []
+        self.buffers = []
+
         index = 0
         indices = {}
 
-        self.instructions_count = len(nodes)
-        self.instructions = <Instruction *>malloc(self.instructions_count * sizeof(Instruction))
-
-        self.buffers_count = 0
-        for (node, inputs) in nodes:
-            self.buffers_count += len(node.outputs)
-        self.buffers = <Data *>malloc(self.buffers_count * sizeof(Data))
-
-        # cdef types.Type output_type
+        cdef object output_type
+        cdef ArrayData array_data
+        cdef MeshData mesh_data
         for (node_i, (node, inputs)) in enumerate(nodes):
-            operation = node.operation()
-            input_types = node.input_types()
-            output_types = node.output_types()
+            operation = node.get_operation()
+            buffer_values = node.get_buffer_values()
 
-            self.instructions[node_i].op = operation
+            instruction = Instruction()
+            instruction.op = operation.opcode
 
-            for (socket_i, output) in enumerate(node.outputs):
-                indices[(node_i, socket_i)] = index
-                self.instructions[node_i].outs[socket_i] = index
-
-                output_type = output_types[socket_i]
-                if output_type.tag == types.SCALAR:
-                    self.buffers[index].tag = ARRAY
-                    self.buffers[index].contents.array = np.ndarray(shape=(1,1,1,1,1), dtype=np.float32)
-                elif output_type.tag == types.VECTOR:
-                    self.buffers[index].tag = ARRAY
-                    self.buffers[index].contents.array = np.ndarray(shape=(output_type.contents.vector.channels,1,1,1,1), dtype=np.float32)
-                elif output_type.tag == types.ARRAY:
-                    self.buffers[index].tag = ARRAY
-                    self.buffers[index].contents.array = np.ndarray(shape=(
-                        output_type.contents.array.channels,
-                        output_type.contents.array.x_size,
-                        output_type.contents.array.y_size,
-                        output_type.contents.array.z_size,
-                        output_type.contents.array.t_size), dtype=np.float32)
-                elif output_type.tag == types.FUNCTION:
-                    pass
-                elif output_type.tag == types.MESH:
-                    self.buffers[index].tag = MESH
-
+            # create internal buffers
+            buffer_indices = []
+            for (buffer_i, buffer_value) in enumerate(buffer_values):
+                self.buffers.append(create_buffer(operation.buffer_types[buffer_i], buffer_value))
+                buffer_indices.append(index)
                 index += 1
 
-            for (input_i, (node_index, socket_index)) in enumerate(inputs):
-                self.instructions[node_i].ins[input_i] = indices[(node_index, socket_index)]
+            # set instruction argument indices
+            for (argument_i, argument) in enumerate(operation.arguments):
+                if argument.type == ArgumentType.BUFFER:
+                    instruction.ins[input_i] = buffer_indices[argument.index]
+                elif argument.type == ArgumentType.SOCKET:
+                    instruction.ins[input_i] = indices[inputs[argument.index]]
 
-    def __dealloc__(self):
-        free(self.instructions)
-        free(self.buffers)
+            # create output buffers
+            for (output_i, output_type) in enumerate(operation.output_types):
+                indices[(node_i, output_i)] = index
+                instruction.outs[output_i] = index
+                self.buffers.append(create_buffer(output_type))
+                index += 1
+
+            self.instructions.append(instruction)
+
+    def run(self):
+        cdef Instruction instruction
+        for instruction in self.instructions:
+            print(instruction.op)
+
+def create_buffer(buffer_type, value=None):
+    if buffer_type.tag == types.SCALAR:
+        array_data = ArrayData()
+        if value is None:
+            array_data.array = np.ndarray(shape=(1,1,1,1,1), dtype=np.float32)
+        else:
+            array_data.array = value
+        return array_data
+    elif buffer_type.tag == types.VECTOR:
+        array_data = ArrayData()
+        if value is None:
+            array_data.array = np.ndarray(shape=(buffer_type.channels,1,1,1,1), dtype=np.float32)
+        else:
+            array_data.array = value
+        return array_data
+    elif buffer_type.tag == types.ARRAY:
+        array_data = ArrayData()
+        if value is None:
+            array_data.array = np.ndarray(shape=(
+                buffer_type.channels,
+                buffer_type.x_size,
+                buffer_type.y_size,
+                buffer_type.z_size,
+                buffer_type.t_size), dtype=np.float32)
+        else:
+            array_data.array = value
+        return array_data
+    elif buffer_type.tag == types.FUNCTION:
+        pass
+    elif buffer_type.tag == types.MESH:
+        mesh_data = MeshData()
+        if value is not None:
+            mesh_data.mesh = value
+        return mesh_data
+
