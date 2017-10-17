@@ -6,6 +6,7 @@ class UMOGNode(bpy.types.Node):
     bl_width_max = 5000
 
     _IsUMOGNode = True
+    _IsInputNode = False
     _IsOutputNode = False
 
     bl_label = "UMOGNode"
@@ -43,3 +44,18 @@ class UMOGNode(bpy.types.Node):
     # will be called once right before bake returns
     def postBake(self, refholder):
         pass
+
+class UMOGOutputNode(UMOGNode):
+    _IsOutputNode = True
+
+    def init(self, context):
+        super().init(context)
+
+    def write_keyframe(self, refholder, frame):
+        pass
+
+class UMOGInputNode(UMOGNode):
+    _IsInputNode = True
+
+    def init(self, context):
+        super().init(context)
