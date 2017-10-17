@@ -65,17 +65,14 @@ def displace(Mesh mesh, float[:,:,:] texture):
         mesh.vertices[i,2] += c * mesh.normals[i,2]
 
 def array_from_texture(object blender_texture, int width, int height):
-    texture = np.ndarray(shape=(width,height,4), dtype=np.float32)
+    texture = np.ndarray(shape=(1,width,height,1,1), dtype=np.float32)
 
     cdef int x, y, i
     cdef object pixel
     for x in range(width):
         for y in range(height):
             pixel = blender_texture.evaluate([x, y, 0.0])
-            texture.data[x,y,0] = pixel[0]
-            texture.data[x,y,1] = pixel[1]
-            texture.data[x,y,2] = pixel[2]
-            texture.data[x,y,3] = pixel[3]
+            texture.data[0,x,y,0,0] = pixel[3] * (pixel[0] + pixel[1] + pixel[2])
 
     return texture
 
