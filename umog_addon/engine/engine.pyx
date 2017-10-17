@@ -88,17 +88,15 @@ cdef class Engine:
 def create_buffer(buffer_type, value=None):
     if buffer_type.tag == types.SCALAR:
         array_data = ArrayData()
-        if value is None:
-            array_data.array = np.ndarray(shape=(1,1,1,1,1), dtype=np.float32)
-        else:
-            array_data.array = value
+        array_data.array = np.ndarray(shape=(1,1,1,1,1), dtype=np.float32)
+        if value is not None:
+            array_data.array[0,0,0,0,0] = value
         return array_data
     elif buffer_type.tag == types.VECTOR:
         array_data = ArrayData()
-        if value is None:
-            array_data.array = np.ndarray(shape=(buffer_type.channels,1,1,1,1), dtype=np.float32)
-        else:
-            array_data.array = value
+        array_data.array = np.ndarray(shape=(buffer_type.channels,1,1,1,1), dtype=np.float32)
+        if value is not None:
+            array_data.array[:,0,0,0,0] = value
         return array_data
     elif buffer_type.tag == types.ARRAY:
         array_data = ArrayData()
