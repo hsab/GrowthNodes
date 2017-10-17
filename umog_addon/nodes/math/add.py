@@ -7,18 +7,18 @@ class AddNode(UMOGNode):
     bl_label = "Add Node"
 
     def init(self, context):
-        self.inputs.new("TextureSocketType", "a")
-        self.inputs.new("TextureSocketType", "b")
+        self.inputs.new("FloatSocketType", "a")
+        self.inputs.new("FloatSocketType", "b")
+        self.outputs.new("FloatSocketType", "out")
         super().init(context)
 
-    def input_types(self):
-        return [types.Type.scalar(), types.Type.scalar()]
-
-    def output_types(self):
-        return [types.Type.scalar()]
-
-    def operation(self):
-        return ops.ADD
+    def get_operation(self):
+        return Operation(
+            engine.ADD,
+            [types.Scalar(), types.Scalar()],
+            [types.Scalar()],
+            [],
+            [Argument(ArgumentType.SOCKET, 0), Argument(ArgumentType.SOCKET, 0)])
 
     def update(self):
         pass

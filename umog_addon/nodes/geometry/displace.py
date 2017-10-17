@@ -30,11 +30,13 @@ class DisplaceNode(UMOGOutputNode):
         layout.prop(self, "mod_midlevel", text="Midlevel")
         layout.prop(self, "mod_strength", text="Strength")
 
-    def input_types(self):
-        return [types.Type.mesh(), types.Type.function(1, 2, 0)]
-
-    def output_types(self):
-        return [types.Type.mesh()]
+    def get_operation(self):
+        return Operation(
+            engine.DISPLACE,
+            [types.Mesh(), types.Function(1, 2, 0)],
+            [types.Mesh()],
+            [],
+            [Argument(ArgumentType.SOCKET, 0), Argument(ArgumentType.SOCKET, 0)])
 
     def update(self):
         pass
