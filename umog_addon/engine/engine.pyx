@@ -87,6 +87,7 @@ cdef class Engine:
 
             if node._IsOutputNode:
                 self.outputs.append((node, instruction.ins[0]))
+
     def run(self):
         cdef Instruction instruction
         for instruction in self.instructions:
@@ -99,7 +100,7 @@ cdef class Engine:
             elif instruction.op == DIVIDE:
                 pass
             elif instruction.op == DISPLACE:
-                print((<ArrayData>self.buffers[instruction.ins[0]]).array[0,0,0,0,0])
+                displace(<MeshData>self.buffers[instruction.outs[0]], <MeshData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
             elif instruction.op == LOOP:
                 pass
             elif instruction.op == CONST:
@@ -113,6 +114,7 @@ cdef class Engine:
                 output_node.output_value((<ArrayData>self.buffers[buffer_i]).array)
             elif (<Data>self.buffers[buffer_i]).tag == MESH:
                 output_node.output_value((<MeshData>self.buffers[buffer_i]).mesh)
+
 def create_buffer(buffer_type, value=None):
     if buffer_type.tag == types.SCALAR:
         array_data = ArrayData()
@@ -145,4 +147,3 @@ def create_buffer(buffer_type, value=None):
         if value is not None:
             mesh_data.mesh = <mesh.Mesh>value
         return mesh_data
-

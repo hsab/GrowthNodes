@@ -50,3 +50,7 @@ cdef inline void add(ArrayData out, ArrayData a, ArrayData b) nogil:
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
                         out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] + b.array[channel,x,y,z,t]
+
+cdef inline void displace(MeshData mesh_out, MeshData mesh_in, ArrayData texture):
+    mesh_out = mesh_in
+    mesh.displace(mesh_out.mesh, texture.array)

@@ -53,13 +53,13 @@ def to_pydata(Mesh mesh):
 
     return vertices, [], faces
 
-def displace(Mesh mesh, float[:,:,:] texture):
+cpdef void displace(Mesh mesh, float[:,:,:,:,:] texture):
     cdef int i
-    cdef float[:] value
+    cdef float value
     cdef float c
     for i in range(mesh.vertices.shape[0]):
-        value = sample_texture(texture, 1000.0 * mesh.vertices[i,0], 1000.0 * mesh.vertices[i,1])
-        c = 0.1 * ((value[0] + value[1] + value[2] + value[3]) / 4.0 - 0.5)
+        value = sample_texture(texture, 100.0 * mesh.vertices[i,0], 100.0 * mesh.vertices[i,1])
+        c = 0.1 * (value - 0.5)
         mesh.vertices[i,0] += c * mesh.normals[i,0]
         mesh.vertices[i,1] += c * mesh.normals[i,1]
         mesh.vertices[i,2] += c * mesh.normals[i,2]
@@ -76,7 +76,7 @@ def array_from_texture(object blender_texture, int width, int height):
 
     return texture
 
-cdef float[:] sample_texture(float[:,:,:] data, float x, float y):
+cdef float sample_texture(float[:,:,:,:,:] data, float x, float y):
     cdef int x1 = <int>x % data.shape[0]
     cdef int x2 = (x1 + 1) % data.shape[0]
     cdef int y1 = <int>y % data.shape[1]
@@ -87,12 +87,13 @@ cdef float[:] sample_texture(float[:,:,:] data, float x, float y):
     cdef float yt = fmod(y, 1.0)
     if yt < 0.0: yt += 1.0
 
-    cdef float[:] result = np.ndarray(shape=(data.shape[2]), dtype=np.float32)
+    # cdef float[:] result = np.ndarray(shape=(data.shape[2]), dtype=np.float32)
+    cdef float result
 
-    cdef int channel
-    for channel in range(data.shape[2]):
-        f1 = (1.0 - xt) * data[x1,y1,channel] + xt * data[x2,y1,channel]
-        f2 = (1.0 - xt) * data[x1,y2,channel] + xt * data[x2,y2,channel]
-        result[channel] = (1.0 - yt) * f1 + yt * f2
+    # cdef int channel
+    # for channel in range(data.shape[2]):
+    f1 = (1.0 - xt) * data[0,x1,y1,0,0] + xt * data[0,x2,y1,0,0]
+    f2 = (1.0 - xt) * data[0,x1,y2,0,0] + xt * data[0,x2,y2,0,0]
+    result = (1.0 - yt) * f1 + yt * f2
 
     return result
