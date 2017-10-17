@@ -16,25 +16,13 @@ menus = OrderedDict([
         ]
     }),
     (" ", "separator"),
-    ("object_menu", {
-        "bl_idname": "umog_object_menu",
-        "bl_label": "Object Menu",
-        "text": "Object",
-        "bl_description": "Lorem Ipsum",
-        "icon": "OUTLINER_OB_GROUP_INSTANCE",
-        "nodes": [
-            ("", "")
-        ]
-    }),
-    ("geometry_menu", {
-        "bl_idname": "umog_geometry_menu",
-        "bl_label": "Geometry Menu",
-        "text": "Geometry",
-        "bl_description": "Nodes that modify meshes",
+    ("mesh_menu", {
+        "bl_idname": "umog_mesh_menu",
+        "bl_label": "Mesh Menu",
+        "text": "Mesh",
+        "bl_description": "Nodes that deal with meshes",
         "icon": "MESH_UVSPHERE",
         "nodes": [
-            ("umog_SculptNode", "Sculpt Dynamic Node"),
-            ("umog_SculptNDNode", "Sculpt Static Node"),
             ("umog_DisplaceNode", "Displace Node")
         ]
     }),
