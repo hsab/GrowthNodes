@@ -1,38 +1,25 @@
-cdef class Type:
-    cdef TypeTag tag
-    cdef TypeContents contents
+class Type:
+    pass
 
-    @staticmethod
-    def scalar():
-        cdef Type t = Type()
-        t.tag = SCALAR
-        return t
+class Scalar(Type):
+    tag = SCALAR
 
-    @staticmethod
-    def vector(int channels):
-        cdef Type t = Type()
-        t.tag = VECTOR
-        t.contents.vector.channels = channels
-        return t
+class Vector(Type):
+    tag = VECTOR
+    def __init__(self, channels):
+        self.channels = channels
 
-    @staticmethod
-    def array(int channels, int x_size, int y_size, int z_size, int t_start, int t_size):
-        cdef Type t = Type()
-        t.tag = ARRAY
-        t.contents.array.channels = channels
-        t.contents.array.x_size = x_size; t.contents.array.y_size = y_size; t.contents.array.z_size = z_size
-        t.contents.array.t_start = t_start; t.contents.array.t_size = t_size
-        return t
+class Array(Type):
+    tag = ARRAY
+    def __init__(self, channels, x_size, y_size, z_size, t_start, t_size):
+        self.channels = channels
+        self.x_size = x_size; self.y_size = y_size; self.z_size = z_size
+        self.t_start = t_start; self.t_size = t_size
 
-    @staticmethod
-    def function(int channels, int dimensions, bint time):
-        cdef Type t = Type()
-        t.tag = FUNCTION
-        t.contents.function.channels = channels; t.contents.function.dimensions = dimensions; t.contents.function.time = time
-        return t
+class Function(Type):
+    tag = FUNCTION
+    def __init__(self, channels, dimensions, time):
+        self.channels = channels; self.dimensions = dimensions; self.time = time
 
-    @staticmethod
-    def mesh():
-        cdef Type t = Type()
-        t.tag = MESH
-        return t
+class Mesh(Type):
+    tag = MESH
