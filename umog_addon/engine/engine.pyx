@@ -13,7 +13,16 @@ cimport types
 import mesh
 cimport mesh
 
-from ..node_tree.umog_node import *
+from collections import namedtuple
+from enum import Enum
+
+# operation
+
+Operation = namedtuple('Operation', ['opcode', 'input_types', 'output_types', 'buffer_types', 'arguments'])
+class ArgumentType(Enum):
+    SOCKET = 0
+    BUFFER = 1
+Argument = namedtuple('Argument', ['type', 'index'])
 
 # data
 

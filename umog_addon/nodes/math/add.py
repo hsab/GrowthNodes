@@ -13,12 +13,12 @@ class AddNode(UMOGNode):
         super().init(context)
 
     def get_operation(self):
-        return Operation(
+        return engine.Operation(
             engine.ADD,
             [types.Scalar(), types.Scalar()],
             [types.Scalar()],
             [],
-            [Argument(ArgumentType.SOCKET, 0), Argument(ArgumentType.SOCKET, 0)])
+            [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 0)])
 
     def update(self):
         pass

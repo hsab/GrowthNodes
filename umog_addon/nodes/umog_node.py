@@ -1,7 +1,5 @@
 import bpy
 from ..engine import types, engine
-from collections import namedtuple
-from enum import Enum
 
 class UMOGNode(bpy.types.Node):
     bl_width_min = 10
@@ -21,7 +19,10 @@ class UMOGNode(bpy.types.Node):
         pass
 
     def get_operation(self):
-        return Operation(engine.NOP, [], [], [], [])
+        return engine.Operation(engine.NOP, [], [], [], [])
+
+    def get_buffer_values(self):
+        return []
 
     # this will be called when the node is executed by bake meshes
     # will be called each iteration
@@ -55,9 +56,3 @@ class UMOGInputNode(UMOGNode):
 
     def init(self, context):
         super().init(context)
-
-Operation = namedtuple('Operation', ['opcode', 'input_types', 'output_types', 'buffer_types', 'arguments'])
-class ArgumentType(Enum):
-    SOCKET = 0
-    BUFFER = 1
-Argument = namedtuple('Argument', ['type', 'index'])
