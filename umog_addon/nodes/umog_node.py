@@ -1,5 +1,5 @@
 import bpy
-from ..engine import types, ops
+from ..engine import types, engine
 
 class UMOGNode(bpy.types.Node):
     bl_width_min = 10
