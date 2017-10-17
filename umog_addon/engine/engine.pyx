@@ -67,23 +67,41 @@ cdef class Engine:
             # set instruction argument indices
             for (argument_i, argument) in enumerate(operation.arguments):
                 if argument.type == ArgumentType.BUFFER:
-                    instruction.ins[input_i] = buffer_indices[argument.index]
+                    instruction.ins[argument_i] = buffer_indices[argument.index]
                 elif argument.type == ArgumentType.SOCKET:
-                    instruction.ins[input_i] = indices[inputs[argument.index]]
+                    instruction.ins[argument_i] = indices[inputs[argument.index]]
 
             # create output buffers
-            for (output_i, output_type) in enumerate(operation.output_types):
-                indices[(node_i, output_i)] = index
-                instruction.outs[output_i] = index
-                self.buffers.append(create_buffer(output_type))
-                index += 1
+            if instruction.op == CONST:
+                indices[(node_i, 0)] = buffer_indices[0]
+            elif instruction.op != NOP:
+                for (output_i, output_type) in enumerate(operation.output_types):
+                    indices[(node_i, output_i)] = index
+                    instruction.outs[output_i] = index
+                    self.buffers.append(create_buffer(output_type))
+                    index += 1
 
-            self.instructions.append(instruction)
+                self.instructions.append(instruction)
 
     def run(self):
         cdef Instruction instruction
         for instruction in self.instructions:
-            print(instruction.op)
+            if instruction.op == ADD:
+                add(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+            elif instruction.op == SUBTRACT:
+                pass
+            elif instruction.op == MULTIPLY:
+                pass
+            elif instruction.op == DIVIDE:
+                pass
+            elif instruction.op == DISPLACE:
+                print((<ArrayData>self.buffers[instruction.ins[0]]).array[0,0,0,0,0])
+            elif instruction.op == LOOP:
+                pass
+            elif instruction.op == CONST:
+                pass
+            elif instruction.op == NOP:
+                pass
 
 def create_buffer(buffer_type, value=None):
     if buffer_type.tag == types.SCALAR:
