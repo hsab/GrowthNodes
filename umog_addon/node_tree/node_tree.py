@@ -8,29 +8,12 @@ class UMOGNodeTree(NodeTree):
     bl_label = "UMOG"
     bl_icon = "SCULPTMODE_HLT"
 
-    def execute(self, refholder, start_frame, end_frame, sub_frames, write_keyframes=False):
+    def execute(self):
         print('Executing node tree')
 
         nodes = self.topological_sort()
         eng = engine.Engine(nodes)
-
-        for (node, _) in nodes:
-            node.preExecute(refholder)
-            if write_keyframes and node._IsOutputNode:
-                node.write_keyframe(refholder, start_frame)
-
-        for frame in range(start_frame + 1, end_frame + 1):
-            for sub_frame in range(0, sub_frames):
-                for (node, _) in nodes:
-                    node.execute(refholder)
-
-            for (node, _) in nodes:
-                node.postFrame(refholder)
-                if write_keyframes and node._IsOutputNode:
-                    node.write_keyframe(refholder, frame)
-
-        for (node, _) in nodes:
-            node.postBake(refholder)
+        eng.run()
 
     # returns [(node, [(node_index, socket_index)])]
     def topological_sort(self):
