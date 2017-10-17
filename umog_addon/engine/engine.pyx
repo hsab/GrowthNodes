@@ -89,6 +89,8 @@ cdef class Engine:
                 self.outputs.append((node, instruction.ins[0]))
 
     def run(self):
+        self.debug()
+
         cdef Instruction instruction
         for instruction in self.instructions:
             if instruction.op == ADD:
@@ -114,6 +116,18 @@ cdef class Engine:
                 output_node.output_value((<ArrayData>self.buffers[buffer_i]).array)
             elif (<Data>self.buffers[buffer_i]).tag == MESH:
                 output_node.output_value((<MeshData>self.buffers[buffer_i]).mesh)
+
+    def debug(self):
+        print('instructions:')
+        cdef Instruction instruction
+        cdef int i
+        for (i, instruction) in enumerate(self.instructions):
+            print(str(i) + '. ' + str((instruction.op, instruction.ins, instruction.outs)))
+
+        print('buffers:')
+        cdef Data data
+        for (i,data) in enumerate(self.buffers):
+            print(str(i) + '. ' + str(data.tag))
 
 def create_buffer(buffer_type, value=None):
     if buffer_type.tag == types.SCALAR:
