@@ -5,6 +5,12 @@ import cython
 
 from libc.math cimport fmod
 
+cpdef void copy(Mesh src, Mesh dst):
+    src.vertices[...] = dst.vertices
+    src.normals[...] = dst.normals
+    src.polygon_vertices[...] = dst.polygon_vertices
+    src.polygons[...] = dst.polygons
+
 @cython.boundscheck(False)
 def from_blender_mesh(object blender_mesh):
     cdef Mesh mesh
@@ -58,8 +64,9 @@ cpdef void displace(Mesh mesh, float[:,:,:,:,:] texture):
     cdef float value
     cdef float c
     for i in range(mesh.vertices.shape[0]):
-        value = sample_texture(texture, 100.0 * mesh.vertices[i,0], 100.0 * mesh.vertices[i,1])
-        c = 0.1 * (value - 0.5)
+        # value = sample_texture(texture, 100.0 * mesh.vertices[i,0], 100.0 * mesh.vertices[i,1])
+        value = texture[0,<int>(100 * mesh.vertices[i,0]),<int>(100 * mesh.vertices[i,1]),0,0]
+        c = (value - 0.5)
         mesh.vertices[i,0] += c * mesh.normals[i,0]
         mesh.vertices[i,1] += c * mesh.normals[i,1]
         mesh.vertices[i,2] += c * mesh.normals[i,2]
@@ -71,8 +78,10 @@ def array_from_texture(object blender_texture, int width, int height):
     cdef object pixel
     for x in range(width):
         for y in range(height):
-            pixel = blender_texture.evaluate([x, y, 0.0])
-            texture.data[0,x,y,0,0] = pixel[3] * (pixel[0] + pixel[1] + pixel[2])
+            pixel = blender_texture.evaluate([<float>x / <float>width, <float>y / <float>height, 0.0])
+            texture.data[0,x,y,0,0] = pixel[3]# * (pixel[0] + pixel[1] + pixel[2])
+            # print(x,y)
+            # print(texture.data[0,x,y,0,0])
 
     return texture
 
