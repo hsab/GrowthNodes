@@ -33,9 +33,11 @@ def OffScreenRender(steps, args, test=False):
         vertex_source = b"""
         #version 330
         attribute vec2 a_position;
-        varying vec2 vTexCoord;
+        varying vec3 vTexCoord;
+        uniform int slice;
+        uniform float step;
         void main() {
-        vTexCoord = 0.5*(a_position.xy + vec2(1,1));
+        vTexCoord = vec3(0.5*(a_position.xy + vec2(1,1)), step * slice);
         gl_Position = vec4(a_position, 0.0, 1.0);
         }
         """
@@ -43,9 +45,67 @@ def OffScreenRender(steps, args, test=False):
         fragment_source_a = b"""
         #version 330
         out vec4 color;
-        varying vec2 vTexCoord;
-        uniform sampler2D A;
-        uniform sampler2D B;
+        varying vec3 vTexCoord;
+        uniform sampler3D A;
+        uniform sampler3D B;
+        
+        uniform float step;
+
+        uniform float dA;
+        uniform float dB;
+
+        float distance = 1.5;
+        uniform float timestep;
+
+        uniform float k;
+        uniform float f;
+        
+        
+        void main() {
+        
+        vec4 oldA = texture3D(A, vTexCoord);				
+        vec4 oldB = texture3D(B, vTexCoord);	
+
+        // [rad] Compute approximation of Laplacian for both V and U.
+        vec4 otherA = -6.0 * oldA;
+        vec4 otherB = -6.0 * oldB;
+
+        otherA += texture3D(A, vTexCoord + vec3(-step, 0,0));
+        otherA += texture3D(A, vTexCoord + vec3(step, 0,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, -step,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, step,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, 0, -step));
+        otherA += texture3D(A, vTexCoord + vec3(0, 0,  step));
+
+        otherB += texture3D(B, vTexCoord + vec3(-step, 0,0));
+        otherB += texture3D(B, vTexCoord + vec3(step, 0,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, -step,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, step,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, 0, -step));
+        otherB += texture3D(B, vTexCoord + vec3(0, 0,  step));
+
+        float distance_squared = distance * distance;
+        
+        // [rad] Compute greyscott equations.
+        vec4 newA = dA * otherA / distance_squared - oldA * oldB * oldB + f * (1.0 - oldA);
+        vec4 newB = dB * otherB / distance_squared + oldA * oldB * oldB - (f + k ) * oldB;
+
+        vec4 scaledA = oldA + newA * timestep;
+        //vec4 scaledB = oldB + newB * timestep;
+
+        color = vec4(clamp(scaledA, vec4(0,0,0,0), vec4(1,1,1,1)).rgb, 1.0);
+        
+        //color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
+        //color = vec4(0.5, 0.75, 1.0, 1.0);
+        }
+        """
+        
+        fragment_source_b = b"""
+        #version 330
+        out vec4 color;
+        varying vec3 vTexCoord;
+        uniform sampler3D A;
+        uniform sampler3D B;
         
         uniform float step;
 
@@ -61,75 +121,22 @@ def OffScreenRender(steps, args, test=False):
         
         void main() {
         
-        vec4 oldA = texture2D(A, vTexCoord);				
-        vec4 oldB = texture2D(B, vTexCoord);	
+        vec4 oldA = texture3D(A, vTexCoord);				
+        vec4 oldB = texture3D(B, vTexCoord);	
 
         // [rad] Compute approximation of Laplacian for both V and U.
         vec4 otherA = -4.0 * oldA;
         vec4 otherB = -4.0 * oldB;
 
-        otherA += texture2D(A, vTexCoord + vec2(-step, 0));
-        otherA += texture2D(A, vTexCoord + vec2(step, 0));
-        otherA += texture2D(A, vTexCoord + vec2(0, -step));
-        otherA += texture2D(A, vTexCoord + vec2(0, step));
+        otherA += texture3D(A, vTexCoord + vec3(-step, 0,0));
+        otherA += texture3D(A, vTexCoord + vec3(step, 0,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, -step,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, step,0));
 
-        otherB += texture2D(B, vTexCoord + vec2(-step, 0));
-        otherB += texture2D(B, vTexCoord + vec2(step, 0));
-        otherB += texture2D(B, vTexCoord + vec2(0, -step));
-        otherB += texture2D(B, vTexCoord + vec2(0, step));
-
-        float distance_squared = distance * distance;
-        
-        // [rad] Compute greyscott equations.
-        vec4 newA = dA * otherA / distance_squared - oldA * oldB * oldB + f * (1.0 - oldA);
-        vec4 newB = dB * otherB / distance_squared + oldA * oldB * oldB - (f + k ) * oldB;
-
-        vec4 scaledA = oldA + newA * timestep;
-        //vec4 scaledB = oldB + newB * timestep;
-
-        //color = vec4(clamp(scaledA, vec4(0,0,0,0), vec4(1,1,1,1)).rgb, 1.0);
-        
-        //color =vec4(0.1, 0.1,0,0) +texture2D(myTexture, vTexCoord);
-        color = vec4(0.5, 0.75, 1.0, 1.0);
-        }
-        """
-        
-        fragment_source_b = b"""
-        #version 330
-        out vec4 color;
-        varying vec2 vTexCoord;
-        uniform sampler2D A;
-        uniform sampler2D B;
-        
-        uniform float step;
-
-        uniform float dA;
-        uniform float dB;
-
-        float distance = 1.5;
-        uniform float timestep;
-
-        uniform float k;
-        uniform float f;
-        
-        void main() {
-        
-        vec4 oldA = texture2D(A, vTexCoord);				
-        vec4 oldB = texture2D(B, vTexCoord);	
-
-        // [rad] Compute approximation of Laplacian for both V and U.
-        vec4 otherA = -4.0 * oldA;
-        vec4 otherB = -4.0 * oldB;
-
-        otherA += texture2D(A, vTexCoord + vec2(-step, 0));
-        otherA += texture2D(A, vTexCoord + vec2(step, 0));
-        otherA += texture2D(A, vTexCoord + vec2(0, -step));
-        otherA += texture2D(A, vTexCoord + vec2(0, step));
-
-        otherB += texture2D(B, vTexCoord + vec2(-step, 0));
-        otherB += texture2D(B, vTexCoord + vec2(step, 0));
-        otherB += texture2D(B, vTexCoord + vec2(0, -step));
-        otherB += texture2D(B, vTexCoord + vec2(0, step));
+        otherB += texture3D(B, vTexCoord + vec3(-step, 0,0));
+        otherB += texture3D(B, vTexCoord + vec3(step, 0,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, -step,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, step,0));
 
         float distance_squared = distance * distance;
         
@@ -306,6 +313,14 @@ def OffScreenRender(steps, args, test=False):
             self.dt_pos_A    = gl.glGetUniformLocation(self.programA, b"timestep")
             self.step_pos_A  = gl.glGetUniformLocation(self.programA, b"step")
             self.slice_pos_A  = gl.glGetUniformLocation(self.programA, b"slice")
+            self.checkUniformLocation(self.tex_pos_A_A)
+            self.checkUniformLocation(self.tex_pos_A_B)
+            self.checkUniformLocation(self.feed_pos_A)
+            self.checkUniformLocation(self.kill_pos_A)
+            self.checkUniformLocation(self.dA_pos_A)
+            self.checkUniformLocation(self.dB_pos_A)
+            self.checkUniformLocation(self.step_pos_A)
+            self.checkUniformLocation(self.slice_pos_A)
             gl.glUniform1f(self.feed_pos_A, args["feed"])
             gl.glUniform1f(self.kill_pos_A, args["kill"])
             gl.glUniform1f(self.dA_pos_A, args["dA"])
@@ -331,6 +346,14 @@ def OffScreenRender(steps, args, test=False):
             self.dt_pos_B    = gl.glGetUniformLocation(self.programB, b"timestep")
             self.step_pos_B  = gl.glGetUniformLocation(self.programB, b"step")
             self.slice_pos_B  = gl.glGetUniformLocation(self.programB, b"slice")
+            self.checkUniformLocation(self.tex_pos_B_A)
+            self.checkUniformLocation(self.tex_pos_B_B)
+            self.checkUniformLocation(self.feed_pos_B)
+            self.checkUniformLocation(self.kill_pos_B)
+            self.checkUniformLocation(self.dA_pos_B)
+            self.checkUniformLocation(self.dB_pos_B)
+            self.checkUniformLocation(self.step_pos_B)
+            self.checkUniformLocation(self.slice_pos_B)
             gl.glUniform1f(self.feed_pos_B, args["feed"])
             gl.glUniform1f(self.kill_pos_B, args["kill"])
             gl.glUniform1f(self.dA_pos_B, args["dA"])
@@ -367,6 +390,10 @@ def OffScreenRender(steps, args, test=False):
             #consider casting to float64
             args["Bout"] = bufB
             args["Aout"] = bufA
+        
+        def checkUniformLocation(self,val):
+            assert(val != gl.GL_INVALID_VALUE)
+            assert(val != gl.GL_INVALID_OPERATION)
         
         def on_draw(self):
             self.render()
@@ -435,6 +462,9 @@ def OffScreenRender(steps, args, test=False):
     
 if __name__ == "__main__":
     #sys.settrace(trace)
+    import time
+    start = time.time()
+    
     temps = {}
     temps["A"] = np.random.rand(256, 256, 256)
     temps["B"] = np.random.rand(256, 256, 256)
@@ -443,4 +473,8 @@ if __name__ == "__main__":
     temps["dA"] = 1.0
     temps["dB"] = 0.5
     temps["dt"] = 0.2
-    OffScreenRender(4,temps, test=True)
+    OffScreenRender(6000,temps, test=True)
+    
+    end = time.time()
+    print("the 3d reaction diffusion took " + str(end-start))
+    
