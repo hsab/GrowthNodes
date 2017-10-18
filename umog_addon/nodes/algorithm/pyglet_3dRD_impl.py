@@ -125,18 +125,22 @@ def OffScreenRender(steps, args, test=False):
         vec4 oldB = texture3D(B, vTexCoord);	
 
         // [rad] Compute approximation of Laplacian for both V and U.
-        vec4 otherA = -4.0 * oldA;
-        vec4 otherB = -4.0 * oldB;
+        vec4 otherA = -6.0 * oldA;
+        vec4 otherB = -6.0 * oldB;
 
         otherA += texture3D(A, vTexCoord + vec3(-step, 0,0));
         otherA += texture3D(A, vTexCoord + vec3(step, 0,0));
         otherA += texture3D(A, vTexCoord + vec3(0, -step,0));
         otherA += texture3D(A, vTexCoord + vec3(0, step,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, 0, -step));
+        otherA += texture3D(A, vTexCoord + vec3(0, 0,  step));
 
         otherB += texture3D(B, vTexCoord + vec3(-step, 0,0));
         otherB += texture3D(B, vTexCoord + vec3(step, 0,0));
         otherB += texture3D(B, vTexCoord + vec3(0, -step,0));
         otherB += texture3D(B, vTexCoord + vec3(0, step,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, 0, -step));
+        otherB += texture3D(B, vTexCoord + vec3(0, 0,  step));
 
         float distance_squared = distance * distance;
         
