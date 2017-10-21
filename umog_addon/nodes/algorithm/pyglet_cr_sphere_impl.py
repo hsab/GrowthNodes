@@ -61,15 +61,38 @@ def OffScreenRender( args, test=False):
         {
             color = 0.0;
         }
-        		
+        }
+        """
+        
+        fragment_source_cylinder = b"""
+        #version 330
+        out float color;
+        varying vec3 vTexCoord;
 
+        uniform float radius;
+        uniform float height;
+        
+        
+        void main() {
+        
+        if((distance(vTexCoord.xy, vec2(0.5, 0.5)) < radius) && (vTexCoord.z < height))
+        {
+            color = 1.0;
+        }
+        else
+        {
+            color = 0.0;
+        }
         }
         """
         
         def setupShaders(self):
             self.programA = gl.glCreateProgram()
             gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_VERTEX_SHADER, self.vertex_source))
-            gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_a))
+            if args["shape"] == "sphere":
+                gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_a))
+            elif args["shape"] == "cylinder":
+                gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_cylinder))
             pyglet_helper.link_program(self.programA)
             
         def setupFBOandTextures(self):
@@ -149,15 +172,26 @@ def OffScreenRender( args, test=False):
             gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertex_buffer)
             gl.glVertexAttribPointer(self.pos_posA, 2, gl.GL_FLOAT, False, 0, 0)
             
-            self.radius_pos = gl.glGetUniformLocation(self.programA, b"radius")
-            self.center_pos = gl.glGetUniformLocation(self.programA, b"center")
+            if args["shape"] == "sphere":
+                self.radius_pos = gl.glGetUniformLocation(self.programA, b"radius")
+                self.center_pos = gl.glGetUniformLocation(self.programA, b"center")
+                self.checkUniformLocation(self.radius_pos)
+                self.checkUniformLocation(self.center_pos)
+                gl.glUniform1f(self.radius_pos, args["radius"])
+                gl.glUniform3f(self.center_pos, args["center"][0], args["center"][1], args["center"][2])
+            elif args["shape"] == "cylinder":
+                self.radius_pos = gl.glGetUniformLocation(self.programA, b"radius")
+                self.height_pos = gl.glGetUniformLocation(self.programA, b"height")
+                self.checkUniformLocation(self.radius_pos)
+                self.checkUniformLocation(self.height_pos)
+                gl.glUniform1f(self.radius_pos, args["radius"])
+                gl.glUniform1f(self.height_pos, args["height"])
+                
             self.slice_pos  = gl.glGetUniformLocation(self.programA, b"slice")
             self.step_pos  = gl.glGetUniformLocation(self.programA, b"step")
-            self.checkUniformLocation(self.radius_pos)
-            self.checkUniformLocation(self.center_pos)
+            
             self.checkUniformLocation(self.slice_pos)
-            gl.glUniform1f(self.radius_pos, args["radius"])
-            gl.glUniform3f(self.center_pos, args["center"][0], args["center"][1], args["center"][2])
+            
             gl.glUniform1f(self.step_pos, 1/self.dimx)
             #may need changed for nonsquare textures
             
@@ -225,9 +259,15 @@ if __name__ == "__main__":
     start = time.time()
     
     temps = {}
+    #temps["shape"] = "sphere"
+    #temps["radius"] = 0.2
+    ##just needs to be indexable not necissarily a tuple
+    #temps["center"] = (0.5,0.5, 0.5)
+    #OffScreenRender(temps, test=True)
+    
+    temps["shape"] = "cylinder"
     temps["radius"] = 0.2
-    #just needs to be indexable not necissarily a tuple
-    temps["center"] = (0.5,0.5, 0.5)
+    temps["height"] = 1.0
     OffScreenRender(temps, test=True)
     
     end = time.time()
