@@ -385,7 +385,7 @@ def OffScreenRender(steps, args, test=False):
             #self.flip() # This updates the screen, very much important.
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
             
-            bufA = np.frombuffer(b, dtype=np.float32)
+            bufA = np.frombuffer(a, dtype=np.float32)
             bufB = np.frombuffer(b, dtype=np.float32)
             
             bufA = bufA.reshape(args["A"].shape)
