@@ -69,10 +69,91 @@ def OffScreenRender(args, test=False):
         }
         """
         
+        fragment_source_intersection = b"""
+        #version 330
+        out float color;
+        varying vec3 vTexCoord;
+        uniform sampler3D A;
+        uniform sampler3D B;
+        
+        uniform float threshold;
+        
+        
+        void main() {
+        
+        float oldA = texture3D(A, vTexCoord).r;				
+        float oldB = texture3D(B, vTexCoord).r;	
+        if((oldA > threshold) && (oldB > threshold))
+        {
+            color = mix(oldA,oldB, 0.5);
+        }
+        else
+        {
+            color = 0.0;
+        }
+        
+
+        }
+        """
+        
+        fragment_source_union = b"""
+        #version 330
+        out float color;
+        varying vec3 vTexCoord;
+        uniform sampler3D A;
+        uniform sampler3D B;
+        
+        uniform float threshold;
+        
+        
+        void main() {
+        
+        float oldA = texture3D(A, vTexCoord).r;				
+        float oldB = texture3D(B, vTexCoord).r;	
+
+        color = max(oldA,oldB);
+        
+
+        }
+        """
+        
+        fragment_source_difference = b"""
+        #version 330
+        out float color;
+        varying vec3 vTexCoord;
+        uniform sampler3D A;
+        uniform sampler3D B;
+        
+        uniform float threshold;
+        
+        
+        void main() {
+        
+        float oldA = texture3D(A, vTexCoord).r;				
+        float oldB = texture3D(B, vTexCoord).r;	
+
+        if(oldB > threshold)
+        {
+            color = 0.0;
+        }
+        else
+        {
+            color = oldA;
+        }
+        }
+        """
+        
         def setupShaders(self):
             self.programA = gl.glCreateProgram()
             gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_VERTEX_SHADER, self.vertex_source))
-            gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_a))
+            if args["operation"] == "similar":
+                gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_a))
+            elif args["operation"] == "intersect":
+                gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_intersection))
+            elif args["operation"] == "union":
+                gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_union))
+            elif args["operation"] == "difference":
+                gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_difference))
             pyglet_helper.link_program(self.programA)
             
         def setupFBOandTextures(self):
@@ -267,7 +348,8 @@ if __name__ == "__main__":
     temps = {}
     temps["A"] = np.random.rand(256, 256, 256)
     temps["B"] = np.random.rand(256, 256, 256)
-    temps["threshold"] = 0.2
+    temps["operation"] = "difference"
+    temps["threshold"] = 0.5
     OffScreenRender(temps, test=True)
     
     end = time.time()
