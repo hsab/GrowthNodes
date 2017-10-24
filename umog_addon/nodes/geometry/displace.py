@@ -26,8 +26,11 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
         socket = self.newInput("Texture2", "Texture")
         self.newInput("Float", "Midlevel", value = 0.5)
         self.newInput("Float", "Strength", value = 0.1)
-        self.newInput("VertexGroup", "VertexGroup")
+        self.newInput("VertexGroup", "Vertex Group")
         socket = self.newOutput(self.assignedType, "Output")
+        socket.display.refreshableIcon = False
+        socket.display.packedIcon = False
+        socket = self.newOutput("VertexGroup", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 
@@ -40,6 +43,9 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
 
         self.outputs[0].value = self.inputs[0].value
         self.outputs[0].refresh()
+
+        self.outputs[1].value = self.inputs[4].value
+        self.outputs[1].refresh()
 
     def execute(self, refholder):
         self.inputs[0].setSelected()
