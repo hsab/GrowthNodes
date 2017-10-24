@@ -207,4 +207,3 @@ class UMOGNodeTree(NodeTree):
             node.postBake(refholder)
 
         self.properties.bakeCount = self.properties.bakeCount + 1
-        nodes.reverse()
