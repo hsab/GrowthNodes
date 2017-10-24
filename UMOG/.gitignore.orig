@@ -1,0 +1,12 @@
+__pycache__/
+.idea/
+.vscode/
+*.pyc
+*.pyd
+build/
+<<<<<<< HEAD
+umog_addon/compilation_info.json
+=======
+umog_addon/compilation_info.json
+
+>>>>>>> master

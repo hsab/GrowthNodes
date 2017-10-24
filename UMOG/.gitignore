@@ -1,0 +1,7 @@
+__pycache__/
+.idea/
+.vscode/
+*.pyc
+*.pyd
+build/
+umog_addon/compilation_info.json
