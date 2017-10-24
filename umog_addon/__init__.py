@@ -58,7 +58,10 @@ menus = OrderedDict([
         "nodes": [
             ("umog_DisplaceNode", "Displace"),
             ("umog_DissolveDegenerateNode", "Dissolve Degenerate"),
-            ("umog_DissolveLimitedNode", "Dissolve Limited")
+            ("umog_DissolveLimitedNode", "Dissolve Limited"),
+            ("umog_SubdivideNode", "Subdivide"),
+            ("umog_SharpEdgesNode", "Sharp Edges"),
+            ("umog_SharpFacesNode", "Sharp Faces")
         ]
     }),
     ("  ", "separator"),
