@@ -60,7 +60,7 @@ class SharpEdgesNode(bpy.types.Node, UMOGOutputNode):
                f.select = True
 
         bmesh.update_edit_mesh(obj.data)
-        bm.free()
+        # bm.free()
         obj.update_from_editmode()
 
         bpy.context.scene.tool_settings.vertex_group_weight = self.inputs[2].value
