@@ -28,4 +28,4 @@ class Mat3Socket(bpy.types.NodeSocket, UMOGSocket):
 
     # Socket color
     def draw_color(self, context, node):
-        return (0.0, 0.0, 1.0, 0.5)
+        return (0.4, 0.4, 1.0, 0.5)

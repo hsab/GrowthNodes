@@ -207,4 +207,25 @@ class UMOGNodeTree(NodeTree):
             node.postBake(refholder)
 
         self.properties.bakeCount = self.properties.bakeCount + 1
+
+<<<<<<< HEAD
+=======
+        # initialize stack with output nodes
+        for node in self.nodes:
+            if node._IsOutputNode:
+                stack.append(node)
+                nodes.append(node)
+                visited[node.name] = True
+
+        # perform a breadth-first traversal of the node graph
+        while len(stack) > 0:
+            node = stack.pop()
+            for input in node.inputs:
+                for link in input.links:
+                    if not visited[link.from_node.name]:
+                        stack.append(link.from_node)
+                        nodes.append(link.from_node)
+                        visited[link.from_node.name] = True
         nodes.reverse()
+        return nodes
+>>>>>>> master
