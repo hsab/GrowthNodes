@@ -56,9 +56,9 @@ menus = OrderedDict([
         "bl_description": "Lorem Ipsum",
         "icon": "MESH_UVSPHERE",
         "nodes": [
-            ("umog_SculptNode", "Sculpt Dynamic Node"),
-            ("umog_SculptNDNode", "Sculpt Static Node"),
-            ("umog_DisplaceNode", "Displace Node")
+            ("umog_DisplaceNode", "Displace"),
+            ("umog_DissolveDegenerateNode", "Dissolve Degenerate"),
+            ("umog_DissolveLimitedNode", "Dissolve Limited")
         ]
     }),
     ("  ", "separator"),
