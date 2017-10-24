@@ -30,7 +30,7 @@ class FloatSocket(bpy.types.NodeSocket, UMOGSocket):
 
     value = FloatProperty(default=0.0,
                           set=setFloatValue, get=getFloatValue,
-                          update=propUpdate)
+                          precision=6, update=propUpdate)
 
     minValue = FloatProperty(default=-1e10)
     maxValue = FloatProperty(default=sys.float_info.max)

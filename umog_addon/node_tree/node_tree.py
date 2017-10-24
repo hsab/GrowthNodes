@@ -177,7 +177,7 @@ class UMOGNodeTree(NodeTree):
         for node in self.linearizedNodes:
             node.disableUnlinkedHighlight()
 
-    def execute(self, refholder):
+    def execute(self, refholder, animate = False):
         self.update()
         
         for node in self.linearizedNodes:
@@ -190,7 +190,8 @@ class UMOGNodeTree(NodeTree):
 
         for frame in range(self.properties.StartFrame, self.properties.EndFrame):
             # Update the frame
-            bpy.context.scene.frame_current = frame
+            scene = bpy.context.scene
+            scene.frame_set(frame)
 
             for sub_frame in range(0, self.properties.SubFrames):
                 for node in self.linearizedNodes:

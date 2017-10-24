@@ -24,7 +24,7 @@ class BooleanSocket(bpy.types.NodeSocket, UMOGSocket):
     value = BoolProperty(default=True, update=propUpdate)
 
     def drawProperty(self, context, layout, layoutParent, text, node):
-        layout.prop(self, "value", text="")
+        layout.prop(self, "value", text=text)
         pass
 
     def refresh(self):
