@@ -4,4 +4,9 @@ __pycache__/
 *.pyc
 *.pyd
 build/
+<<<<<<< HEAD
 umog_addon/compilation_info.json
+=======
+umog_addon/compilation_info.json
+
+>>>>>>> master
