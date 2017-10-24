@@ -26,11 +26,18 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
         socket = self.newInput("Texture2", "Texture")
         self.newInput("Float", "Midlevel", value = 0.5)
         self.newInput("Float", "Strength", value = 0.1)
+        self.newInput("VertexGroup", "VertexGroup")
         socket = self.newOutput(self.assignedType, "Output")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 
     def refresh(self):
+        if self.inputs[0].value == '':
+            self.inputs[4].value = ''
+            self.inputs[4].object = ''
+        else:
+            self.inputs[4].object = self.inputs[0].value
+
         self.outputs[0].value = self.inputs[0].value
         self.outputs[0].refresh()
 
