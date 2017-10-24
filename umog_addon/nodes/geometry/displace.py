@@ -61,7 +61,6 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
         if self.inputs[0].is_linked and self.inputs[2].value != '':
             objData = obj.data
             # objData.calc_normals_split()
-
             shapeKeys = None
             hasShapes = objData.shape_keys is not None
 
