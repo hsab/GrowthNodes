@@ -23,10 +23,10 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
 
     def create(self):
         self.newInput(self.assignedType, "Object")
+        self.newInput("VertexGroup", "Vertex Group")
         socket = self.newInput("Texture2", "Texture")
         self.newInput("Float", "Midlevel", value = 0.5)
         self.newInput("Float", "Strength", value = 0.1)
-        self.newInput("VertexGroup", "Vertex Group")
         socket = self.newOutput(self.assignedType, "Output")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
@@ -36,28 +36,29 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
 
     def refresh(self):
         if self.inputs[0].value == '':
-            self.inputs[4].value = ''
-            self.inputs[4].object = ''
+            self.inputs[1].value = ''
+            self.inputs[1].object = ''
         else:
-            self.inputs[4].object = self.inputs[0].value
+            self.inputs[1].object = self.inputs[0].value
 
         self.outputs[0].value = self.inputs[0].value
         self.outputs[0].refresh()
 
-        self.outputs[1].value = self.inputs[4].value
+        self.outputs[1].value = self.inputs[1].value
         self.outputs[1].refresh()
 
     def execute(self, refholder):
+        self.inputs[0].setViewObjectMode()
         self.inputs[0].setSelected()
 
         obj = self.inputs[0].getObject()
-        texture = self.inputs[1].getTexture()
-
-        midLevel = self.inputs[2].value
-        strength = self.inputs[3].value
+        vertexGroup = self.inputs[1].value
+        texture = self.inputs[2].getTexture()
+        midLevel = self.inputs[3].value
+        strength = self.inputs[4].value
 
         # Is Object and Texture are Linked
-        if self.inputs[0].is_linked and self.inputs[1].is_linked:
+        if self.inputs[0].is_linked and self.inputs[2].value != '':
             objData = obj.data
             # objData.calc_normals_split()
 
@@ -87,7 +88,8 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
             else:
                 mod.direction = 'NORMAL'
 
-            # print(mod.strength)
+            if vertexGroup != '':
+                mod.vertex_group = vertexGroup
 
             bpy.ops.object.modifier_apply(modifier = oname, apply_as = "SHAPE")
 
@@ -105,9 +107,13 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
             soFarShape.value = 0
             accumShape = shapeKeys[-1]
 
+            accumShape.value = 1
+
             bakeCount = self.nodeTree.properties.bakeCount
             accumShape.name = "baked_umog_" + str(bakeCount) + "_displace_" + str(
                 bpy.context.scene.frame_current)
+
+            obj.data.update()
 
             obj.hasUMOGBaked = True
             obj.bakeCount = bakeCount
@@ -144,6 +150,5 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
          self.resetNormals(obj.data)
 
     def resetNormals(self, objData):
-        autoNorms = [Vector()] * len(objData.vertices)
-        objData.normals_split_custom_set_from_vertices(autoNorms)
         objData.use_auto_smooth = False
+        bpy.ops.mesh.customdata_custom_splitnormals_clear()

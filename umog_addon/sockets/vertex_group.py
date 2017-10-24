@@ -56,3 +56,49 @@ class VertexGroupSocket(bpy.types.NodeSocket, UMOGSocket):
 
     def setVertexGroupActive(self):
         self.getObject().vertex_groups.active_index = self.getVertexGroup().index
+
+    def setSelected(self):
+        for obj in bpy.data.objects:
+            obj.select = False
+
+        obj = self.getObject()
+
+        obj.select = True
+        bpy.context.scene.objects.active = obj
+
+    def getCustomContext(self):
+        win = bpy.context.window
+        scr = win.screen
+        areas3d = [area for area in scr.areas if area.type == 'VIEW_3D']
+        region = [region for region in areas3d[0].regions if region.type == 'WINDOW']
+
+        if len(areas3d) is 0:
+            raise Exception("Execution requires a 3D View region")
+
+        override = {
+            'window': win,
+            'screen': scr,
+            'area': areas3d[0],
+            'region': region[0],
+            'scene': bpy.context.scene,
+        }
+
+        return override
+
+    def select(self):
+        if self.object != '':
+            override = self.getCustomContext()
+            
+            bpy.ops.object.mode_set(mode='EDIT')  
+            bpy.ops.mesh.select_all(action='DESELECT')
+
+            object = self.getObject()
+            thisVertexGroup = self.getVertexGroup()
+
+            self.setVertexGroupActive()
+            bpy.ops.object.vertex_group_select()
+
+            return override
+
+    def setViewObjectMode(self):       
+        bpy.ops.object.mode_set(mode='OBJECT')

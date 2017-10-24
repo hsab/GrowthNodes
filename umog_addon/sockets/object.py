@@ -54,7 +54,7 @@ class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
         obj.select = True
         bpy.context.scene.objects.active = obj
 
-    def setViewEditMode(self, selectAll = False):
+    def getCustomContext(self):
         win = bpy.context.window
         scr = win.screen
         areas3d = [area for area in scr.areas if area.type == 'VIEW_3D']
@@ -70,6 +70,11 @@ class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
             'region': region[0],
             'scene': bpy.context.scene,
         }
+
+        return override
+
+    def setViewEditMode(self, selectAll = False):
+        override = self.getCustomContext()
         
         bpy.ops.object.mode_set(mode='EDIT')    
         if selectAll is not False:
