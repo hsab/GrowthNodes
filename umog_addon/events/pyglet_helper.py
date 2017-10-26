@@ -1,5 +1,5 @@
-import pyglet
-from pyglet import gl
+from .. packages import pyglet
+from ..packages.pyglet import gl
 import ctypes
 
 def compile_shader(shader_type, shader_source):
