@@ -1,16 +1,15 @@
 import bpy
 from bpy.types import NodeTree
 from bpy.props import *
-from ..utils.debug import *
-from ..utils.handlers import eventUMOGHandler
+from .. utils.debug import *
+from .. utils.handlers import eventUMOGHandler
 from collections import defaultdict
-
 
 class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_NodeTreeProperties"
-    unique = BoolProperty(default = False)
-    editable = BoolProperty(default = False)
-    variable = BoolProperty(default = False)
+    unique = BoolProperty(default=False)
+    editable = BoolProperty(default=False)
+    variable = BoolProperty(default=False)
 
     def updateTimeInfo(self, context):
         if self.StartFrame >= self.EndFrame:
@@ -22,24 +21,42 @@ class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
         isResPowerOfTwo = (res != 0 and ((res & (res - 1)) == 0))
 
         if not isResPowerOfTwo:
-            self.TextureResolution = 2**(self.TextureResolution - 1).bit_length()
+            self.TextureResolution = 2**(self.TextureResolution -
+                                         1).bit_length()
 
-    bakeCount = IntProperty(name = "BakeCount", description = "BakeCount", default = 1,
-                            min = 1, update = updateTimeInfo)
+    bakeCount = IntProperty(
+        name="BakeCount",
+        description="BakeCount",
+        default=1,
+        min=1,
+        update=updateTimeInfo)
 
-    StartFrame = IntProperty(name = "StartFrame", description = "StartFrame", default = 1,
-                             min = 1, update = updateTimeInfo)
+    StartFrame = IntProperty(
+        name="StartFrame",
+        description="StartFrame",
+        default=1,
+        min=1,
+        update=updateTimeInfo)
 
-    EndFrame = IntProperty(name = "EndFrame", description = "EndFrame", default = 2,
-                           min = 2, update = updateTimeInfo)
+    EndFrame = IntProperty(
+        name="EndFrame",
+        description="EndFrame",
+        default=2,
+        min=2,
+        update=updateTimeInfo)
 
-    SubFrames = IntProperty(name = "SubFrames", description = "SubFrames", default = 1,
-                            min = 1)
+    SubFrames = IntProperty(
+        name="SubFrames",
+        description="SubFrames",
+        default=1,
+        min=1)
 
-    TextureResolution = IntProperty(name = "TextureResolution",
-                                    description = "TextureResolution", default = 256,
-                                    min = 64, update = updateTimeInfo)
-
+    TextureResolution = IntProperty(
+        name="TextureResolution",
+        description="TextureResolution",
+        default=256,
+        min=64,
+        update=updateTimeInfo)
 
 class UMOGNodeTree(NodeTree):
     bl_idname = "umog_UMOGNodeTree"
@@ -50,12 +67,13 @@ class UMOGNodeTree(NodeTree):
     unlinkedNodes = []
     connectedComponents = 0
 
-    updateInProgress = BoolProperty(name = "Is an update in progress?", default = False)
+    updateInProgress = BoolProperty(
+        name="Is an update in progress?", default=False)
 
-    executeInProgress = BoolProperty(name = "Is an execution in progress?",
-                                     default = False)
+    executeInProgress = BoolProperty(
+        name="Is an execution in progress?", default=False)
 
-    properties = PointerProperty(type = UMOGNodeTreeProperties)
+    properties = PointerProperty(type=UMOGNodeTreeProperties)
 
     def update(self):
         self.refreshExecutionPolicy()
@@ -65,7 +83,7 @@ class UMOGNodeTree(NodeTree):
         for node in self.nodes:
             node.refreshOnFrameChange()
 
-    def updateFrom(self, node = None):
+    def updateFrom(self, node=None):
         if not self.updateInProgress:
             self.updateInProgress = True
 
@@ -74,8 +92,8 @@ class UMOGNodeTree(NodeTree):
                     node.refreshNode()
 
                 if len(self.linearizedNodes) > 0:
-                    DBG("ALL EXECUTABLE NODES REFRESHED:", *self.linearizedNodes,
-                        TRACE = False)
+                    DBG("ALL EXECUTABLE NODES REFRESHED:",
+                        *self.linearizedNodes, TRACE=False)
             else:
                 index = self.linearizedNodes.index(node)
                 currentCC = node.execution.connectedComponent
@@ -85,8 +103,8 @@ class UMOGNodeTree(NodeTree):
                         nodesToBeUpdated.append(node)
 
                 if len(self.linearizedNodes) > 0:
-                    DBG("FOLLOWING EXECUTABLE NODES REFRESHED:", *nodesToBeUpdated,
-                        TRACE = False)
+                    DBG("FOLLOWING EXECUTABLE NODES REFRESHED:",
+                        *nodesToBeUpdated, TRACE=False)
 
                 for node in nodesToBeUpdated:
                     node.refreshNode()
@@ -150,7 +168,8 @@ class UMOGNodeTree(NodeTree):
             connectedNodes = socket.getConnectedNodes
             for adjacentNode in connectedNodes:
                 if adjacentNode.execution.visited == False:
-                    self.connectedComponentUtil(adjacentNode, connectedComponent)
+                    self.connectedComponentUtil(
+                        adjacentNode, connectedComponent)
 
     def updateNodeColors(self):
         for node in self.unlinkedNodes:
@@ -160,7 +179,7 @@ class UMOGNodeTree(NodeTree):
 
     def execute(self, refholder, animate = False):
         self.update()
-
+        
         for node in self.linearizedNodes:
             node.packSockets()
 
@@ -189,3 +208,24 @@ class UMOGNodeTree(NodeTree):
 
         self.properties.bakeCount = self.properties.bakeCount + 1
 
+<<<<<<< HEAD
+=======
+        # initialize stack with output nodes
+        for node in self.nodes:
+            if node._IsOutputNode:
+                stack.append(node)
+                nodes.append(node)
+                visited[node.name] = True
+
+        # perform a breadth-first traversal of the node graph
+        while len(stack) > 0:
+            node = stack.pop()
+            for input in node.inputs:
+                for link in input.links:
+                    if not visited[link.from_node.name]:
+                        stack.append(link.from_node)
+                        nodes.append(link.from_node)
+                        visited[link.from_node.name] = True
+        nodes.reverse()
+        return nodes
+>>>>>>> master
