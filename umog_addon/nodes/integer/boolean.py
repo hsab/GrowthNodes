@@ -12,7 +12,7 @@ class BooleanNode(bpy.types.Node, UMOGNode):
 
     def create(self):
         socket = self.newOutput(
-            self.assignedType, "Value", drawOutput=True, drawLabel=False)
+            self.assignedType, "", drawOutput=True, drawLabel=False)
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 

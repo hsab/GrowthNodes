@@ -12,4 +12,3 @@ bpy.types.Object.hasUMOGBaked = bpy.props.BoolProperty(
     name = "hasUMOGBaked", 
     description = "hasUMOGBaked",
     default = False)
-

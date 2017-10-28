@@ -12,7 +12,7 @@ class renderAnimation(bpy.types.Operator):
 
         refholder = UMOGReferenceHolder()
 
-        node_tree.execute(refholder)
+        node_tree.execute(refholder, animate=True)
 
         # print(frame)
         # obj.location[2] += 1.0
