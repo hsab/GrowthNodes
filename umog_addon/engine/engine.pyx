@@ -97,11 +97,13 @@ cdef class Engine:
             if instruction.op == ADD:
                 add(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
             elif instruction.op == SUBTRACT:
-                pass
+                sub(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
             elif instruction.op == MULTIPLY:
-                pass
+                mul(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
             elif instruction.op == DIVIDE:
-                pass
+                div(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+            elif instruction.op == NEGATE:
+                neg(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]])
             elif instruction.op == DISPLACE:
                 displace((<MeshData>self.buffers[instruction.ins[0]]).mesh, (<ArrayData>self.buffers[instruction.ins[1]]).array)
                 # mesh.copy((<MeshData>self.buffers[instruction.ins[0]]).mesh, (<MeshData>self.buffers[instruction.outs[0]]).mesh)

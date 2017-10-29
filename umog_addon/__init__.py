@@ -37,6 +37,10 @@ menus = OrderedDict([
         "icon": "LINENUMBERS_ON",
         "nodes": [
             ("umog_AddNode", "Add"),
+            ("umog_SubtractNode", "Subtract"),
+            ("umog_MultiplyNode", "Multiply"),
+            ("umog_DivideNode", "Divide"),
+            ("umog_NegateNode", "Negate"),
             ("umog_NumberNode", "Number"),
         ]
     }),
