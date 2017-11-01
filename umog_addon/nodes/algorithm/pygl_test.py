@@ -1,5 +1,5 @@
 from ... base_types import UMOGNode
-from . import pyglet_test_impl
+from . import pyglet_3dRD_impl
 
 import threading
 import sys
@@ -11,10 +11,11 @@ pyximport.install()
 
 
 class PyGLNode(bpy.types.Node, UMOGNode):
-    bl_idname = "PyGLNode"
+    bl_idname = "umog_PyGLNode"
     bl_label = "3d Reaction Diffusion Node"
     
     def create(self):
+        print("pyglet create")
         self.newInput("Texture3", "A").isPacked = True
         self.newInput("Texture3", "B").isPacked = True
         self.newInput("Float", "Feed", value=0.055).isPacked = True
@@ -24,8 +25,8 @@ class PyGLNode(bpy.types.Node, UMOGNode):
         self.newInput("Float", "Delta Time", value=1.0).isPacked = True
         self.newInput("Integer", "Steps", value=500).isPacked = True
         
-        self.newOutput(self.assignedType, "A'").isPacked = True
-        self.newOutput(self.assignedType, "B'").isPacked = True
+        self.newOutput("Texture3", "A'").isPacked = True
+        self.newOutput("Texture3", "B'").isPacked = True
 
     def draw(self, layout):
         pass
@@ -53,7 +54,7 @@ class PyGLNode(bpy.types.Node, UMOGNode):
         steps = self.inputs[-1].getValue()
         try:
             #start a new thread to avoid poluting blender's opengl context
-            t = threading.Thread(target=pyglet_test_impl.OffScreenRender, 
+            t = threading.Thread(target=pyglet_3dRD_impl.OffScreenRender, 
                                 args=(steps, temps,))
             
             t.start()
