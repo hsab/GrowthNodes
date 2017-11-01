@@ -1,10 +1,4 @@
-'''
-Based on code from
-Author: leovt (Leonhard Vogt)
-License: GNU GENERAL PUBLIC LICENSE - Version 3, 29 June 2007
-Example code for using glsl and vertex buffer objects with pyglet
-'''
-from ... base_types import UMOGOutputNode
+from ... base_types import UMOGNode
 from . import pyglet_test_impl
 
 import threading
@@ -16,29 +10,13 @@ import pyximport
 pyximport.install()
 
 
-class PyGLNode(bpy.types.Node, UMOGOutputNode):
+class PyGLNode(bpy.types.Node, UMOGNode):
     bl_idname = "PyGLNode"
     bl_label = "3d Reaction Diffusion Node"
     
-    assignedType = "Texture2"
-    
-    texture = bpy.props.StringProperty()
-    
-    #feed = bpy.props.FloatProperty(default=0.014, soft_min=0.0, soft_max=1.0, step=1, precision=4)
-    #kill = bpy.props.FloatProperty(default=0.046, soft_min=0.0, soft_max=1.0, step=1, precision=4)
-    #Da = bpy.props.FloatProperty(default=0.2, soft_min=0.0, soft_max=1.0, step=1, precision=4)
-    #Db = bpy.props.FloatProperty(default=0.09, soft_min=0.0, soft_max=1.0, step=1, precision=4)
-    #dt = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=1.0, step=1, precision=4)
-    #steps = bpy.props.IntProperty(default=2, min=1, step=500)
-    channels = bpy.props.EnumProperty(items=
-        (('0', 'R', 'Just do the reaction on one channel'),
-         ('1', 'RGB', 'Do the reaction on all color channels'),
-        ),
-        name="channels")
-
-    def init(self, context):
-        self.newInput(self.assignedType, "A").isPacked = True
-        self.newInput(self.assignedType, "B").isPacked = True
+    def create(self):
+        self.newInput("Texture3", "A").isPacked = True
+        self.newInput("Texture3", "B").isPacked = True
         self.newInput("Float", "Feed", value=0.055).isPacked = True
         self.newInput("Float", "Kill", value=0.062).isPacked = True
         self.newInput("Float", "A Rate", value=1.0).isPacked = True
@@ -59,8 +37,7 @@ class PyGLNode(bpy.types.Node, UMOGOutputNode):
         pass
 
     def preExecute(self, refholder):
-        refholder.execution_scratch[self.name] = {}
-        refholder.execution_scratch[self.name]["buffer"] = 0
+        pass
         
 
     def execute(self, refholder):
@@ -85,8 +62,8 @@ class PyGLNode(bpy.types.Node, UMOGOutputNode):
             #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
             #print(temps["Aout"])
             
-            self.outputs[0].setPackedImageFromPixels(temps["Aout"])
-            self.outputs[1].setPackedImageFromPixels(temps["Bout"])
+            self.outputs[0].setPixels(temps["Aout"])
+            self.outputs[1].setPixels(temps["Bout"])
             self.inputs[0].setPixels(temps["Aout"])
             self.inputs[1].setPixels(temps["Bout"])
         except:
