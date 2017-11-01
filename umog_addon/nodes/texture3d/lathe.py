@@ -1,5 +1,5 @@
 from ... base_types import UMOGNode
-from . import pyglet_cr_sphere_impl
+from . import pyglet_lathe_impl
 
 import threading
 import sys
@@ -10,33 +10,20 @@ import pyximport
 pyximport.install()
 
 
-class UMOGTexture3ShapeNode(bpy.types.Node, UMOGNode):
-    bl_idname = "umog_Texture3ShapeNode"
-    bl_label = "Texture Node"
-
-    shapes = bpy.props.EnumProperty(items=
-            (('0', 'Sphere', ''),
-            ('1', 'Cylinder', ''),
-            ),
-            name="Shapes")
-            
-    height = bpy.props.FloatProperty(default=0.7, soft_min=0.0, soft_max=1.0, step=1, precision=2)
-    radius = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=0.5, step=1, precision=2)
-
+class UMOGTexture3LatheNode(bpy.types.Node, UMOGNode):
+    bl_idname = "umog_Texture3LatheNode"
+    bl_label = "Lathe Node"
+    
     def create(self):
         socket = self.newOutput(
             "Texture3", "Texture", drawOutput=False, drawLabel=False)
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
+        self.newInput("Texture2", "A").isPacked = True
+        
 
     def draw(self, layout):
-        layout.prop(self, "shapes", "Shapes")
-        if self.shapes == '0':
-            #draw only avalible parameters
-            layout.prop(self, "radius")
-            
-        elif self.shapes == '1':
-            layout.prop(self, "height")
+        pass
 
     def execute(self, refholder):
         # print("get texture node execution, texture: " + self.texture)
@@ -46,18 +33,12 @@ class UMOGTexture3ShapeNode(bpy.types.Node, UMOGNode):
 
     def preExecute(self, refholder):
         temps = {}
-        if self.shapes == '0':
-            temps["shape"] = "sphere"
-        elif self.shapes == '1':
-            temps["shape"] = "cylinder"
-        temps["center"] = (0.5,0.5,0.5)
-
-        temps["height"] = self.height
-        temps["radius"] = self.radius
+        temps["A"] = self.inputs[0].getPixels()
+        temps["outResolution"] = self.nodeTree.properties.TextureResolution
         
         try:
             #start a new thread to avoid poluting blender's opengl context
-            t = threading.Thread(target=pyglet_cr_sphere_impl.OffScreenRender, 
+            t = threading.Thread(target=pyglet_lathe_impl.OffScreenRender, 
                                 args=(temps,))
             
             t.start()
