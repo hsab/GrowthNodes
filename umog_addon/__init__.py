@@ -141,6 +141,7 @@ menus = OrderedDict([
         "nodes": [
             ("umog_Texture3ShapeNode", "Shapes"),
             ("umog_Texture3LatheNode", "Lathe"),
+            ("umog_Texture3SolidGeometryNode", "Solid Geometry"),
         ]
     })
 ])# yapf: disable
