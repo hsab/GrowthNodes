@@ -140,6 +140,7 @@ menus = OrderedDict([
         "icon": "IMGDISPLAY",
         "nodes": [
             ("umog_Texture3ShapeNode", "Shapes"),
+            ("umog_Texture3LatheNode", "Lathe"),
         ]
     })
 ])# yapf: disable
