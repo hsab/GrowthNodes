@@ -28,9 +28,8 @@ class Texture3Socket(bpy.types.NodeSocket, UMOGSocket):
     useIsUsedProperty = False
     defaultDrawType = "PREFER_PROPERTY"
 
-    drawColor = (0.91372549, 0.117647059, 0.388235294, 1)
+    drawColor = (0.61372549, 0.117647059, 0.388235294, 1)
 
-    value = StringProperty(update = propUpdate)
 
     data = UMOGTexture3Data()
 
@@ -44,34 +43,6 @@ class Texture3Socket(bpy.types.NodeSocket, UMOGSocket):
         else:
             self.data[self.identifier] = np.zeros((resolution, resolution, resolution), dtype = "float")
 
-    def setPackedImageFromPixels(self, newPixels, flatten=True):
-        if self.isOutput and self.isPacked:
-            texture = self.getTexture()
-            image = texture.image
-            if flatten:
-                image.pixels = newPixels.flatten()
-            else:
-                image.pixels = newPixels
-            image.update()
-
-        else:
-            assert(False)
-
-    def setPackedImageFromChannels(self, newPixels, channel, flatten=True):
-        if self.isOutput and self.isPacked:
-            texture = self.getTexture()
-            image = texture.image
-            npImage = np.asarray(image.pixels, dtype = "float")
-            npImage = npImage.reshape(image.size[0], image.size[0], image.channels)
-            npImage[:,:,channel] = newPixels
-            if flatten:
-                image.pixels = npImage.flatten()
-            else:
-                image.pixels = npImage
-            image.update()
-
-        elif self.isInput and self.isPacked:
-            self.data[self.identifier][:,:,channel] = newPixels
             
 
     def setPixels(self, newPixels):

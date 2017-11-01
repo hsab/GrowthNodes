@@ -11,7 +11,7 @@ menus = OrderedDict([
         "nodes": [
             #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
             ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node"),
-            ("PyGLNode", "PyGL Node"),
+            ("umog_PyGLNode", "PyGL Node"),
             #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
             ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion GPU"),
             ("umog_ConvolveNode", "Convolve")
