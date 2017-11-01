@@ -131,6 +131,16 @@ menus = OrderedDict([
             ("umog_TextureAlternatorNode", "Texture Alternator"),
             ("umog_SaveTextureNode", "Texture Save")
         ]
+    }),
+        ("texture3d_menu", {
+        "bl_idname": "umog_texture3d_menu",
+        "bl_label": "Texture 3d Menu",
+        "text": "Texture3",
+        "bl_description": "",
+        "icon": "IMGDISPLAY",
+        "nodes": [
+            ("umog_Texture3ShapeNode", "Shapes"),
+        ]
     })
 ])# yapf: disable
 
