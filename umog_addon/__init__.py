@@ -71,13 +71,8 @@ menus = OrderedDict([
         "bl_idname": "umog_integer_menu",
         "bl_label": "Integer Menu",
         "text": "Integer",
-<<<<<<< HEAD
         "bl_description": "Nodes that operate on integers",
         "icon": "LINENUMBERS_ON",
-=======
-        "bl_description": "Lorem Ipsum",
-        "icon": "LINENUMBERS_OFF",
->>>>>>> origin/master
         "nodes": [
             ("umog_IntegerNode", "Integer"),
             ("umog_IntegerMathNode", "Integer Math"),
