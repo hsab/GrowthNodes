@@ -54,7 +54,7 @@ class UMOGTexture3ShapeNode(bpy.types.Node, UMOGNode):
 
         temps["height"] = self.height
         temps["radius"] = self.radius
-        
+        temps["resolution"] = self.nodeTree.properties.TextureResolution
         try:
             #start a new thread to avoid poluting blender's opengl context
             t = threading.Thread(target=pyglet_cr_sphere_impl.OffScreenRender, 
@@ -71,3 +71,4 @@ class UMOGTexture3ShapeNode(bpy.types.Node, UMOGNode):
         except:
             print("thread start failed")
             print("Unexpected error:", sys.exc_info()[0])
+            

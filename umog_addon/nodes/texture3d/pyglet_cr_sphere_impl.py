@@ -96,13 +96,13 @@ def OffScreenRender( args, test=False):
             pyglet_helper.link_program(self.programA)
             
         def setupFBOandTextures(self):
-            self.framebufferA0 = (gl.GLuint * self.dimz)()
+            self.framebufferA0 = (gl.GLuint * args["resolution"])()
             
             self.A0_tex = gl.GLuint(0)
             
-            self.draw_buffersA0 = (gl.GLenum * self.dimz)(gl.GL_COLOR_ATTACHMENT0)
+            self.draw_buffersA0 = (gl.GLenum * args["resolution"])(gl.GL_COLOR_ATTACHMENT0)
             
-            gl.glGenFramebuffers(self.dimz, self.framebufferA0)
+            gl.glGenFramebuffers(args["resolution"], self.framebufferA0)
             
             gl.glGenTextures(1, ctypes.byref(self.A0_tex))
             
@@ -110,13 +110,13 @@ def OffScreenRender( args, test=False):
             #A
             gl.glActiveTexture(gl.GL_TEXTURE0)
             gl.glBindTexture(gl.GL_TEXTURE_3D, self.A0_tex)
-            gl.glTexImage3D(gl.GL_TEXTURE_3D, 0, gl.GL_RED, self.dimx, self.dimy, self.dimz, 0, gl.GL_RED, gl.GL_FLOAT, 0)
+            gl.glTexImage3D(gl.GL_TEXTURE_3D, 0, gl.GL_RED, args["resolution"], args["resolution"], args["resolution"], 0, gl.GL_RED, gl.GL_FLOAT, 0)
             gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
             gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
             
             
             #A
-            for i in range(self.dimz):
+            for i in range(args["resolution"]):
                 gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0[i])
                 gl.glFramebufferTexture3D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_3D, self.A0_tex, 0, i)
                 assert(gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE)
@@ -134,11 +134,6 @@ def OffScreenRender( args, test=False):
             self.vertex_buffer = gl.GLuint(0)
             self.vao = gl.GLuint(0)
             #self.prev_program = (gl.GLint * 1)()
-            
-            
-            self.dimx = 256
-            self.dimy = self.dimx
-            self.dimz = self.dimx
             
             
             self.setupFBOandTextures()
@@ -192,14 +187,14 @@ def OffScreenRender( args, test=False):
             
             self.checkUniformLocation(self.slice_pos)
             
-            gl.glUniform1f(self.step_pos, 1/self.dimx)
+            gl.glUniform1f(self.step_pos, 1/args["resolution"])
             #may need changed for nonsquare textures
             
-            gl.glViewport(0,0,self.dimx,self.dimy)
+            gl.glViewport(0,0,args["resolution"],args["resolution"])
             #self.clear()
             
         def cleanUP(self):
-            a = (gl.GLint * (self.dimx*self.dimy*self.dimz))()
+            a = (gl.GLfloat * (args["resolution"] ** 3))()
             gl.glBindTexture(gl.GL_TEXTURE_3D, self.A0_tex)
             gl.glGetTexImage(gl.GL_TEXTURE_3D, 0, gl.GL_RED, gl.GL_FLOAT, a)
 
@@ -210,7 +205,7 @@ def OffScreenRender( args, test=False):
             
             bufA = np.frombuffer(a, dtype=np.float32)
             
-            bufA = bufA.reshape((self.dimx, self.dimy, self.dimz))
+            bufA = bufA.reshape((args["resolution"], args["resolution"], args["resolution"]))
             
             #consider casting to float64
             args["Aout"] = bufA
@@ -227,7 +222,7 @@ def OffScreenRender( args, test=False):
 
         def render(self):
             gl.glUseProgram(self.programA)
-            for i in range(self.dimz):
+            for i in range(args["resolution"]):
                 gl.glUniform1i(self.slice_pos, i)
                 gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0[i])
                 gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
@@ -259,17 +254,18 @@ if __name__ == "__main__":
     start = time.time()
     
     temps = {}
-    #temps["shape"] = "sphere"
+    temps["shape"] = "sphere"
     #temps["radius"] = 0.2
     ##just needs to be indexable not necissarily a tuple
-    #temps["center"] = (0.5,0.5, 0.5)
+    temps["center"] = (0.5,0.5, 0.5)
     #OffScreenRender(temps, test=True)
     
-    temps["shape"] = "cylinder"
-    temps["radius"] = 0.2
+    #temps["shape"] = "cylinder"
+    temps["radius"] = 0.3
     temps["height"] = 1.0
+    temps["resolution"] = 256
     OffScreenRender(temps, test=True)
-    
+    print(temps["Aout"])
     end = time.time()
     print("the 3d reaction diffusion took " + str(end-start))
     
