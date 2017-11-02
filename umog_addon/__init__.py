@@ -36,25 +36,15 @@ menus = OrderedDict([
         "bl_description": "",
         "icon": "LINENUMBERS_ON",
         "nodes": [
+            ("umog_NumberNode", "Number"),
             ("umog_AddNode", "Add"),
             ("umog_SubtractNode", "Subtract"),
             ("umog_MultiplyNode", "Multiply"),
             ("umog_DivideNode", "Divide"),
             ("umog_NegateNode", "Negate"),
-            ("umog_NumberNode", "Number"),
-        ]
-    }),
-    ("integer_menu", {
-        "bl_idname": "umog_integer_menu",
-        "bl_label": "Integer Menu",
-        "text": "Integer",
-        "bl_description": "Nodes that operate on integers",
-        "icon": "LINENUMBERS_ON",
-        "nodes": [
-            ("umog_IntegerNode", "Integer"),
-            ("umog_IntegerFrameNode", "Integer Frame"),
-            ("umog_IntegerSubframeNode", "Integer Subframe"),
-            ("umog_IntegerMathNode", "Integer Math"),
+            ("umog_PowerNode", "Power"),
+            ("umog_ModulusNode", "Modulus"),
+            ("umog_TimeSequenceNode", "Time Sequence"),
         ]
     }),
     ("matrix_menu", {
