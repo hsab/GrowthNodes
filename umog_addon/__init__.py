@@ -75,6 +75,17 @@ menus = OrderedDict([
             ("umog_TextureAlternatorNode", "Texture Alternator"),
             
         ]
+    }),
+    ("  ", "separator"),
+    ("debug_menu", {
+        "bl_idname": "umog_debug_menu",
+        "bl_label": "Debug Menu",
+        "text": "Debug",
+        "bl_description": "Nodes for debugging",
+        "icon": "IMGDISPLAY",
+        "nodes": [
+            ("umog_PrintNode", "Print"),
+        ]
     })
 ])
 

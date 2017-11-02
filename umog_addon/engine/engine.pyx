@@ -178,13 +178,13 @@ cpdef void displace(mesh.Mesh m, float[:,:,:,:,:] texture):
     cdef float c
     for i in range(m.vertices.shape[0]):
         # value = sample_texture(texture, 100.0 * m.vertices[i,0], 100.0 * m.vertices[i,1])
-        print(texture.shape[0], texture.shape[1], texture.shape[2], texture.shape[3], texture.shape[4])
+        # print(texture.shape[0], texture.shape[1], texture.shape[2], texture.shape[3], texture.shape[4])
         value = texture[0,<int>(100 * m.vertices[i,0]) % 100,<int>(100 * m.vertices[i,1]) % 100,0,0]
         c = 10 * (value - 0.5)
-        print(c)
-        print(m.vertices[i,0])
+        # print(c)
+        # print(m.vertices[i,0])
         m.vertices[i,0] += c * m.normals[i,0]
-        print(m.vertices[i,0])
+        # print(m.vertices[i,0])
         m.vertices[i,1] += c * m.normals[i,1]
         m.vertices[i,2] += c * m.normals[i,2]
 
