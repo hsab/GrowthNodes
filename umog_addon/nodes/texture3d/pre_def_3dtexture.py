@@ -31,11 +31,9 @@ class UMOGTexture3ShapeNode(bpy.types.Node, UMOGNode):
 
     def draw(self, layout):
         layout.prop(self, "shapes", "Shapes")
-        if self.shapes == '0':
-            #draw only avalible parameters
-            layout.prop(self, "radius")
+        layout.prop(self, "radius")
             
-        elif self.shapes == '1':
+        if self.shapes == '1':
             layout.prop(self, "height")
 
     def execute(self, refholder):

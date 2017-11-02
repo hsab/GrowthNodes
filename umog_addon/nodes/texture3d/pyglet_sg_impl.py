@@ -154,6 +154,8 @@ def OffScreenRender(args, test=False):
                 gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_union))
             elif args["operation"] == "difference":
                 gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_difference))
+            else:
+                print("not a valid operation")
             pyglet_helper.link_program(self.programA)
             
         def setupFBOandTextures(self):
@@ -281,7 +283,7 @@ def OffScreenRender(args, test=False):
             #self.clear()
             
         def cleanUP(self):
-            a = (gl.GLint * (self.dimx*self.dimy*self.dimz))()
+            a = (gl.GLfloat * (self.dimx*self.dimy*self.dimz))()
             #need a new way to read out pixels
             #gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, b)
             #gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1);
