@@ -104,6 +104,10 @@ cdef class Engine:
                 div(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
             elif instruction.op == NEGATE:
                 neg(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]])
+            elif instruction.op == POWER:
+                pow(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+            elif instruction.op == MODULUS:
+                mod(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
             elif instruction.op == DISPLACE:
                 displace((<MeshData>self.buffers[instruction.ins[0]]).mesh, (<ArrayData>self.buffers[instruction.ins[1]]).array)
                 # mesh.copy((<MeshData>self.buffers[instruction.ins[0]]).mesh, (<MeshData>self.buffers[instruction.outs[0]]).mesh)
@@ -211,4 +215,11 @@ cdef float sample_texture(float[:,:,:,:,:] data, float x, float y):
     f2 = (1.0 - xt) * data[0,x1,y2,0,0] + xt * data[0,x2,y2,0,0]
     result = (1.0 - yt) * f1 + yt * f2
 
+    return result
+
+cpdef float[:,:,:,:,:] sequence(int start, int end):
+    cdef int i
+    cdef float[:,:,:,:,:] result = np.ndarray(shape=(1,1,1,1,end-start), dtype=np.float32)
+    for i in range(start, end):
+        result[0,0,0,0,i] = <float>i
     return result
