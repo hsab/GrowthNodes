@@ -9,6 +9,14 @@ import numpy as np
 import pyximport
 pyximport.install()
 
+PYDEV_SOURCE_DIR = "/usr/lib/eclipse/dropins/pydev/plugins/org.python.pydev_6.0.0.201709191431/pysrc"
+ 
+import sys
+ 
+if PYDEV_SOURCE_DIR not in sys.path:
+   sys.path.append(PYDEV_SOURCE_DIR)
+ 
+import pydevd
 
 class UMOGTexture3SolidGeometryNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Texture3SolidGeometryNode"
@@ -40,31 +48,33 @@ class UMOGTexture3SolidGeometryNode(bpy.types.Node, UMOGNode):
         
 
     def execute(self, refholder):
-        # print("get texture node execution, texture: " + self.texture)
-        # print("texture handle: " + str(self.outputs[0].texture_index))
-        # print(refholder.np2dtextures[self.outputs[0].texture_index])
-        pass
+        if self.inputs[0].isLinked and self.inputs[1].isLinked:
+            temps = {}
+            temps["A"] = self.inputs[0].getFromSocket.getPixels()
+            temps["B"] = self.inputs[1].getFromSocket.getPixels()
+            temps["operation"] = self.geo_op
+            temps["threshold"] = self.threshold
+            
+            try:
+                #start a new thread to avoid poluting blender's opengl context
+                t = threading.Thread(target=pyglet_sg_impl.OffScreenRender, 
+                                    args=(temps,))
+                
+                t.start()
+                t.join()
+                print("OpenglRender done")
+                #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
+                #print(temps["Aout"])
+                
+                self.outputs[0].setPixels(temps["Aout"])
+
+            except:
+                print("thread start failed")
+                print("Unexpected error:", sys.exc_info()[0])
+                
+            pydevd.settrace()
+        else:
+            print("not enought inputs")
 
     def preExecute(self, refholder):
-        temps = {}
-        temps["A"] = self.inputs[0].getPixels()
-        temps["B"] = self.inputs[0].getPixels()
-        temps["operation"] = self.geo_op
-        temps["threshold"] = self.threshold
-        
-        try:
-            #start a new thread to avoid poluting blender's opengl context
-            t = threading.Thread(target=pyglet_sg_impl.OffScreenRender, 
-                                args=(temps,))
-            
-            t.start()
-            t.join()
-            print("OpenglRender done")
-            #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
-            #print(temps["Aout"])
-            
-            self.outputs[0].setPixels(temps["Aout"])
-
-        except:
-            print("thread start failed")
-            print("Unexpected error:", sys.exc_info()[0])
+        pass
