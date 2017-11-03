@@ -6,98 +6,65 @@ import cython
 from libc.math cimport fmod
 from libc.stdint cimport uintptr_t
 
-cdef extern from "blender/makesdna/DNA_meshdata_types.h":
-    cdef struct MVert:
-        float co[3]
-        float no[3]
-    cdef struct MEdge:
-        unsigned int v1, v2
-    cdef struct MPoly:
-        int loopstart
-        int totloop
-    cdef struct MLoop:
-        unsigned int v
-        unsigned int e
-    cdef struct MLoopUV:
-        float uv[2]
-    cdef struct MLoopCol:
-        unsigned char r, g, b, a
+from ..packages.cymem.cymem cimport Pool
 
-cdef extern from "blender/makesdna/DNA_mesh_types.h":
-    cdef struct BlenderMesh "Mesh":
-        int totvert, totedge, totpoly, totloop
-        MVert *mvert
-        MEdge *medge
-        MPoly *mpoly
-        MLoop *mloop
-        MLoopUV *mloopuv
-        MLoopCol *mloopcol
+cdef class Mesh:
+    def __init__(Mesh self, int n_vertices, int n_polygon_vertices, int n_polygons):
+        self.mem = Pool()
 
-cpdef void copy(Mesh src, Mesh dst):
-    src.vertices[...] = dst.vertices
-    src.normals[...] = dst.normals
-    src.polygon_vertices[...] = dst.polygon_vertices
-    src.polygons[...] = dst.polygons
+        self.n_vertices = n_vertices
+        self.n_polygon_vertices = n_polygon_vertices
+        self.n_polygons = n_polygons
+
+        self.vertices = <Vec3 *>self.mem.alloc(n_vertices, sizeof(Vec3))
+        self.normals = <Vec3 *>self.mem.alloc(n_vertices, sizeof(Vec3))
+        self.polygon_vertices = <int *>self.mem.alloc(n_polygon_vertices, sizeof(int))
+        self.polygons = <int *>self.mem.alloc(n_polygons * 2, sizeof(int))
 
 @cython.boundscheck(False)
-cpdef Mesh from_blender_mesh(uintptr_t mesh_ptr):
-    cdef Mesh mesh
-
-    cdef BlenderMesh *blender_mesh = <BlenderMesh *>mesh_ptr
-
-    mesh.vertices = np.ndarray(shape=(blender_mesh.totvert,3), dtype=np.float32)
-    mesh.normals = np.ndarray(shape=(blender_mesh.totvert,3), dtype=np.float32)
-    mesh.polygon_vertices = np.ndarray(shape=(blender_mesh.totloop), dtype=np.int32)
-    mesh.polygons = np.ndarray(shape=(blender_mesh.totpoly,2), dtype=np.int32)
-
+cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh) nogil:
     cdef int i
     for i in range(blender_mesh.totvert):
-        mesh.vertices[i,0] = blender_mesh.mvert[i].co[0]
-        mesh.vertices[i,1] = blender_mesh.mvert[i].co[1]
-        mesh.vertices[i,2] = blender_mesh.mvert[i].co[2]
+        mesh.vertices[i].x = blender_mesh.mvert[i].co[0]
+        mesh.vertices[i].y = blender_mesh.mvert[i].co[1]
+        mesh.vertices[i].z = blender_mesh.mvert[i].co[2]
 
-        mesh.normals[i,0] = blender_mesh.mvert[i].no[0]
-        mesh.normals[i,1] = blender_mesh.mvert[i].no[1]
-        mesh.normals[i,2] = blender_mesh.mvert[i].no[2]
+        mesh.normals[i].x = blender_mesh.mvert[i].no[0]
+        mesh.normals[i].y = blender_mesh.mvert[i].no[1]
+        mesh.normals[i].z = blender_mesh.mvert[i].no[2]
+        vec3_normalize(&mesh.normals[i], &mesh.normals[i])
 
     for i in range(blender_mesh.totloop):
         mesh.polygon_vertices[i] = blender_mesh.mloop[i].v
 
     for i in range(blender_mesh.totpoly):
-        mesh.polygons[i,0] = blender_mesh.mpoly[i].loopstart
-        mesh.polygons[i,1] = blender_mesh.mpoly[i].totloop
+        mesh.polygons[2*i] = blender_mesh.mpoly[i].loopstart
+        mesh.polygons[2*i + 1] = blender_mesh.mpoly[i].totloop
 
-    return mesh
+@cython.boundscheck(False)
+cpdef void to_blender_mesh(Mesh mesh, uintptr_t blender_mesh_ptr) nogil:
+    cdef BlenderMesh *blender_mesh = <BlenderMesh *>blender_mesh_ptr
+    cdef int i
+    for i in range(mesh.n_vertices):
+        blender_mesh.mvert[i].co[0] = mesh.vertices[i].x
+        blender_mesh.mvert[i].co[1] = mesh.vertices[i].y
+        blender_mesh.mvert[i].co[2] = mesh.vertices[i].z
 
-def to_pydata(Mesh mesh):
-    cdef list vertices = []
-    cdef list faces = []
+        blender_mesh.mvert[i].no[0] = mesh.normals[i].x
+        blender_mesh.mvert[i].no[1] = mesh.normals[i].y
+        blender_mesh.mvert[i].no[2] = mesh.normals[i].z
 
-    cdef int i, j
-
-    for i in range(mesh.vertices.shape[0]):
-        vertices.append((mesh.vertices[i,0], mesh.vertices[i,1], mesh.vertices[i,2]))
-
-    cdef list polygon
-    for i in range(mesh.polygons.shape[0]):
-        polygon = []
-        for j in range(mesh.polygons[i,0], mesh.polygons[i,0] + mesh.polygons[i,1]):
-            polygon.append(mesh.polygon_vertices[j])
-        faces.append(tuple(polygon))
-
-    return vertices, [], faces
-
-cpdef void displace(Mesh mesh, float[:,:,:,:,:] texture):
+cdef void displace(Mesh mesh, float[:,:,:,:,:] texture):
     cdef int i
     cdef float value
     cdef float c
-    for i in range(mesh.vertices.shape[0]):
-        # value = sample_texture(texture, 100.0 * mesh.vertices[i,0], 100.0 * mesh.vertices[i,1])
-        value = texture[0,<int>(100 * mesh.vertices[i,0]),<int>(100 * mesh.vertices[i,1]),0,0]
+    cdef Vec3 normal
+    for i in range(mesh.n_vertices):
+        # value = sample_texture(texture, 100.0 * mesh.vertices[i].x, 100.0 * mesh.vertices[i].y)
+        value = texture[0,<int>(100 * mesh.vertices[i].x) % 100,<int>(100 * mesh.vertices[i].x) % 100,0,0]
         c = (value - 0.5)
-        mesh.vertices[i,0] += c * mesh.normals[i,0]
-        mesh.vertices[i,1] += c * mesh.normals[i,1]
-        mesh.vertices[i,2] += c * mesh.normals[i,2]
+        vec3_scale(&normal, c, &mesh.normals[i])
+        vec3_add(&mesh.vertices[i], &mesh.vertices[i], &normal)
 
 def array_from_texture(object blender_texture, int width, int height):
     texture = np.ndarray(shape=(1,width,height,1,1), dtype=np.float32)
