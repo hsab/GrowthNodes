@@ -58,6 +58,8 @@ class VertexGroupSocket(bpy.types.NodeSocket, UMOGSocket):
         self.getObject().vertex_groups.active_index = self.getVertexGroup().index
 
     def setSelected(self):
+        self.setViewObjectMode()
+        
         for obj in bpy.data.objects:
             obj.select = False
 
@@ -90,7 +92,7 @@ class VertexGroupSocket(bpy.types.NodeSocket, UMOGSocket):
             override = self.getCustomContext()
             
             bpy.ops.object.mode_set(mode='EDIT')  
-            bpy.ops.mesh.select_all(action='DESELECT')
+            bpy.ops.mesh.select_all(override, action='DESELECT')
 
             object = self.getObject()
             thisVertexGroup = self.getVertexGroup()
@@ -99,6 +101,16 @@ class VertexGroupSocket(bpy.types.NodeSocket, UMOGSocket):
             bpy.ops.object.vertex_group_select()
 
             return override
+
+    def setViewEditMode(self, selectAll = False):
+        override = self.getCustomContext()
+        
+        bpy.ops.object.mode_set(mode='EDIT')    
+        if selectAll is not False:
+            bpy.ops.mesh.select_all(override, action=selectAll)
+            obj = self.getObject()
+            obj.update_from_editmode()
+        return override
 
     def setViewObjectMode(self):       
         bpy.ops.object.mode_set(mode='OBJECT')

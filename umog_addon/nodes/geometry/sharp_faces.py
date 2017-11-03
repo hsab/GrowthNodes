@@ -42,11 +42,12 @@ class SharpFacesNode(bpy.types.Node, UMOGOutputNode):
             self.outputs[1].refresh()
 
     def execute(self, refholder):
+        self.selectVertexGroup()
         self.inputs[0].setSelected()
         overrideContext = self.inputs[0].setViewEditMode(selectAll = 'DESELECT')
 
         angleLimit = math.radians(self.inputs[1].value)
-        bpy.ops.mesh.edges_select_sharp(sharpness=angleLimit)
+        # bpy.ops.mesh.edges_select_sharp(sharpness=angleLimit)
 
         obj = self.inputs[0].getObject()
         objData = obj.data
@@ -57,15 +58,17 @@ class SharpFacesNode(bpy.types.Node, UMOGOutputNode):
         bm.faces.ensure_lookup_table()
 
         for f in bm.faces:
-            zangle = Vector((0,0,1)).angle(obj.matrix_world* f.normal)
+            f.select = False
+            loc, rot, scale = obj.matrix_world.decompose()
+            zangle = Vector((0,0,1)).angle(rot * f.normal)
             
             top = self.inputs[3].value
             bottom = self.inputs[4].value
             angle = self.inputs[1].value
             
             zangle = math.degrees(zangle)   
-            posDir = zangle < angle
-            negDir = zangle > 180 - angle
+            posDir = zangle <= angle
+            negDir = zangle >= 180 - angle
             
             if top and not bottom:
                 if posDir:
@@ -79,11 +82,11 @@ class SharpFacesNode(bpy.types.Node, UMOGOutputNode):
 
         bmesh.update_edit_mesh(obj.data)
         bm.free()
-        obj.update_from_editmode()
 
         if self.inputs[2].value == True:
             bpy.ops.mesh.select_all(action='INVERT')
-            obj.update_from_editmode()
+
+        obj.update_from_editmode()
 
         bpy.context.scene.tool_settings.vertex_group_weight = self.inputs[5].value
         bpy.ops.object.vertex_group_assign()
@@ -102,7 +105,17 @@ class SharpFacesNode(bpy.types.Node, UMOGOutputNode):
     def setupVertexGroupOutput(self):
         name = self.name
         obj = self.inputs[0].getObject()
-        objData = obj.data
+
+        if name not in obj.vertex_groups:
+            bpy.ops.object.vertex_group_add()
+            obj.vertex_groups.active.name = name
+
+        self.outputs[1].value = name
+        self.outputs[1].object = self.inputs[0].value
+
+    def selectVertexGroup(self):
+        name = self.name
+        obj = self.inputs[0].getObject()
 
         if name in obj.vertex_groups:
             obj.vertex_groups.active_index = obj.vertex_groups[name].index
@@ -110,11 +123,4 @@ class SharpFacesNode(bpy.types.Node, UMOGOutputNode):
             overrideContext = self.inputs[0].setViewEditMode(selectAll = 'SELECT')
             bpy.ops.object.vertex_group_remove_from()
             self.inputs[0].setViewObjectMode()
-
-        else:
-            bpy.ops.object.vertex_group_add()
-            obj.vertex_groups.active.name = name
-
-        self.outputs[1].value = name
-        self.outputs[1].object = self.inputs[0].value
 
