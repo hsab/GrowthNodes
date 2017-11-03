@@ -39,6 +39,7 @@ class SharpEdgesNode(bpy.types.Node, UMOGOutputNode):
             self.outputs[1].refresh()
 
     def execute(self, refholder):
+        self.selectVertexGroup()
         self.inputs[0].setSelected()
         overrideContext = self.inputs[0].setViewEditMode(selectAll = 'DESELECT')
 
@@ -80,7 +81,17 @@ class SharpEdgesNode(bpy.types.Node, UMOGOutputNode):
     def setupVertexGroupOutput(self):
         name = self.name
         obj = self.inputs[0].getObject()
-        objData = obj.data
+
+        if name not in obj.vertex_groups:
+            bpy.ops.object.vertex_group_add()
+            obj.vertex_groups.active.name = name
+
+        self.outputs[1].value = name
+        self.outputs[1].object = self.inputs[0].value
+
+    def selectVertexGroup(self):
+        name = self.name
+        obj = self.inputs[0].getObject()
 
         if name in obj.vertex_groups:
             obj.vertex_groups.active_index = obj.vertex_groups[name].index
@@ -89,10 +100,4 @@ class SharpEdgesNode(bpy.types.Node, UMOGOutputNode):
             bpy.ops.object.vertex_group_remove_from()
             self.inputs[0].setViewObjectMode()
 
-        else:
-            bpy.ops.object.vertex_group_add()
-            obj.vertex_groups.active.name = name
-
-        self.outputs[1].value = name
-        self.outputs[1].object = self.inputs[0].value
 
