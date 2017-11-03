@@ -1,5 +1,5 @@
 from ..umog_node import *
-from ...engine import types, engine, mesh
+from ...engine import types, engine
 import bpy
 
 class GetMeshNode(UMOGNode):
@@ -24,7 +24,7 @@ class GetMeshNode(UMOGNode):
             [])
 
     def get_buffer_values(self):
-        return [mesh.from_blender_mesh(bpy.data.meshes[self.mesh_name].as_pointer())]
+        return [bpy.data.meshes[self.mesh_name]]
 
     def update(self):
         pass
