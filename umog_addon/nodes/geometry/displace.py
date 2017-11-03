@@ -67,6 +67,7 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
             if hasShapes:
                 shapeKeys = objData.shape_keys.key_blocks
                 keyNorms = shapeKeys[-1].normals_vertex_get()
+                print(shapeKeys[-1].name)
                 npNorms = np.asarray(keyNorms, dtype="float")
                 npNorms = npNorms.reshape((len(objData.vertices), 3))
 
@@ -112,7 +113,7 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
             accumShape.name = "baked_umog_" + str(bakeCount) + "_displace_" + str(
                 bpy.context.scene.frame_current)
 
-            obj.data.update()
+            obj.update_from_editmode()
 
             obj.hasUMOGBaked = True
             obj.bakeCount = bakeCount
