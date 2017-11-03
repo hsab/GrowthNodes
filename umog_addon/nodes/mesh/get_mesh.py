@@ -24,7 +24,7 @@ class GetMeshNode(UMOGNode):
             [])
 
     def get_buffer_values(self):
-        return [mesh.from_blender_mesh(bpy.data.meshes[self.mesh_name])]
+        return [mesh.from_blender_mesh(bpy.data.meshes[self.mesh_name].as_pointer())]
 
     def update(self):
         pass

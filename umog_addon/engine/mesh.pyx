@@ -4,6 +4,34 @@ cimport numpy as np
 import cython
 
 from libc.math cimport fmod
+from libc.stdint cimport uintptr_t
+
+cdef extern from "blender/makesdna/DNA_meshdata_types.h":
+    cdef struct MVert:
+        float co[3]
+        float no[3]
+    cdef struct MEdge:
+        unsigned int v1, v2
+    cdef struct MPoly:
+        int loopstart
+        int totloop
+    cdef struct MLoop:
+        unsigned int v
+        unsigned int e
+    cdef struct MLoopUV:
+        float uv[2]
+    cdef struct MLoopCol:
+        unsigned char r, g, b, a
+
+cdef extern from "blender/makesdna/DNA_mesh_types.h":
+    cdef struct BlenderMesh "Mesh":
+        int totvert, totedge, totpoly, totloop
+        MVert *mvert
+        MEdge *medge
+        MPoly *mpoly
+        MLoop *mloop
+        MLoopUV *mloopuv
+        MLoopCol *mloopcol
 
 cpdef void copy(Mesh src, Mesh dst):
     src.vertices[...] = dst.vertices
@@ -12,32 +40,32 @@ cpdef void copy(Mesh src, Mesh dst):
     src.polygons[...] = dst.polygons
 
 @cython.boundscheck(False)
-def from_blender_mesh(object blender_mesh):
+cpdef Mesh from_blender_mesh(uintptr_t mesh_ptr):
     cdef Mesh mesh
 
-    mesh.vertices = np.ndarray(shape=(len(blender_mesh.vertices),3), dtype=np.float32)
-    mesh.normals = np.ndarray(shape=(len(blender_mesh.vertices),3), dtype=np.float32)
-    mesh.polygon_vertices = np.ndarray(shape=(len(blender_mesh.loops)), dtype=np.int32)
-    mesh.polygons = np.ndarray(shape=(len(blender_mesh.polygons),2), dtype=np.int32)
+    cdef BlenderMesh *blender_mesh = <BlenderMesh *>mesh_ptr
+
+    mesh.vertices = np.ndarray(shape=(blender_mesh.totvert,3), dtype=np.float32)
+    mesh.normals = np.ndarray(shape=(blender_mesh.totvert,3), dtype=np.float32)
+    mesh.polygon_vertices = np.ndarray(shape=(blender_mesh.totloop), dtype=np.int32)
+    mesh.polygons = np.ndarray(shape=(blender_mesh.totpoly,2), dtype=np.int32)
 
     cdef int i
-    for i in range(len(blender_mesh.vertices)):
-        vector = blender_mesh.vertices[i].co
-        mesh.vertices[i,0] = vector.x
-        mesh.vertices[i,1] = vector.y
-        mesh.vertices[i,2] = vector.z
+    for i in range(blender_mesh.totvert):
+        mesh.vertices[i,0] = blender_mesh.mvert[i].co[0]
+        mesh.vertices[i,1] = blender_mesh.mvert[i].co[1]
+        mesh.vertices[i,2] = blender_mesh.mvert[i].co[2]
 
-        normal = blender_mesh.vertices[i].normal
-        mesh.normals[i,0] = normal.x
-        mesh.normals[i,1] = normal.y
-        mesh.normals[i,2] = normal.z
+        mesh.normals[i,0] = blender_mesh.mvert[i].no[0]
+        mesh.normals[i,1] = blender_mesh.mvert[i].no[1]
+        mesh.normals[i,2] = blender_mesh.mvert[i].no[2]
 
-    for i in range(len(blender_mesh.loops)):
-        mesh.polygon_vertices[i] = blender_mesh.loops[i].vertex_index
+    for i in range(blender_mesh.totloop):
+        mesh.polygon_vertices[i] = blender_mesh.mloop[i].v
 
-    for i in range(len(blender_mesh.polygons)):
-        mesh.polygons[i,0] = blender_mesh.polygons[i].loop_start
-        mesh.polygons[i,1] = blender_mesh.polygons[i].loop_total
+    for i in range(blender_mesh.totpoly):
+        mesh.polygons[i,0] = blender_mesh.mpoly[i].loopstart
+        mesh.polygons[i,1] = blender_mesh.mpoly[i].totloop
 
     return mesh
 
