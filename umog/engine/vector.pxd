@@ -30,3 +30,11 @@ cdef inline void vec3_normalize(Vec3 *out, Vec3 *a) nogil:
     out.x = a.x / length
     out.y = a.y / length
     out.z = a.z / length
+
+cdef inline float vec3_dot(Vec3 *a, Vec3 *b) nogil:
+    return a.x * b.x + a.y * b.y + a.z * b.z
+
+cdef inline void vec3_cross(Vec3 *out, Vec3 *a, Vec3 *b) nogil:
+    out.x = a.y * b.z - a.z * b.y
+    out.y = a.z * b.x - a.x * b.z
+    out.z = a.x * b.y - a.y * b.x
