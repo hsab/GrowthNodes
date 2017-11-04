@@ -32,15 +32,9 @@ class UMOGTexture3SolidGeometryNode(bpy.types.Node, UMOGNode):
     threshold = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=1.0, step=1, precision=2)
     
     def create(self):
-        socket = self.newOutput(
-            "Texture3", "Texture", drawOutput=False, drawLabel=False)
-        socket.display.refreshableIcon = False
-        socket.display.packedIcon = False
-        socket.isPacked = True
-        
         self.newInput("Texture3", "A").isPacked = True
         self.newInput("Texture3", "B").isPacked = True
-        
+        self.newOutput("Texture3", "Texture").isPacked = True
 
     def draw(self, layout):
         layout.prop(self, "geo_op")
@@ -54,7 +48,7 @@ class UMOGTexture3SolidGeometryNode(bpy.types.Node, UMOGNode):
             temps["B"] = self.inputs[1].getFromSocket.getPixels()
             temps["operation"] = self.geo_op
             temps["threshold"] = self.threshold
-            
+            #pydevd.settrace()
             try:
                 #start a new thread to avoid poluting blender's opengl context
                 t = threading.Thread(target=pyglet_sg_impl.OffScreenRender, 
@@ -72,7 +66,6 @@ class UMOGTexture3SolidGeometryNode(bpy.types.Node, UMOGNode):
                 print("thread start failed")
                 print("Unexpected error:", sys.exc_info()[0])
                 
-            pydevd.settrace()
         else:
             print("not enought inputs")
 
