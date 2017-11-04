@@ -173,7 +173,8 @@ def OffScreenRender(args, test=False):
             self.checkUniformLocation(self.step_pos_A)
             self.checkUniformLocation(self.slice_pos_A)
 
-            gl.glUniformMatrix4fv(self.transform_pos, 1, False, self.Tp)
+            gl.glUniformMatrix4fv(self.transform_pos, 1, True, self.Tp)
+            #gl.glUniformMatrix4fv(self.transform_pos, 1, False, self.Tp)
             #may need changed for nonsquare textures
             gl.glUniform1f(self.step_pos_A, 1/self.dimx)
             
@@ -181,7 +182,7 @@ def OffScreenRender(args, test=False):
             #self.clear()
             
         def cleanUP(self):
-            a = (gl.GLint * (self.dimx*self.dimy*self.dimz))()
+            a = (gl.GLfloat * (self.dimx*self.dimy*self.dimz))()
             #need a new way to read out pixels
             #gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, b)
             #gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1);
@@ -246,7 +247,12 @@ if __name__ == "__main__":
     
     temps = {}
     temps["A"] = np.random.rand(256, 256, 256)
-    temps["transform"] = np.identity(4)
+    #temps["transform"] = np.identity(4)
+    temps["transform"] = np.array([[ 1, 0,   0,   0 ],
+                                    [ 0.,   1.,   0.,   0.2],
+                                    [ 0.,   0.,   1.,   0. ],
+                                    [ 0.,   0.,   0.,   1. ]]
+                                    )
     OffScreenRender(temps, test=True)
     
     end = time.time()
