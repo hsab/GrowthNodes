@@ -7,12 +7,13 @@ def importAllSubmodules(path, packageName, addonDirecotry):
     modules = []
     path = join(path, addonDirecotry)
     for name in sorted(iterSubModuleNames(path)):
-        try:
-            module = importlib.import_module("." + addonDirecotry + "." + name, packageName)
-            modules.append(module)
-        except:
-            print("FAILED TO LOAD\t" + "." + addonDirecotry + "." + name, packageName)
-            raise
+        if not name.startswith('packages'):
+            try:
+                module = importlib.import_module("." + addonDirecotry + "." + name, packageName)
+                modules.append(module)
+            except:
+                print("FAILED TO LOAD\t" + "." + addonDirecotry + "." + name, packageName)
+                raise
 
     return modules
 

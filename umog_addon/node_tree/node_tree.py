@@ -39,6 +39,8 @@ class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
     TextureResolution = IntProperty(name = "TextureResolution",
                                     description = "TextureResolution", default = 256,
                                     min = 64, update = updateTimeInfo)
+    
+    UniqueIDTracker = IntProperty(default=0)
 
 
 class UMOGNodeTree(NodeTree):
@@ -97,6 +99,11 @@ class UMOGNodeTree(NodeTree):
         for node in self.unlinkedNodes:
             for socket in node.sockets:
                 socket.reverseName()
+                
+    def getNextUniqueID(self):
+        temp = self.properties.UniqueIDTracker
+        self.properties.UniqueIDTracker = self.properties.UniqueIDTracker + 1
+        return "__" + str(temp)
 
     def refreshExecutionPolicy(self):
         self.markUnvisited()
@@ -188,3 +195,4 @@ class UMOGNodeTree(NodeTree):
             node.postBake(refholder)
 
         self.properties.bakeCount = self.properties.bakeCount + 1
+
