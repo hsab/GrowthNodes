@@ -9,8 +9,10 @@ menus = OrderedDict([
         "bl_description": "Lorem Ipsum",
         "icon": "STICKY_UVS_LOC",
         "nodes": [
-            ("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
-            ("umog_ReactionDiffusionNode2", "Reaction Diffusion 2"),
+            #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
+            ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node"),
+            ("umog_PyGLNode", "PyGL Node"),
+            #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
             ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion GPU"),
             ("umog_ConvolveNode", "Convolve")
         ]
@@ -69,8 +71,8 @@ menus = OrderedDict([
         "bl_idname": "umog_integer_menu",
         "bl_label": "Integer Menu",
         "text": "Integer",
-        "bl_description": "Lorem Ipsum",
-        "icon": "LINENUMBERS_OFF",
+        "bl_description": "Nodes that operate on integers",
+        "icon": "LINENUMBERS_ON",
         "nodes": [
             ("umog_IntegerNode", "Integer"),
             ("umog_IntegerMathNode", "Integer Math"),
@@ -128,6 +130,21 @@ menus = OrderedDict([
             ("umog_TextureSettingsNode", "Texture Settings"),
             ("umog_TextureAlternatorNode", "Texture Alternator"),
             ("umog_SaveTextureNode", "Texture Save")
+        ]
+    }),
+        ("texture3d_menu", {
+        "bl_idname": "umog_texture3d_menu",
+        "bl_label": "Texture 3d Menu",
+        "text": "Texture3",
+        "bl_description": "",
+        "icon": "IMGDISPLAY",
+        "nodes": [
+            ("umog_Texture3ShapeNode", "Shapes"),
+            ("umog_Texture3LatheNode", "Lathe"),
+            ("umog_Texture3SolidGeometryNode", "Solid Geometry"),
+            ("umog_SaveTexture3dNode", "Save Texture Slices"),
+            ("umog_Texture3TransformNode", "Transform"),
+            ("umog_Texture3MeshNode", "Convert To Mesh"),
         ]
     })
 ])# yapf: disable
