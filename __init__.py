@@ -1,8 +1,8 @@
 bl_info = {
     "name": "UMOG",
     "author": "Hirad Sabaghian, Micah Johnston, Marsh Poulson, Jacob Luke",
-    "version": (0, 1, 6),
-    "blender": (2, 78, 0),
+    "version": (0, 2, 0),
+    "blender": (2, 79, 0),
     "location": "Node Editor > UMOG",
     "description": "Mesh Manipulation Tools",
     "warning": "prealpha",
