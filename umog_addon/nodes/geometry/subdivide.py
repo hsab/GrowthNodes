@@ -40,26 +40,27 @@ class SubdivideNode(bpy.types.Node, UMOGOutputNode):
         self.outputs[1].refresh()
 
     def execute(self, refholder):
+        obj = self.inputs[0].getObject()
+        obj.data.update()
+        self.resetNormals(obj.data)
+        obj.data.update()
+
         if self.inputs[1].value == '':
             self.inputs[0].setSelected()
-            overrideContext = self.inputs[0].setViewEditMode(selectAll = 'SELECT')
+            self.inputs[0].setViewEditMode(selectAll='SELECT')
         else:
             self.inputs[1].setSelected()
-            overrideContext = self.inputs[1].select()
-            bpy.ops.mesh.select_all(action='DESELECT')
+            self.inputs[1].setViewEditMode(selectAll='DESELECT')
 
             bpy.ops.mesh.select_face_by_sides(number=4, type='NOTEQUAL', extend=True)
             bpy.ops.mesh.quads_convert_to_tris(quad_method='BEAUTY', ngon_method='BEAUTY')
 
-            bpy.ops.mesh.select_all(action='DESELECT')
             self.inputs[1].select()
             bpy.ops.mesh.tris_convert_to_quads(face_threshold=3.14159, shape_threshold=3.14159)
 
- 
+        obj.update_from_editmode()
         bpy.ops.mesh.subdivide(number_cuts=self.inputs[2].value, smoothness=self.inputs[3].value)
-
-        objdata = self.inputs[0].getObject().data
-        objdata.update()
+        obj.update_from_editmode()
         self.inputs[0].setViewObjectMode()
 
 
@@ -71,3 +72,7 @@ class SubdivideNode(bpy.types.Node, UMOGOutputNode):
 
     def postBake(self, refholder):
         pass
+
+    def resetNormals(self, objData):
+        objData.use_auto_smooth = False
+        bpy.ops.mesh.customdata_custom_splitnormals_clear()

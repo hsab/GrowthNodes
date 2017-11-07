@@ -46,6 +46,8 @@ class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
         return bpy.data.objects[self.value]
 
     def setSelected(self):
+        self.setViewObjectMode()
+        
         for obj in bpy.data.objects:
             obj.select = False
 
@@ -78,7 +80,9 @@ class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
         
         bpy.ops.object.mode_set(mode='EDIT')    
         if selectAll is not False:
-            bpy.ops.mesh.select_all(action=selectAll)
+            bpy.ops.mesh.select_all(override, action=selectAll)
+            obj = self.getObject()
+            obj.update_from_editmode()
         return override
 
     def setViewObjectMode(self):       
