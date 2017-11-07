@@ -144,6 +144,7 @@ menus = OrderedDict([
             ("umog_Texture3SolidGeometryNode", "Solid Geometry"),
             ("umog_SaveTexture3dNode", "Save Texture Slices"),
             ("umog_Texture3TransformNode", "Transform"),
+            ("umog_Texture3MeshNode", "Convert To Mesh"),
         ]
     })
 ])# yapf: disable
