@@ -55,5 +55,5 @@ class Texture3Socket(bpy.types.NodeSocket, UMOGSocket):
         self.name = self.identifier
 
     def destroy(self):
-        if self.isPacked:
+        if self.isPacked and self.identifier in self.data:
             del self.data[self.identifier]

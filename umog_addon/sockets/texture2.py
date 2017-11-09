@@ -164,5 +164,5 @@ class Texture2Socket(bpy.types.NodeSocket, UMOGSocket):
         return bpy.data.textures[self.value]
 
     def destroy(self):
-        if self.isPacked:
+        if self.isPacked and self.identifier in self.data:
             del self.data[self.identifier]
