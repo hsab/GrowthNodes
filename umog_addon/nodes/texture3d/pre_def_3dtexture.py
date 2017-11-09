@@ -6,18 +6,8 @@ import sys
 import bpy
 import copy
 import numpy as np
-import pyximport
-pyximport.install()
-
-
-PYDEV_SOURCE_DIR = "/usr/lib/eclipse/dropins/pydev/plugins/org.python.pydev_6.0.0.201709191431/pysrc"
- 
-import sys
- 
-if PYDEV_SOURCE_DIR not in sys.path:
-   sys.path.append(PYDEV_SOURCE_DIR)
- 
-import pydevd
+#import pyximport
+#pyximport.install()
 
 class UMOGTexture3ShapeNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Texture3ShapeNode"
