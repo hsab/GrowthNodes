@@ -161,7 +161,6 @@ from pyglet import compat_platform
 if _is_epydoc:
     from pyglet.app.base import PlatformEventLoop
 else:
-    print("compat_platform " + compat_platform)
     if compat_platform == 'darwin':
         from pyglet import options as pyglet_options
         if pyglet_options['darwin_cocoa']:
