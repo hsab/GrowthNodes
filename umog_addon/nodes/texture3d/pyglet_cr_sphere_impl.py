@@ -1,5 +1,8 @@
 import numpy as np
 import sys
+import os
+import importlib
+import traceback
 
 def trace(frame, event, arg):
     print("%s, %s:%d" % (event, frame.f_code.co_filename, frame.f_lineno))
@@ -11,6 +14,14 @@ def Dummy(steps, in_buffer, out_buffer):
     return True
 
 def OffScreenRender( args, test=False):
+    #add packages to the path
+    cpath = os.path.dirname(os.path.realpath(__file__))
+    print(cpath)
+    cpath = os.path.split(cpath)[0]
+    cpath = os.path.split(cpath)[0]
+    cpath = os.path.join(cpath, "packages")
+    print(cpath)
+    sys.path.append(cpath)
     try:
         if test:
             import pyglet
@@ -19,13 +30,15 @@ def OffScreenRender( args, test=False):
             import pyglet_helper
             import numpy as np
         else:
-            from ... events import pyglet_helper
+            from ... packages import pyglet_helper
             from ... packages import pyglet
             from ...packages.pyglet import gl
+            importlib.reload(pyglet)
             import ctypes
             import numpy as np
     except:
         print("imports failed")
+        traceback.print_exc()
         return
             
     print("start of osr, for generation")

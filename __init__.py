@@ -22,10 +22,6 @@ addonsDirectory = dirname(currentDirectory)
 currentDirectory = join(currentDirectory, addonDirectoryName)
 compilationInfoPath = join(currentDirectory, "compilation_info.json")
 
-#dirty hack for windows
-package_dir = join(currentDirectory, "packages")
-sys.path.append(package_dir)
-
 counter = 0
 for name in os.listdir(addonsDirectory):
     name = name.lower()
