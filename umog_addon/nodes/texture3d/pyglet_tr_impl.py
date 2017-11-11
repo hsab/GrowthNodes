@@ -19,7 +19,8 @@ def OffScreenRender(args, test=False):
             import pyglet_helper
             import numpy as np
         else:
-            from ... events import pyglet_helper
+            from ... packages import pyglet_helper
+            from ... packages import osr_runner
             from ... packages import pyglet
             from ...packages.pyglet import gl
             import ctypes
@@ -233,9 +234,7 @@ def OffScreenRender(args, test=False):
             event = self.dispatch_events()
                 
     cr = ControledRender()
-    cr.run()
-    cr.cleanUP()
-    cr.close()
+    osr_runner.runner(cr)
     #del cr
     #cr = None
     print("end of osr")

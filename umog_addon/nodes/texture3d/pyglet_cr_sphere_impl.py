@@ -31,9 +31,9 @@ def OffScreenRender( args, test=False):
             import numpy as np
         else:
             from ... packages import pyglet_helper
+            from ... packages import osr_runner
             from ... packages import pyglet
             from ...packages.pyglet import gl
-            importlib.reload(pyglet)
             import ctypes
             import numpy as np
     except:
@@ -252,11 +252,8 @@ def OffScreenRender( args, test=False):
             # Basically it flushes the event pool that otherwise
             # fill up and block the buffers and hangs stuff.
             event = self.dispatch_events()
-                
-    cr = ControledRender()
-    cr.run()
-    cr.cleanUP()
-    cr.close()
+    cr = ControledRender()       
+    osr_runner.runner(cr)
     #del cr
     #cr = None
     print("end of osr")
