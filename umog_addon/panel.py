@@ -29,7 +29,7 @@ class UMOGNodeEditorPanel(bpy.types.Panel):
                 self.layout.label(
                     "Length: " + str(props.EndFrame - props.StartFrame))
                 self.layout.prop(props, 'EndFrame')
-                self.layout.prop(props, 'SubFrames')
+                #self.layout.prop(props, 'SubFrames')
                 self.layout.prop(props, 'TextureResolution')
         except:
             pass
