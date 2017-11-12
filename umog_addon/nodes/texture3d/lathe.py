@@ -19,6 +19,7 @@ class UMOGTexture3LatheNode(bpy.types.Node, UMOGNode):
             "Texture3", "Texture", drawOutput=False, drawLabel=False)
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
+        socket.isPacked = True
         self.newInput("Texture2", "A").isPacked = True
         
 
