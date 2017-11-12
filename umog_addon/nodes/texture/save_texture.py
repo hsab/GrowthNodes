@@ -29,19 +29,32 @@ class SaveTextureNode(bpy.types.Node, UMOGNode):
 
 
     def execute(self, refholder):
-        texture = self.inputs[0].getFromSocket.getTexture()
-        image = texture.image
-        # image.update()
-        # nparr = np.asarray(image.pixels, dtype="float")
-        # nparr = nparr.reshape(image.size[0], image.size[0], 4)
+        try:
+            texture = self.inputs[0].getFromSocket.getTexture()
+            image = texture.image
+            # image.update()
+            # nparr = np.asarray(image.pixels, dtype="float")
+            # nparr = nparr.reshape(image.size[0], image.size[0], 4)
 
-        # test = bpy.data.images.new("test", image.size[0], image.size[0], alpha = False, float_buffer = True)
-        # test.pixels = nparr.flatten()
+            # test = bpy.data.images.new("test", image.size[0], image.size[0], alpha = False, float_buffer = True)
+            # test.pixels = nparr.flatten()
 
-        image.filepath_raw = self.file_path + self.file_name + str(self.file_name_diff) + ".png"
-        image.file_format = 'PNG'
-        image.save()
-
+            image.filepath_raw = self.file_path + self.file_name + str(self.file_name_diff) + ".png"
+            image.file_format = 'PNG'
+            image.save()
+        except:
+            resolution = self.nodeTree.properties.TextureResolution
+            pixels = np.empty((resolution, resolution, 4), dtype = "float")
+            texture = self.inputs[0].getFromSocket.getTexture()
+            self.inputs[0].proceduralToNumpy(texture, pixels, resolution, resolution)
+            image = bpy.data.images.new("temp", resolution, resolution, alpha = False,
+                             float_buffer = True)
+            image.pixels = pixels.flatten()
+            image.update()
+            image.filepath_raw = self.file_path + self.file_name + str(self.file_name_diff) + ".png"
+            image.file_format = 'PNG'
+            image.save()
+            bpy.data.images.remove(image)
         # print(image.source == test.source)
 
         self.file_name_diff = self.file_name_diff + 1
