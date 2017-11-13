@@ -235,7 +235,8 @@ def clean():
 
 def removeFilesWithSuffix(extension, directory):
     for path in iterPathsWithSuffix(extension, directory):
-        os.remove(path)
+        if "packages" not in path:
+            os.remove(path)
     printInd("Removed "+ extension+ " files.")
 
 
@@ -248,31 +249,32 @@ def commentPyximport(extension, directory, comment):
     patternInst = re.compile(r'^pyximport.install\(\)$', flags=re.M)
     patternInstCom = re.compile(r'^#pyximport.install\(\)$', flags=re.M)
     for path in iterPathsWithSuffix(extension, directory):
-        for line in fileinput.input(path, inplace=True):
-            modified = True
-            if comment:
-                if patternImp.search(line):
-                    sys.stderr.write("---- Commented Line " + str(fileinput.filelineno()) + "\n")
-                    print(re.sub(patternImp, "#import pyximport", line), end='')
-                elif patternInst.search(line):
-                    sys.stderr.write("---- Commented Line " + str(fileinput.filelineno()) + "\n")
-                    print(re.sub(patternInst, "#pyximport.install()", line), end='')
+        if "packages" not in path:
+            for line in fileinput.input(path, inplace=True):
+                modified = True
+                if comment:
+                    if patternImp.search(line):
+                        sys.stderr.write("---- Commented Line " + str(fileinput.filelineno()) + "\n")
+                        print(re.sub(patternImp, "#import pyximport", line), end='')
+                    elif patternInst.search(line):
+                        sys.stderr.write("---- Commented Line " + str(fileinput.filelineno()) + "\n")
+                        print(re.sub(patternInst, "#pyximport.install()", line), end='')
+                    else:
+                        print(line, end='')
+                        modified=False
                 else:
-                    print(line, end='')
-                    modified=False
-            else:
-                if patternImpCom.search(line):
-                    sys.stderr.write("---- Uncommented Line " + str(fileinput.filelineno()) + "\n")
-                    print(re.sub(patternImpCom, "import pyximport", line), end='')
-                elif patternInstCom.search(line):
-                    sys.stderr.write("---- Unommented Line " + str(fileinput.filelineno()) + "\n")
-                    print(re.sub(patternInstCom, "pyximport.install()", line), end='')
-                else:
-                    print(line, end='')
-                    modified=False
+                    if patternImpCom.search(line):
+                        sys.stderr.write("---- Uncommented Line " + str(fileinput.filelineno()) + "\n")
+                        print(re.sub(patternImpCom, "import pyximport", line), end='')
+                    elif patternInstCom.search(line):
+                        sys.stderr.write("---- Unommented Line " + str(fileinput.filelineno()) + "\n")
+                        print(re.sub(patternInstCom, "pyximport.install()", line), end='')
+                    else:
+                        print(line, end='')
+                        modified=False
 
-            if modified:
-                sys.stderr.write("----   @ " + path + "\n")
+                if modified:
+                    sys.stderr.write("----   @ " + path + "\n")
 
 # Compilation Info File
 ###################################################################
