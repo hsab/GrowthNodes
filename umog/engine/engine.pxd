@@ -10,6 +10,11 @@ cdef enum:
     MAX_OUTS = 2
 
 cpdef enum Opcode:
+    CONST
+    OUT
+    NOP
+
+    # math
     ADD
     SUBTRACT
     MULTIPLY
@@ -17,12 +22,15 @@ cpdef enum Opcode:
     NEGATE
     POWER
     MODULUS
+
+    # array
+    CONVOLVE
+
+    # mesh
     DISPLACE
-    FRAME
+
+    # control
     LOOP
-    CONST
-    OUT
-    NOP
 
 cdef class Instruction:
     cdef Opcode op

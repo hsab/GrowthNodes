@@ -14,7 +14,7 @@ class SubtractNode(UMOGNode):
 
     def get_operation(self):
         return engine.Operation(
-            engine.SUB,
+            engine.SUBTRACT,
             [types.Scalar(), types.Scalar()],
             [types.Scalar()],
             [],
