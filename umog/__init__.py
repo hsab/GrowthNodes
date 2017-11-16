@@ -16,15 +16,9 @@ import sys
 import traceback
 from os.path import dirname, join, abspath
 
-addonDirectoryName = "umog_addon"
 currentDirectory = dirname(abspath(__file__))
 addonsDirectory = dirname(currentDirectory)
-currentDirectory = join(currentDirectory, addonDirectoryName)
 compilationInfoPath = join(currentDirectory, "compilation_info.json")
-
-#dirty hack for windows
-package_dir = join(currentDirectory, "packages")
-sys.path.append(package_dir)
 
 counter = 0
 for name in os.listdir(addonsDirectory):
@@ -38,12 +32,12 @@ if counter > 1:
         "Please uninstall/remove all older versions of the addon\n")
     raise Exception(message)
 
-try: from .umog_addon import import_modules
+try: from . import import_modules
 except: pass
 
 if "import_modules" not in globals():
     message = ("\n\n"
-        "The UMOG Nodes addon cannot be registered correctly.\n"
+        "UMOG cannot be registered correctly.\n"
         "Please try to remove and install it again.\n"
         "If it still does not work, report it.\n")
     raise Exception(message)
@@ -59,7 +53,7 @@ if "numpy" not in globals():
         "that comes with numpy (e.g. the newest official Blender release).")
     raise Exception(message)
 
-from .umog_addon.preferences import getBlenderVersion
+from .preferences import getBlenderVersion
 if getBlenderVersion() < (2, 76, 0):
     message = ("\n\n"
         "UMOG requires at least Blender 2.77.\n"
@@ -121,21 +115,18 @@ else:
 # Load all submodules
 ##################################
 #
-from .umog_addon import import_modules
-
-modules = import_modules.importAllSubmodules(__path__[0], __package__,addonDirectoryName)
-
-if "bpy" in locals():
-    print("UMOG can't be reloaded.")
+from . import import_modules
+modules = import_modules.importAllSubmodules(__path__[0], __package__)
 
 from . umog_addon.sockets.info import updateSocketInfo
 updateSocketInfo()
 
+if "bpy" in locals():
+    print("UMOG can't be reloaded.")
+
 import bpy
-from . import umog_addon as UMG
 
 def register():
-    UMG.register()
     bpy.utils.register_module(__name__)
     for module in modules:
         if hasattr(module, "register"):
@@ -143,7 +134,6 @@ def register():
     print("Registered UMOG with {} modules.".format(len(modules)))
 
 def unregister():
-    UMG.unregister()
     bpy.utils.unregister_module(__name__)
     for module in modules:
         if hasattr(module, "unregister"):
