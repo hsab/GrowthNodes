@@ -32,7 +32,7 @@ class UMOGTexture3TransformNode(UMOGNode):
         self.newInput("Texture3", "A").isPacked = True
         self.newOutput("Texture3", "Texture").isPacked = True
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         layout.prop(self, "tr_op")
         if self.tr_op == "translation":
             layout.prop(self, "direction", "Direction")

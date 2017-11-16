@@ -21,7 +21,7 @@ class UMOGTexture3MeshNode(UMOGNode):
     def create(self):
         self.newInput("Texture3", "A").isPacked = True
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         layout.prop(self, "mesh_name")
         layout.prop(self, "iso_level", "Iso Level")
         

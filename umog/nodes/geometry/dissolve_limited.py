@@ -22,7 +22,7 @@ class DissolveLimitedNode(UMOGOutputNode):
         default = {"NORMAL"},
         options = {"ENUM_FLAG"})
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         layout.prop(self, "delimitOptions", "Delimit Operation")
 
     def create(self):

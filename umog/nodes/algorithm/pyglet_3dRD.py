@@ -28,9 +28,6 @@ class PyGLNode(UMOGNode):
         self.newOutput("Texture3", "A'").isPacked = True
         self.newOutput("Texture3", "B'").isPacked = True
 
-    def draw(self, layout):
-        pass
-    
     def refresh(self):
         pass
         

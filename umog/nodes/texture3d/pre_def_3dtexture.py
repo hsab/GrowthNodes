@@ -29,7 +29,7 @@ class UMOGTexture3ShapeNode(UMOGNode):
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         layout.prop(self, "shapes", "Shapes")
         layout.prop(self, "radius")
             

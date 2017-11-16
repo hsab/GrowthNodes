@@ -16,7 +16,7 @@ class GetTextureNode(UMOGNode):
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         # only one template_preview can exist per screen area https://developer.blender.org/T46733
         # make sure that at most one preview can be opened at any time
         try:

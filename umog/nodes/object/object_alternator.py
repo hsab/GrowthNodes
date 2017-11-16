@@ -16,7 +16,7 @@ class TextureAlternatorNode(UMOGNode):
 
         socket = self.newOutput(self.assignedType, "Object")
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         pass
 
     def refresh(self):

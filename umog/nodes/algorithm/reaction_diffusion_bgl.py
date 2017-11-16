@@ -110,7 +110,7 @@ class ReactionDiffusionBGLNode(UMOGNode):
         self.newOutput(self.assignedType, "B'").isPacked = True
         self.newOutput(self.assignedType, "Combined").isPacked = True
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         layout.prop(self, "channels", "Channels")
 
         

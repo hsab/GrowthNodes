@@ -28,7 +28,7 @@ class UMOGTexture3SolidGeometryNode(UMOGNode):
         self.newInput("Texture3", "B").isPacked = True
         self.newOutput("Texture3", "Texture").isPacked = True
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         layout.prop(self, "geo_op")
         layout.prop(self, "threshold", "Threshold")
         

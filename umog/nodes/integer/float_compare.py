@@ -52,5 +52,5 @@ class FloatCompareNode(UMOGNode):
 
         self.outputs[0].name = str(self.outputs[0].value)
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         layout.prop(self, "fixed_items", 'Operation')
