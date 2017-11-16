@@ -1,22 +1,6 @@
 import bpy
-from .handlers import eventUMOGHandler
 from . debug import *
-
-@eventUMOGHandler("FILE_LOAD_POST")
-def updateOnLoad():
-    for area in bpy.context.screen.areas:
-        if area.type == "NODE_EDITOR":
-            tree = area.spaces.active.node_tree
-            if getattr(tree, "bl_idname", "") == "umog_UMOGNodeTree":
-                tree.update()
-
-@eventUMOGHandler("FRAME_CHANGE_POST")
-def updateOnFrameChange(scene):
-    for area in bpy.context.screen.areas:
-        if area.type == "NODE_EDITOR":
-            tree = area.spaces.active.node_tree
-            if getattr(tree, "bl_idname", "") == "umog_UMOGNodeTree":
-                tree.updateOnFrameChange()
+from bpy.app.handlers import persistent
 
 def propUpdate(self = None, context = None):
 
@@ -43,3 +27,28 @@ def propUpdate(self = None, context = None):
         elif hasattr(self, 'isUMOGNode'):
             if self.isUMOGNode:
                 nodeTreeUpdateFrom(self)
+
+
+@persistent
+def updateOnLoad(scene):
+    for area in bpy.context.screen.areas:
+        if area.type == "NODE_EDITOR":
+            tree = area.spaces.active.node_tree
+            if getattr(tree, "bl_idname", "") == "umog_UMOGNodeTree":
+                tree.update()
+
+@persistent
+def updateOnFrameChange(scene):
+    for area in bpy.context.screen.areas:
+        if area.type == "NODE_EDITOR":
+            tree = area.spaces.active.node_tree
+            if getattr(tree, "bl_idname", "") == "umog_UMOGNodeTree":
+                tree.updateOnFrameChange()
+
+def register():
+    bpy.app.handlers.load_post.append(updateOnLoad)
+    bpy.app.handlers.frame_change_post.append(updateOnFrameChange)
+
+def unregister():
+    bpy.app.handlers.load_post.remove(updateOnLoad)
+    bpy.app.handlers.frame_change_post.remove(updateOnFrameChange)
