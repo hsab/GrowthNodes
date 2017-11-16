@@ -4,7 +4,7 @@ This module can create and register operators dynamically based on a description
 import bpy
 from bpy.props import *
 from .. utils.debug import *
-from .. utils.handlers import eventUMOGHandler
+from bpy.app.handlers import persistent
 
 operatorsByDescription = {}
 missingDescriptions = set()
@@ -15,15 +15,6 @@ def getInvokeFunctionOperator(description):
     missingDescriptions.add(description)
     return fallbackOperator.bl_idname
 
-
-@eventUMOGHandler("SCENE_UPDATE_POST")
-def createMissingOperators(scene):
-    while len(missingDescriptions) > 0:
-        description = missingDescriptions.pop()
-        operator = createOperatorWithDescription(description)
-        operatorsByDescription[description] = operator.bl_idname
-        # DBG(str(description), operator, operator.bl_idname, TRACE = False)
-        bpy.utils.register_class(operator)
 
 def createOperatorWithDescription(description):
     operatorID = str(len(operatorsByDescription))
@@ -61,14 +52,26 @@ def execute_InvokeFunction(self, context):
 
 fallbackOperator = createOperatorWithDescription("")
 
+@persistent
+def createMissingOperators(scene):
+    while len(missingDescriptions) > 0:
+        description = missingDescriptions.pop()
+        operator = createOperatorWithDescription(description)
+        operatorsByDescription[description] = operator.bl_idname
+        # DBG(str(description), operator, operator.bl_idname, TRACE = False)
+        bpy.utils.register_class(operator)
 
 # Register
 ##################################
 
 def register():
+    bpy.app.handlers.scene_update_post.append(createMissingOperators)
+
     try: bpy.utils.register_class(fallbackOperator)
     except: pass
 
 def unregister():
+    bpy.app.handlers.scene_update_post.remove(createMissingOperators)
+
     try: bpy.utils.unregister_class(fallbackOperator)
     except: pass

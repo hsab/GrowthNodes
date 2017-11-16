@@ -109,19 +109,9 @@ class DisplaceNode(UMOGOutputNode):
 
             accumShape.value = 1
 
-            bakeCount = self.nodeTree.properties.bakeCount
-            accumShape.name = "baked_umog_" + str(bakeCount) + "_displace_" + str(
-                bpy.context.scene.frame_current)
+            accumShape.name = "umog_displace_" + str(bpy.context.scene.frame_current)
 
             obj.update_from_editmode()
-
-            obj.hasUMOGBaked = True
-            obj.bakeCount = bakeCount
-
-            if bakeCount not in obj.data.bakedKeys:
-                obj.data.bakedKeys[bakeCount] = []
-
-            obj.data.bakedKeys[bakeCount].append(accumShape)
         else:
             print("no texture specified")
 

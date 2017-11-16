@@ -2,7 +2,6 @@ import bpy
 from bpy.types import NodeTree
 from bpy.props import *
 from ..utils.debug import *
-from ..utils.handlers import eventUMOGHandler
 from collections import defaultdict
 
 from ..engine import engine
@@ -28,9 +27,6 @@ class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
 
         if not isResPowerOfTwo:
             self.TextureResolution = 2**(self.TextureResolution - 1).bit_length()
-
-    bakeCount = IntProperty(name = "BakeCount", description = "BakeCount", default = 1,
-                            min = 1, update = updateTimeInfo)
 
     StartFrame = IntProperty(name = "StartFrame", description = "StartFrame", default = 1,
                              min = 1, update = updateTimeInfo)
@@ -198,8 +194,6 @@ class UMOGNodeTree(NodeTree):
 
         for node in self.linearizedNodes:
             node.postBake(refholder)
-
-        self.properties.bakeCount = self.properties.bakeCount + 1
 
     def run(self):
         print('Executing node tree')
