@@ -148,7 +148,7 @@ def compileCythonFiles():
 
     sys.argv = [sys.argv[0], "build_ext", "--inplace"]
 
-    extensions = cythonize(getPathsToCythonFiles(), build_dir="build")
+    extensions = cythonize(getPathsToCythonFiles(), compiler_directives={'cdivision': True, 'cdivision_warnings': False})
     setup(name = 'umog', ext_modules = extensions, include_dirs=[numpy.get_include()])
     print("Compilation Successful.")
 
