@@ -35,7 +35,3 @@ class UMOGNodeEditorPanel(bpy.types.Panel):
                 self.layout.prop(props, 'TextureResolution')
         except:
             pass
-
-
-    def draw(self, context):
->>>>>>> compile
