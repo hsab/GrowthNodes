@@ -1,4 +1,3 @@
-from .umog_node import UMOGNode
-from .output_node import UMOGOutputNode
+from .umog_node import UMOGNode, UMOGInputNode, UMOGOutputNode
 
-__all__ = ['UMOGNode', 'UMOGOutputNode']
+__all__ = ['UMOGNode', 'UMOGInputNode', 'UMOGOutputNode']
