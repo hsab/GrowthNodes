@@ -1,7 +1,7 @@
 import bpy
-from bpy.types import NodeSocket
+from . import UMOGSocket
 
-class ArraySocket(NodeSocket):
+class ArraySocket(UMOGSocket):
     bl_idname = 'ArraySocketType'
     bl_label = 'Array Socket'
 

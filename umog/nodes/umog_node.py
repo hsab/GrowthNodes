@@ -24,8 +24,7 @@ class UMOGNodeDisplayProperties(bpy.types.PropertyGroup):
     highlightColor = FloatVectorProperty(name = "Highlight Color",
                                          default = (0.6, 0.4, 0.4), min = 0, max = 1)
 
-
-class UMOGNode:
+class UMOGNode(bpy.types.Node):
     bl_width_min = 10
     bl_width_max = 5000
 
@@ -34,9 +33,6 @@ class UMOGNode:
     _IsOutputNode = False
 
     bl_label = "UMOGNode"
-
-    execution = PointerProperty(type = UMOGNodeExecutionProperties)
-    display = PointerProperty(type = UMOGNodeDisplayProperties)
 
     # unique string for each node; don't change it at all
     identifier = StringProperty(name = "Identifier", default = "")
@@ -59,7 +55,9 @@ class UMOGNode:
 
         self.width_hidden = 100
         self.identifier = createIdentifier()
-        self.setup()
+
+    def init(self, context):
+        pass
 
     def free(self):
         for socket in self.inputs:
@@ -69,23 +67,13 @@ class UMOGNode:
         self.destroy()
         print("freed")
 
-    def setup(self):
-        self.preCreate()
-        self.create()
-        self.postCreate()
-
     def draw_buttons(self, context, layout):
         self.draw(layout)
 
-    def refreshInputs(self):
+    def refreshNode(self):
         for socket in self.inputs:
             socket.refreshSocket()
-
-    def refreshNode(self):
-        self.refreshInputs()
-        self.preRefresh()
         self.refresh()
-        self.postRefresh()
 
     def refreshOnFrameChange(self):
         pass
@@ -99,25 +87,10 @@ class UMOGNode:
     # functions subclasses can override
     ######################################
 
-    def preCreate(self):
-        pass
-
-    def create(self):
-        pass
-
-    def postCreate(self):
-        pass
-
     def update(self):
         pass
 
-    def preRefresh(self):
-        pass
-
     def refresh(self):
-        pass
-
-    def postRefresh(self):
         pass
 
     def refreshOnFrameChange(self):
@@ -319,6 +292,9 @@ def register():
     bpy.types.Node.toID = nodeToID
     bpy.types.Node.isUMOGNode = BoolProperty(default = False, get = isUMOGNode)
 
+    # PointerProperties can only be added after the PropertyGroup is registered
+    bpy.types.Node.execution = PointerProperty(type = UMOGNodeExecutionProperties)
+    bpy.types.Node.display = PointerProperty(type = UMOGNodeDisplayProperties)
 
 def unregister():
     del bpy.types.Node.toID

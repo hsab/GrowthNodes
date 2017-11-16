@@ -1,7 +1,7 @@
 import bpy
-from bpy.types import NodeSocket
+from . import UMOGSocket
 
-class MeshSocket(NodeSocket):
+class MeshSocket(UMOGSocket):
     bl_idname = 'MeshSocketType'
     bl_label = 'Mesh Socket'
 
