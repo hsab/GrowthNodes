@@ -11,7 +11,7 @@ class SharpFacesNode(UMOGOutputNode):
 
     assignedType = "Object"
 
-    def create(self):
+    def init(self, context):
         self.newInput(self.assignedType, "Object")
         self.newInput("Float", "Angle", value = 20, minValue = 0.0, maxValue= 180)
         self.newInput("Boolean", "Inverse Select", value = False)

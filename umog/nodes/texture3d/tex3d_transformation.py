@@ -28,7 +28,7 @@ class UMOGTexture3TransformNode(UMOGNode):
     origin = bpy.props.FloatVectorProperty(default=(0.5,0.5,0.5))
     point = bpy.props.FloatVectorProperty(default=(0.5,0.5,0.5))
     
-    def create(self):
+    def init(self, context):
         self.newInput("Texture3", "A").isPacked = True
         self.newOutput("Texture3", "Texture").isPacked = True
 

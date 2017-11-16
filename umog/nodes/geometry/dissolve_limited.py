@@ -25,7 +25,7 @@ class DissolveLimitedNode(UMOGOutputNode):
     def draw_buttons(self, context, layout):
         layout.prop(self, "delimitOptions", "Delimit Operation")
 
-    def create(self):
+    def init(self, context):
         self.newInput(self.assignedType, "Object")
         self.newInput("VertexGroup", "Vertex Group")
         self.newInput("Float", "Angle Limit", value = 0.001, minValue = 0.0, maxValue= 180)

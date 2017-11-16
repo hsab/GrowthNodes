@@ -9,7 +9,7 @@ class TextureAlternatorNode(UMOGNode):
 
     Object = bpy.props.StringProperty()
 
-    def create(self):
+    def init(self, context):
         self.newInput(self.assignedType, "Object")
         self.newInput(self.assignedType, "Object")
         self.newInput("Boolean", "Condition")

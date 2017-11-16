@@ -10,7 +10,7 @@ class GetTextureNode(UMOGNode):
     texture = bpy.props.StringProperty()
     texture_name = bpy.props.StringProperty()
 
-    def create(self):
+    def init(self, context):
         socket = self.newOutput(
             self.assignedType, "Texture", drawOutput=True, drawLabel=False)
         socket.display.refreshableIcon = False

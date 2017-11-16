@@ -10,7 +10,7 @@ class DissolveDegenerateNode(UMOGOutputNode):
 
     assignedType = "Object"
 
-    def create(self):
+    def init(self, context):
         self.newInput(self.assignedType, "Object")
         self.newInput("VertexGroup", "Vertex Group")
 

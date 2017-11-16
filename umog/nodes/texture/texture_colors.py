@@ -7,7 +7,7 @@ class TextureColorsNode(UMOGNode):
 
     assignedType = "Texture2"
 
-    def create(self):
+    def init(self, context):
         self.width = 220
         self.newInput(self.assignedType, "Texture")
         socket = self.newOutput(self.assignedType, "Texture")

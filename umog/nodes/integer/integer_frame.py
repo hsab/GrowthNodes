@@ -11,7 +11,7 @@ class IntegerFrameNode(UMOGNode):
 
     input_value = bpy.props.IntProperty(update=propUpdate)
 
-    def create(self):
+    def init(self, context):
         socket = self.newOutput(self.assignedType, "Frame: ")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
