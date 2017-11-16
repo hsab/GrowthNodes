@@ -20,7 +20,7 @@ class SaveTexture3dNode(UMOGNode):
 
     texture_index = bpy.props.IntProperty()
 
-    def create(self):
+    def init(self, context):
         socket = self.newInput(self.assignedType, "Texture3")
         socket.drawLabel = False
 

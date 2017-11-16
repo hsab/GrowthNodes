@@ -20,7 +20,7 @@ class DisplaceNode(UMOGOutputNode):
     mod_midlevel = bpy.props.FloatProperty(min = 0.0, max = 1.0, default = 0.5)
     mod_strength = bpy.props.FloatProperty(default = 1.0)
 
-    def create(self):
+    def init(self, context):
         self.newInput(self.assignedType, "Object")
         self.newInput("VertexGroup", "Vertex Group")
         socket = self.newInput("Texture2", "Texture")

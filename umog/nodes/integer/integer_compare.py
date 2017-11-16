@@ -18,7 +18,7 @@ class IntegerCompareNode(UMOGNode):
                                          name="fixed list",
                                          update = propUpdate)
 
-    def create(self):
+    def init(self, context):
         self.newInput(self.assignedType, "A")
         self.newInput(self.assignedType, "B")
         self.newOutput("Boolean", "Result")

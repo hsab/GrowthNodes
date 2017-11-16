@@ -18,7 +18,7 @@ class UMOGTexture3MeshNode(UMOGNode):
     
     iso_level = bpy.props.FloatProperty(default=0, soft_min=0.0, step=1, precision=2)
     
-    def create(self):
+    def init(self, context):
         self.newInput("Texture3", "A").isPacked = True
 
     def draw_buttons(self, context, layout):

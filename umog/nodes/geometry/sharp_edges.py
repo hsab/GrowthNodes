@@ -11,7 +11,7 @@ class SharpEdgesNode(UMOGOutputNode):
 
     assignedType = "Object"
 
-    def create(self):
+    def init(self, context):
         self.newInput(self.assignedType, "Object")
         self.newInput("Float", "Sharpness", value = 20, minValue = 0.0, maxValue= 180)
         self.newInput("Float", "Weight", value = 1.0, minValue = 0.0, maxValue= 1.0)

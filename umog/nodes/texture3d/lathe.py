@@ -14,7 +14,7 @@ class UMOGTexture3LatheNode(UMOGNode):
     bl_idname = "umog_Texture3LatheNode"
     bl_label = "Lathe Node"
     
-    def create(self):
+    def init(self, context):
         socket = self.newOutput(
             "Texture3", "Texture", drawOutput=False, drawLabel=False)
         socket.display.refreshableIcon = False

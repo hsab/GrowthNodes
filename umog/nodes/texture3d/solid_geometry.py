@@ -23,7 +23,7 @@ class UMOGTexture3SolidGeometryNode(UMOGNode):
             name="Geometric Operations")
     threshold = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=1.0, step=1, precision=2)
     
-    def create(self):
+    def init(self, context):
         self.newInput("Texture3", "A").isPacked = True
         self.newInput("Texture3", "B").isPacked = True
         self.newOutput("Texture3", "Texture").isPacked = True

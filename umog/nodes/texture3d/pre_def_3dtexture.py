@@ -23,7 +23,7 @@ class UMOGTexture3ShapeNode(UMOGNode):
     height = bpy.props.FloatProperty(default=0.7, soft_min=0.0, soft_max=1.0, step=1, precision=2)
     radius = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=0.5, step=1, precision=2)
 
-    def create(self):
+    def init(self, context):
         socket = self.newOutput(
             "Texture3", "Texture", drawOutput=False, drawLabel=False)
         socket.display.refreshableIcon = False
