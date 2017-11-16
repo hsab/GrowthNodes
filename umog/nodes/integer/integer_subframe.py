@@ -1,5 +1,5 @@
 import bpy
-from ... base_types import UMOGNode
+from .. import UMOGNode
 
 class IntegerSubframeNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_IntegerSubframeNode"

@@ -1,4 +1,4 @@
-from ... base_types import UMOGNode
+from .. import UMOGNode
 from . import pyglet_cr_sphere_impl
 
 import threading

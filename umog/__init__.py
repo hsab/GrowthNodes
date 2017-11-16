@@ -118,7 +118,7 @@ else:
 from . import import_modules
 modules = import_modules.importAllSubmodules(__path__[0], __package__)
 
-from . umog_addon.sockets.info import updateSocketInfo
+from .sockets.info import updateSocketInfo
 updateSocketInfo()
 
 if "bpy" in locals():

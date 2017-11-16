@@ -4,7 +4,7 @@ import types
 import numpy as np
 
 from bpy.props import *
-from ..base_types import UMOGSocket
+from . import UMOGSocket
 from ..utils.events import propUpdate
 
 
