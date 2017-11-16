@@ -2,7 +2,7 @@ from .. import UMOGNode
 import bpy
 import numpy as np
 
-class Mat3Node(bpy.types.Node, UMOGNode):
+class Mat3Node(UMOGNode):
     bl_idname = "umog_Mat3Node"
     bl_label = "Matrix"
 

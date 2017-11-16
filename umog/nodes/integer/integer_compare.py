@@ -2,7 +2,7 @@ import bpy
 from .. import UMOGNode
 from ... utils.events import propUpdate
 
-class IntegerCompareNode(bpy.types.Node, UMOGNode):
+class IntegerCompareNode(UMOGNode):
     bl_idname = "umog_IntegerCompareNode"
     bl_label = "Integer Compare"
 

@@ -6,7 +6,7 @@ from . import UMOGSocket
 from .. utils.events import propUpdate
 
 
-class TemplateSocket(bpy.types.NodeSocket, UMOGSocket):
+class TemplateSocket(UMOGSocket):
     '''Custom Float socket type'''
 
     bl_idname = 'TemplateSocketType'

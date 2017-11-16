@@ -14,7 +14,7 @@ class UMOGReactionDiffusionData(dict):
     def __init__(self):
         pass
 
-class ReactionDiffusionBGLNode(bpy.types.Node, UMOGNode):
+class ReactionDiffusionBGLNode(UMOGNode):
     bl_idname = "umog_ReactionDiffusionBGLNode"
     bl_label = "Reaction Diffusion GPU"
 

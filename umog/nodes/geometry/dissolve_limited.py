@@ -5,7 +5,7 @@ import math
 from mathutils import Vector
 
 
-class DissolveLimitedNode(bpy.types.Node, UMOGOutputNode):
+class DissolveLimitedNode(UMOGOutputNode):
     bl_idname = "umog_DissolveLimitedNode"
     bl_label = "Dissolve Limited Node"
 

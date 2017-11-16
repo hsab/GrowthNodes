@@ -3,7 +3,7 @@ from .. import UMOGNode
 from ...utils.events import propUpdate
 
 
-class IntegerFrameNode(bpy.types.Node, UMOGNode):
+class IntegerFrameNode(UMOGNode):
     bl_idname = "umog_IntegerFrameNode"
     bl_label = "UMOG Integer Frame"
 

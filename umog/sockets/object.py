@@ -7,7 +7,7 @@ from . import UMOGSocket
 from ..utils.events import propUpdate
 
 
-class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
+class ObjectSocket(UMOGSocket):
     # Description string
     '''Custom Object socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.

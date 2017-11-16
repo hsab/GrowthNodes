@@ -5,7 +5,7 @@ from . import UMOGSocket
 from .. utils.events import propUpdate
 
 
-class BooleanSocket(bpy.types.NodeSocket, UMOGSocket):
+class BooleanSocket(UMOGSocket):
     # Description string
     '''Custom Boolean socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.

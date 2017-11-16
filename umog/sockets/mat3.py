@@ -1,7 +1,7 @@
 import bpy
 from . import UMOGSocket
 
-class Mat3Socket(bpy.types.NodeSocket, UMOGSocket):
+class Mat3Socket(UMOGSocket):
     # Description string
     '''Custom node socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.

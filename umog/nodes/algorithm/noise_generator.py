@@ -1,7 +1,7 @@
 import bpy
 from .. import UMOGNode
 
-class UMOGNoiseGenerationNode(bpy.types.Node, UMOGNode):
+class UMOGNoiseGenerationNode(UMOGNode):
     bl_idname = "umog_NoiseGenerationNode"
     bl_label = "UMOG Noise Generation Node"
 

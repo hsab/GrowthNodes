@@ -10,7 +10,7 @@ import numpy as np
 #pyximport.install()
 
 
-class UMOGTexture3ShapeNode(bpy.types.Node, UMOGNode):
+class UMOGTexture3ShapeNode(UMOGNode):
     bl_idname = "umog_Texture3ShapeNode"
     bl_label = "Texture Node"
 

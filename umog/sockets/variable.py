@@ -3,7 +3,7 @@ from bpy.props import *
 from . import UMOGSocket
 from .. utils.nodes import newNodeAtCursor
 
-class VariableSocket(bpy.types.NodeSocket, UMOGSocket):
+class VariableSocket(UMOGSocket):
     '''Variable socket type'''
 
     bl_idname = 'VariableSocketType'

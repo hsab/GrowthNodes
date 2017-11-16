@@ -7,7 +7,7 @@ from . import UMOGSocket
 from ..utils.events import propUpdate
 
 
-class VertexGroupSocket(bpy.types.NodeSocket, UMOGSocket):
+class VertexGroupSocket(UMOGSocket):
     # Description string
     '''Custom Vertex Group  socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.

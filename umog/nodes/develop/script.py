@@ -4,7 +4,7 @@ from .. import UMOGNode
 from ... utils.debug import *
 
 
-class ScriptNode(bpy.types.Node, UMOGNode):
+class ScriptNode(UMOGNode):
     bl_idname = "umog_ScriptNode"
     bl_label = "Script Node"
     dynamicLabelType = "ALWAYS"

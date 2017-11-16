@@ -2,7 +2,7 @@ import bpy
 from .. import UMOGNode
 from ... utils.events import propUpdate
 
-class BooleanMathNode(bpy.types.Node, UMOGNode):
+class BooleanMathNode(UMOGNode):
     bl_idname = "umog_BooleanOpshNode"
     bl_label = "Boolean Operations"
 

@@ -1,7 +1,7 @@
 import bpy
 from .. import UMOGNode
 
-class TextureAlternatorNode(bpy.types.Node, UMOGNode):
+class TextureAlternatorNode(UMOGNode):
     bl_idname = "umog_ObjectAlternatorNode"
     bl_label = "Object Alternator"
 

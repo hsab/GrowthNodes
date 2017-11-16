@@ -5,7 +5,7 @@ import math
 from mathutils import Vector
 import bmesh
 
-class SharpEdgesNode(bpy.types.Node, UMOGOutputNode):
+class SharpEdgesNode(UMOGOutputNode):
     bl_idname = "umog_SharpEdgesNode"
     bl_label = "Sharp Edges Node"
 

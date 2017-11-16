@@ -10,7 +10,7 @@ import numpy as np
 #pyximport.install()
 
 
-class PyGLNode(bpy.types.Node, UMOGNode):
+class PyGLNode(UMOGNode):
     bl_idname = "umog_PyGLNode"
     bl_label = "3d Reaction Diffusion Node"
     
