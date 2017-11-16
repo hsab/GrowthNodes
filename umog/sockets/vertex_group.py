@@ -11,7 +11,7 @@ class VertexGroupSocket(bpy.types.NodeSocket, UMOGSocket):
     # Description string
     '''Custom Vertex Group  socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.
-    bl_idname = 'Vertex Group SocketType'
+    bl_idname = 'VertexGroupSocketType'
     # Label for nice name display
     bl_label = 'Vertex Group Socket'
     dataType = "VertexGroup"

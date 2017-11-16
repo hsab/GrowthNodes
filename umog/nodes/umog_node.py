@@ -3,7 +3,6 @@ import bpy
 from bpy.props import *
 from ..utils.debug import *
 import random
-from ..sockets.info import toIdName as toSocketIdName
 from ..operators.callbacks import newNodeCallback
 from ..operators.dynamic_operators import getInvokeFunctionOperator
 from ..utils.events import propUpdate
@@ -235,27 +234,21 @@ class UMOGNode:
     def sockets(self):
         return list(self.inputs) + list(self.outputs)
 
-    def newInput(self, type, name, identifier = None, alternativeIdentifier = None,
+    def newInput(self, idName, name, identifier = None, alternativeIdentifier = None,
                  **kwargs):
-        idName = toSocketIdName(type)
-        if idName is None:
-            raise ValueError("Socket type does not exist: {}".format(repr(type)))
         if identifier is None:
             identifier = name
-        socket = self.inputs.new(idName, name, identifier + self.nodeTree.getNextUniqueID())
+        socket = self.inputs.new(idName + 'SocketType', name, identifier + self.nodeTree.getNextUniqueID())
         socket.originalName = socket.name
         self._setAlternativeIdentifier(socket, alternativeIdentifier)
         self._setSocketProperties(socket, kwargs)
         return socket
 
-    def newOutput(self, type, name, identifier = None, alternativeIdentifier = None,
+    def newOutput(self, idName, name, identifier = None, alternativeIdentifier = None,
                   **kwargs):
-        idName = toSocketIdName(type)
-        if idName is None:
-            raise ValueError("Socket type does not exist: {}".format(repr(type)))
         if identifier is None:
             identifier = name
-        socket = self.outputs.new(idName, name, identifier + self.nodeTree.getNextUniqueID())
+        socket = self.outputs.new(idName + 'SocketType', name, identifier + self.nodeTree.getNextUniqueID())
         socket.originalName = socket.name
         self._setAlternativeIdentifier(socket, alternativeIdentifier)
         self._setSocketProperties(socket, kwargs)
