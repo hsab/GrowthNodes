@@ -2,7 +2,7 @@ from .. import UMOGOutputNode
 import copy
 import bpy
 
-class SetTextureNode(bpy.types.Node, UMOGOutputNode):
+class SetTextureNode(UMOGOutputNode):
     bl_idname = "umog_SetTextureNode"
     bl_label = "Set Texture Node"
 

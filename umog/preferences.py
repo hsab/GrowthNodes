@@ -1,32 +1,8 @@
 import os
-import sys
 import bpy
-from bpy.props import *
+import sys
 
-currentFileDirectory = os.path.dirname(__file__)
-addonName = os.path.basename(os.path.dirname(currentFileDirectory))
-
-class DeveloperProperties(bpy.types.PropertyGroup):
-    bl_idname = "umog_DeveloperProperties"
-
-    executionInfo = BoolProperty(name = "Execution Info", default = False,
-        description = "Enable informative print statements")
-    traceInfo = BoolProperty(name = "Trace Info", default = False,
-        description = "Enable selective traceback statements")
-
-class AddonPreferences(bpy.types.AddonPreferences):
-    bl_idname = addonName
-
-    developer = PointerProperty(type = DeveloperProperties)
-
-    def draw(self, context):
-        layout = self.layout
-
-        row = layout.row()
-
-        col = row.column(align = True)
-        col.prop(self.developer, "executionInfo")
-        col.prop(self.developer, "traceInfo")
+addonName = os.path.basename(os.path.dirname(__file__))
 
 def getPreferences():
     return bpy.context.user_preferences.addons[addonName].preferences
@@ -34,8 +10,26 @@ def getPreferences():
 def getDeveloperSettings():
     return getPreferences().developer
 
+def getExecutionCodeSettings():
+    return getPreferences().executionCode
+
+def getExecutionCodeType():
+    return getExecutionCodeSettings().type
+
+def getColorSettings():
+    return getPreferences().nodeColors
+
+def getMeshIndicesSettings():
+    return getPreferences().drawHandlers.meshIndices
+
+def debuggingIsEnabled():
+    return getPreferences().developer.debug
+
+def testsAreEnabled():
+    return getPreferences().developer.runTests
+
 def getBlenderVersion():
     return bpy.app.version
 
-def getUMOGVersion():
+def getAnimationNodesVersion():
     return sys.modules[addonName].bl_info["version"]

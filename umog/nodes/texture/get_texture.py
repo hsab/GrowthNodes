@@ -1,13 +1,14 @@
 from .. import UMOGNode
+from ...engine import types, engine, mesh
 import bpy
 
-
-class GetTextureNode(bpy.types.Node, UMOGNode):
-    bl_idname = "umog_TextureNode"
-    bl_label = "Texture Node"
+class GetTextureNode(UMOGNode):
+    bl_idname = "umog_GetTextureNode"
+    bl_label = "Get Texture Node"
     assignedType = "Texture2"
 
     texture = bpy.props.StringProperty()
+    texture_name = bpy.props.StringProperty()
 
     def create(self):
         socket = self.newOutput(
@@ -25,13 +26,21 @@ class GetTextureNode(bpy.types.Node, UMOGNode):
             pass
 
     def execute(self, refholder):
-        # print("get texture node execution, texture: " + self.texture)
-        # print("texture handle: " + str(self.outputs[0].texture_index))
-        # print(refholder.np2dtextures[self.outputs[0].texture_index])
         pass
 
     def preExecute(self, refholder):
         pass
-        # consider saving the result from this
-        # self.outputs[0].texture_index = refholder.getRefForTexture2d(
-        #     self.texture)
+
+    def get_operation(self):
+        return engine.Operation(
+            engine.CONST,
+            [],
+            [types.Array(1, 100, 100, 1, 0, 1)],
+            [types.Array(1, 100, 100, 1, 0, 1)],
+            [])
+
+    def get_buffer_values(self):
+        return [mesh.array_from_texture(bpy.data.textures[self.texture_name], 100, 100)]
+
+    def update(self):
+        pass

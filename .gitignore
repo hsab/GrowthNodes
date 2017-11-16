@@ -12,4 +12,4 @@ build/
 config.py
 *.c
 *.so
-
+umog.zip
