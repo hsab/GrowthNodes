@@ -51,7 +51,7 @@ class SocketExecutionProperties(bpy.types.PropertyGroup):
 alternativeIdentifiersPerSocket = defaultdict(list)
 
 
-class UMOGSocket:
+class UMOGSocket(bpy.types.NodeSocket):
     _isUMOGSocket = True
     drawColor = (1, 1, 1, 1)
 

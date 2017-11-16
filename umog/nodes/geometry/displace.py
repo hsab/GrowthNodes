@@ -3,7 +3,6 @@ import bpy
 import numpy as np
 from mathutils import Vector
 
-
 class DisplaceNode(UMOGOutputNode):
     bl_idname = "umog_DisplaceNode"
     bl_label = "Displace Node"
