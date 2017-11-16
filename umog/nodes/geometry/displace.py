@@ -4,7 +4,7 @@ import numpy as np
 from mathutils import Vector
 
 
-class DisplaceNode(bpy.types.Node, UMOGOutputNode):
+class DisplaceNode(UMOGOutputNode):
     bl_idname = "umog_DisplaceNode"
     bl_label = "Displace Node"
 

@@ -12,7 +12,7 @@ class GenericType(bpy.types.PropertyGroup):
     genTypeStringProp = StringProperty(default = "Location", description = "String Property")
     genTypeIntProp = FloatProperty(default = 0, min = -51, soft_max =5, description = "Float Property")
 
-class MotherNode(bpy.types.Node, UMOGNode):
+class MotherNode(UMOGNode):
     bl_idname = "umog_MotherNode"
     bl_label = "Mother Node"
     dynamicLabelType = "ALWAYS"

@@ -4,7 +4,7 @@ import numpy as np
 from mathutils import Vector
 
 
-class SubdivideNode(bpy.types.Node, UMOGOutputNode):
+class SubdivideNode(UMOGOutputNode):
     bl_idname = "umog_SubdivideNode"
     bl_label = "Subdivide"
 

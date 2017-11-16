@@ -3,7 +3,7 @@ from .. import UMOGNode
 from ... utils.events import propUpdate
 
 
-class IntegerMathNode(bpy.types.Node, UMOGNode):
+class IntegerMathNode(UMOGNode):
     bl_idname = "umog_IntegerMathNode"
     bl_label = "Integer Math"
 

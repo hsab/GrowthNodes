@@ -15,7 +15,7 @@ class UMOGTexture3Data(dict):
         pass
 
 
-class Texture3Socket(bpy.types.NodeSocket, UMOGSocket):
+class Texture3Socket(UMOGSocket):
     # Description string
     '''Custom Float socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.

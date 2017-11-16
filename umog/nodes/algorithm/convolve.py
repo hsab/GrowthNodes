@@ -6,7 +6,7 @@ import bpy
 from ...events import events
 
 
-class ConvolveNode(bpy.types.Node, UMOGNode):
+class ConvolveNode(UMOGNode):
     bl_idname = "umog_ConvolveNode"
     bl_label = "Convolve Node"
 

@@ -1,7 +1,7 @@
 import bpy
 from .. import UMOGNode
 
-class TextureColorsNode(bpy.types.Node, UMOGNode):
+class TextureColorsNode(UMOGNode):
     bl_idname = "umog_TextureColorsNode"
     bl_label = "Texture Colors"
 

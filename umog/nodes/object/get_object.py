@@ -1,7 +1,7 @@
 from .. import UMOGNode
 import bpy
 
-class GetTextureNode(bpy.types.Node, UMOGNode):
+class GetTextureNode(UMOGNode):
     bl_idname = "umog_ObjectNode"
     bl_label = "Object Node"
     assignedType = "Object"

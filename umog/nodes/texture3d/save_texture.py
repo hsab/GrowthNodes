@@ -4,7 +4,7 @@ import numpy as np
 
 
 
-class SaveTexture3dNode(bpy.types.Node, UMOGNode):
+class SaveTexture3dNode(UMOGNode):
     bl_idname = "umog_SaveTexture3dNode"
     bl_label = "Save Texture 3d"
 

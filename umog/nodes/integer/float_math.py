@@ -2,7 +2,7 @@ import bpy
 from .. import UMOGNode
 from ... utils.events import propUpdate
 
-class FloatMathNode(bpy.types.Node, UMOGNode):
+class FloatMathNode(UMOGNode):
     bl_idname = "umog_FloatMathNode"
     bl_label = "Float Math"
 

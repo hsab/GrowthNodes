@@ -1,7 +1,7 @@
 import bpy
 from . import UMOGSocket
 
-class TextureSocket(bpy.types.NodeSocket, UMOGSocket):
+class TextureSocket(UMOGSocket):
     # Description string
     '''Custom Texture socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.
