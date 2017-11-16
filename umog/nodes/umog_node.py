@@ -67,9 +67,6 @@ class UMOGNode(bpy.types.Node):
         self.destroy()
         print("freed")
 
-    def draw_buttons(self, context, layout):
-        self.draw(layout)
-
     def refreshNode(self):
         for socket in self.inputs:
             socket.refreshSocket()
@@ -94,9 +91,6 @@ class UMOGNode(bpy.types.Node):
         pass
 
     def refreshOnFrameChange(self):
-        pass
-
-    def draw(self, layout):
         pass
 
     def destroy(self):

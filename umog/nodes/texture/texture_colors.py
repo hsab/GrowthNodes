@@ -12,7 +12,7 @@ class TextureColorsNode(UMOGNode):
         self.newInput(self.assignedType, "Texture")
         socket = self.newOutput(self.assignedType, "Texture")
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         try:
             if self.select and (len(bpy.context.selected_nodes) == 1):
                 layout.template_preview(self.outputs[0].getTexture())

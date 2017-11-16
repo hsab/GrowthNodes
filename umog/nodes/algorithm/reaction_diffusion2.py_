@@ -20,9 +20,6 @@ class TextureAlternatorNode(UMOGNode):
         self.newOutput(self.assignedType, "A'").isPacked = True
         self.newOutput(self.assignedType, "B'").isPacked = True
 
-    def draw(self, layout):
-        pass
-
     def refresh(self):
         pass
         # if self.inputs[2].value == True:

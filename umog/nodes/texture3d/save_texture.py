@@ -24,7 +24,7 @@ class SaveTexture3dNode(UMOGNode):
         socket = self.newInput(self.assignedType, "Texture3")
         socket.drawLabel = False
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         layout.prop(self, "file_path", text="Path")
         layout.prop(self, "file_name", text="File Name")
 

@@ -13,7 +13,7 @@ class GetTextureNode(UMOGNode):
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         pass
 
 

@@ -21,7 +21,7 @@ class ScriptNode(UMOGNode):
         self.assignedType = "Variable"
         self.width = 270
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         layout.prop(self, "scriptName", text = "", icon = "GROUP_VERTEX")
         row = layout.row(align = True)
         self.invokeFunction(row, "removeUnlinkedInputs",

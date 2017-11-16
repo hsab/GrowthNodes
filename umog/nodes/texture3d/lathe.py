@@ -23,7 +23,7 @@ class UMOGTexture3LatheNode(UMOGNode):
         self.newInput("Texture2", "A").isPacked = True
         
 
-    def draw(self, layout):
+    def draw_buttons(self, context, layout):
         pass
 
     def execute(self, refholder):
