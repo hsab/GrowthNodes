@@ -14,7 +14,7 @@ class DivideNode(UMOGNode):
 
     def get_operation(self):
         return engine.Operation(
-            engine.DIV,
+            engine.DIVIDE,
             [types.Scalar(), types.Scalar()],
             [types.Scalar()],
             [],

@@ -14,7 +14,7 @@ class MultiplyNode(UMOGNode):
 
     def get_operation(self):
         return engine.Operation(
-            engine.MUL,
+            engine.MULTIPLY,
             [types.Scalar(), types.Scalar()],
             [types.Scalar()],
             [],
