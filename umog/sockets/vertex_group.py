@@ -3,7 +3,7 @@ import sys
 import types
 
 from bpy.props import *
-from ..base_types import UMOGSocket
+from . import UMOGSocket
 from ..utils.events import propUpdate
 
 

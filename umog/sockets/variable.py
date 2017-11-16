@@ -1,6 +1,6 @@
 import bpy
 from bpy.props import *
-from .. base_types import UMOGSocket
+from . import UMOGSocket
 from .. utils.nodes import newNodeAtCursor
 
 class VariableSocket(bpy.types.NodeSocket, UMOGSocket):

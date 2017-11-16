@@ -1,5 +1,5 @@
 import bpy
-from ... base_types import UMOGNode
+from .. import UMOGNode
 from ... utils.events import propUpdate
 
 class FloatCompareNode(bpy.types.Node, UMOGNode):

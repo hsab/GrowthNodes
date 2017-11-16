@@ -80,7 +80,7 @@ def updateSocketInfo():
     _socketInfo.update(socketClasses)
 
 def getSocketClasses():
-    from .. base_types import UMOGSocket
+    from . import UMOGSocket
     return list(iterSubclassesWithAttribute(UMOGSocket, "bl_idname"))
 
 

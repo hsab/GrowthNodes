@@ -1,10 +1,15 @@
 __pycache__/
 .idea/
-umog_addon/compilation_info.json
+umog/compilation_info.json
+umog/packages/*/
 *.trace
 *.kate-swp
 .vscode/
 *.pyc
 *.pyd
 build/
+.DS_Store
+config.py
+*.c
+*.so
 

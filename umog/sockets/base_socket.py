@@ -1,12 +1,12 @@
 import bpy
 from bpy.props import *
 from collections import defaultdict
-from ... utils.recursion import noRecursion
-from ... operators.callbacks import newSocketCallback
-from ... utils.names import getRandomString, toVariableName
-from ... operators.dynamic_operators import getInvokeFunctionOperator
-from ... utils.events import propUpdate
-from ... utils.debug import *
+from .. utils.recursion import noRecursion
+from .. operators.callbacks import newSocketCallback
+from .. utils.names import getRandomString, toVariableName
+from .. operators.dynamic_operators import getInvokeFunctionOperator
+from .. utils.events import propUpdate
+from .. utils.debug import *
 
 
 class SocketTextProperties(bpy.types.PropertyGroup):

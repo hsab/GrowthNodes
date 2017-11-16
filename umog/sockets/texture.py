@@ -1,5 +1,5 @@
 import bpy
-from .. base_types import UMOGSocket
+from . import UMOGSocket
 
 class TextureSocket(bpy.types.NodeSocket, UMOGSocket):
     # Description string

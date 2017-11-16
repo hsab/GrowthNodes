@@ -1,12 +1,12 @@
 import math
 import bpy
 from bpy.props import *
-from ...utils.debug import *
+from ..utils.debug import *
 import random
-from ...sockets.info import toIdName as toSocketIdName
-from ...operators.callbacks import newNodeCallback
-from ...operators.dynamic_operators import getInvokeFunctionOperator
-from ...utils.events import propUpdate
+from ..sockets.info import toIdName as toSocketIdName
+from ..operators.callbacks import newNodeCallback
+from ..operators.dynamic_operators import getInvokeFunctionOperator
+from ..utils.events import propUpdate
 
 
 class UMOGNodeExecutionProperties(bpy.types.PropertyGroup):

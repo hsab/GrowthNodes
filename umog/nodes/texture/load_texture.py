@@ -1,4 +1,4 @@
-from ... base_types import UMOGOutputNode
+from .. import UMOGOutputNode
 import bpy
 import glob
 import os

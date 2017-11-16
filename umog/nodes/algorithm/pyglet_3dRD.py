@@ -1,4 +1,4 @@
-from ... base_types import UMOGNode
+from .. import UMOGNode
 from . import pyglet_3dRD_impl
 
 import threading
