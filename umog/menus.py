@@ -85,6 +85,7 @@ menus = OrderedDict([
         "icon": "IMGDISPLAY",
         "nodes": [
             ("umog_PrintNode", "Print"),
+            ("umog_ShowNumberNode", "Show Number"),
         ]
     })
 ])
