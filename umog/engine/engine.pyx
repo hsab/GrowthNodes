@@ -109,6 +109,20 @@ cdef class Engine:
                 pow(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
             elif instruction.op == MODULUS:
                 mod(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+
+            elif instruction.op == EQ:
+                eq(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+            elif instruction.op == NEQ:
+                neq(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+            elif instruction.op == LT:
+                lt(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+            elif instruction.op == GT:
+                gt(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+            elif instruction.op == LEQ:
+                leq(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+            elif instruction.op == GEQ:
+                geq(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+
             elif instruction.op == DISPLACE:
                 displace((<MeshData>self.buffers[instruction.ins[0]]).mesh, (<ArrayData>self.buffers[instruction.ins[1]]).array)
                 # mesh.copy((<MeshData>self.buffers[instruction.ins[0]]).mesh, (<MeshData>self.buffers[instruction.outs[0]]).mesh)

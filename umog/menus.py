@@ -48,6 +48,21 @@ menus = OrderedDict([
             ("umog_TimeSequenceNode", "Time Sequence"),
         ]
     }),
+    ("comparison_menu", {
+        "bl_idname": "umog_comparison_menu",
+        "bl_label": "Comparison Menu",
+        "text": "Comparison",
+        "bl_description": "",
+        "icon": "LINENUMBERS_ON",
+        "nodes": [
+            ("umog_EqualNode", "Equal"),
+            ("umog_NotEqualNode", "Not Equal"),
+            ("umog_LessThanNode", "Less Than"),
+            ("umog_GreaterThanNode", "Greater Than"),
+            ("umog_LessThanOrEqualNode", "Less Than or Equal"),
+            ("umog_GreaterThanOrEqualNode", "Greater Than or Equal"),
+        ]
+    }),
     ("matrix_menu", {
         "bl_idname": "umog_matrix_menu",
         "bl_label": "Matrix Menu",
