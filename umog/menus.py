@@ -26,7 +26,8 @@ menus = OrderedDict([
         "nodes": [
             ("umog_GetMeshNode", "Get Mesh"),
             ("umog_SetMeshNode", "Set Mesh"),
-            ("umog_DisplaceNode", "Displace Node"),
+            ("umog_DisplaceNode", "Displace"),
+            ("umog_IteratedDisplaceNode", "Iterated Displace"),
         ]
     }),
     ("  ", "separator"),

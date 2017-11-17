@@ -42,6 +42,7 @@ cpdef enum Opcode:
 
     # mesh
     DISPLACE
+    ITERATED_DISPLACE
 
     # control
     LOOP

@@ -72,11 +72,16 @@ cdef void displace(Mesh mesh, float[:,:,:,:,:] texture):
         # value = sample_texture(texture, 100.0 * mesh.vertices[i].x, 100.0 * mesh.vertices[i].y)
         # value = texture[0,<int>(100 * mesh.vertices[i].x + 50) % 100,<int>(100 * mesh.vertices[i].y + 50) % 100,0,0]
         value = sample_texture(texture,100 * mesh.vertices[i].x + 50,100 * mesh.vertices[i].y)
-        c = 10 * (value - 0.5)
+        c = .1 * (value - 0.5)
         vec3_scale(&normal, c, &mesh.normals[i])
         vec3_add(&mesh.vertices[i], &mesh.vertices[i], &normal)
 
     recalculate_normals(mesh)
+
+cdef void iterated_displace(Mesh mesh, float[:,:,:,:,:] texture, int iterations):
+    cdef int i
+    for i in range(iterations):
+        displace(mesh, texture)
 
 @cython.cdivision(True)
 cdef void recalculate_normals(Mesh mesh):
