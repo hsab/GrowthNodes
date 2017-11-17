@@ -63,6 +63,20 @@ menus = OrderedDict([
             ("umog_GreaterThanOrEqualNode", "Greater Than or Equal"),
         ]
     }),
+    ("boolean_menu", {
+        "bl_idname": "umog_boolean_menu",
+        "bl_label": "Boolean Menu",
+        "text": "Boolean",
+        "bl_description": "",
+        "icon": "LINENUMBERS_ON",
+        "nodes": [
+            ("umog_BooleanNode", "Boolean"),
+            ("umog_NotNode", "Not"),
+            ("umog_AndNode", "And"),
+            ("umog_OrNode", "Or"),
+            ("umog_XorNode", "Xor"),
+        ]
+    }),
     ("matrix_menu", {
         "bl_idname": "umog_matrix_menu",
         "bl_label": "Matrix Menu",

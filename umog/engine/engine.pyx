@@ -123,6 +123,15 @@ cdef class Engine:
             elif instruction.op == GEQ:
                 geq(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
 
+            elif instruction.op == NOT:
+                boolean_not(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]])
+            elif instruction.op == AND:
+                boolean_and(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+            elif instruction.op == OR:
+                boolean_or(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+            elif instruction.op == XOR:
+                boolean_xor(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
+
             elif instruction.op == DISPLACE:
                 displace((<MeshData>self.buffers[instruction.ins[0]]).mesh, (<ArrayData>self.buffers[instruction.ins[1]]).array)
                 # mesh.copy((<MeshData>self.buffers[instruction.ins[0]]).mesh, (<MeshData>self.buffers[instruction.outs[0]]).mesh)
