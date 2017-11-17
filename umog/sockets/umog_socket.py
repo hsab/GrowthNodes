@@ -221,9 +221,9 @@ class UMOGSocket(bpy.types.NodeSocket):
         else:
             subrow = leftSubrow
             subrow.alignment = "LEFT"
-            self.drawRemoveOperators(context, subrow, node)
+            self.drawIsUsedProperty(context, subrow, node)
+            # self.drawRemoveOperators(context, subrow, node)
             # self.drawMoveOperators(context, subrow, node)
-            # self.drawIsUsedProperty(context, subrow, node)
 
     def drawSocket(self, context, layout, layoutParent, text, node, drawType="TEXT_PROPERTY"):
         '''
