@@ -13,7 +13,7 @@ class PrintNode(UMOGOutputNode):
     def draw_buttons(self, context, layout):
         pass
 
-    def get_operation(self):
+    def get_operation(self, input_types):
         return engine.Operation(
             engine.OUT,
             [types.Scalar()],

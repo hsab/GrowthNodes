@@ -15,7 +15,7 @@ class DisplaceNode(UMOGNode):
     def draw_buttons(self, context, layout):
         pass
 
-    def get_operation(self):
+    def get_operation(self, input_types):
         return engine.Operation(
             engine.DISPLACE,
             [types.Mesh(), types.Array(1, 100, 100, 1, 0, 1)],

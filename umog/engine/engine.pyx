@@ -48,6 +48,8 @@ cdef class Engine:
         self.buffers = []
         self.outputs = []
 
+        buffer_types = []
+
         index = 0
         indices = {}
 
@@ -55,7 +57,8 @@ cdef class Engine:
         cdef ArrayData array_data
         cdef MeshData mesh_data
         for (node_i, (node, inputs)) in enumerate(nodes):
-            operation = node.get_operation()
+            input_types = [buffer_types[indices[input]] for input in inputs]
+            operation = node.get_operation(input_types)
             buffer_values = node.get_buffer_values()
 
             instruction = Instruction()
@@ -65,6 +68,7 @@ cdef class Engine:
             buffer_indices = []
             for (buffer_i, buffer_value) in enumerate(buffer_values):
                 self.buffers.append(create_buffer(operation.buffer_types[buffer_i], buffer_value))
+                buffer_types.append(operation.buffer_types[buffer_i])
                 buffer_indices.append(index)
                 index += 1
 
@@ -83,6 +87,7 @@ cdef class Engine:
                     indices[(node_i, output_i)] = index
                     instruction.outs[output_i] = index
                     self.buffers.append(create_buffer(output_type))
+                    buffer_types.append(output_type)
                     index += 1
 
                 self.instructions.append(instruction)
