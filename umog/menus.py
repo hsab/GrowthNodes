@@ -2,95 +2,6 @@ import bpy
 from collections import OrderedDict
 
 # menus from compile branch
-# menus = OrderedDict([
-#     ("algorithm_menu", {
-#         "bl_idname": "umog_algorithm_menu",
-#         "bl_label": "Algorithm Menu",
-#         "text": "Algorithm",
-#         "bl_description": "Lorem Ipsum",
-#         "icon": "STICKY_UVS_LOC",
-#         "nodes": [
-#             #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
-#             ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node"),
-#             ("umog_ConvolveNode", "Convolve"),
-#             ("umog_ConvolveGLNode", "Convolve opengl"),
-#         ]
-#     }),
-#     (" ", "separator"),
-#     ("mesh_menu", {
-#         "bl_idname": "umog_mesh_menu",
-#         "bl_label": "Mesh Menu",
-#         "text": "Mesh",
-#         "bl_description": "Nodes that deal with meshes",
-#         "icon": "MESH_UVSPHERE",
-#         "nodes": [
-#             ("umog_GetMeshNode", "Get Mesh"),
-#             ("umog_SetMeshNode", "Set Mesh"),
-#             ("umog_DisplaceNode", "Displace Node"),
-#         ]
-#     }),
-#     ("  ", "separator"),
-#     ("math_menu", {
-#         "bl_idname": "umog_math_menu",
-#         "bl_label": "Math Menu",
-#         "text": "Math",
-#         "bl_description": "",
-#         "icon": "LINENUMBERS_ON",
-#         "nodes": [
-#             ("umog_NumberNode", "Number"),
-#             ("umog_AddNode", "Add"),
-#             ("umog_SubtractNode", "Subtract"),
-#             ("umog_MultiplyNode", "Multiply"),
-#             ("umog_DivideNode", "Divide"),
-#             ("umog_NegateNode", "Negate"),
-#             ("umog_PowerNode", "Power"),
-#             ("umog_ModulusNode", "Modulus"),
-#             ("umog_TimeSequenceNode", "Time Sequence"),
-#         ]
-#     }),
-#     ("matrix_menu", {
-#         "bl_idname": "umog_matrix_menu",
-#         "bl_label": "Matrix Menu",
-#         "text": "Matrix",
-#         "bl_description": "Lorem Ipsum",
-#         "icon": "MESH_GRID",
-#         "nodes": [
-#             ("umog_Mat3Node", "Matrix 3x3 Node"),
-#             ("umog_MatrixMathNode", "Matrix Math"),
-#             ("umog_GaussNode", "Gaussian Blur"),
-#             ("umog_LaplaceNode", "Laplacian Filter"),
-#         ]
-#     }),
-#     ("  ", "separator"),
-#     ("texture_menu", {
-#         "bl_idname": "umog_texture_menu",
-#         "bl_label": "Texture Menu",
-#         "text": "Texture",
-#         "bl_description": "Lorem Ipsum",
-#         "icon": "IMGDISPLAY",
-#         "nodes": [
-#             ("umog_GetTextureNode", "Get Texture"),
-#             ("umog_SetTextureNode", "Set Texture"),
-#             ("umog_SaveTextureNode", "Save Texture"),
-#             ("umog_LoadTextureNode", "Load Texture(s)"),
-#             ("umog_TextureAlternatorNode", "Texture Alternator"),
-#         ]
-#     }),
-#     ("  ", "separator"),
-#     ("debug_menu", {
-#         "bl_idname": "umog_debug_menu",
-#         "bl_label": "Debug Menu",
-#         "text": "Debug",
-#         "bl_description": "Nodes for debugging",
-#         "icon": "IMGDISPLAY",
-#         "nodes": [
-#             ("umog_PrintNode", "Print"),
-#             ("umog_ShowNumberNode", "Show Number"),
-#         ]
-#     })
-# ])# yapf: disable
-
-# menus from master branch
 menus = OrderedDict([
     ("algorithm_menu", {
         "bl_idname": "umog_algorithm_menu",
@@ -101,48 +12,21 @@ menus = OrderedDict([
         "nodes": [
             #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
             ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node"),
-            ("umog_PyGLNode", "3d Reaction Diffusion"),
-            #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
-            ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion GPU"),
-            ("umog_ConvolveNode", "Convolve")
+            ("umog_ConvolveNode", "Convolve"),
+            ("umog_ConvolveGLNode", "Convolve opengl"),
         ]
     }),
     (" ", "separator"),
-    ("develop_menu", {
-        "bl_idname": "umog_develop_menu",
-        "bl_label": "Develop Menu",
-        "text": "Develop",
-        "bl_description": "Lorem Ipsum",
-        "icon": "RECOVER_AUTO",
-        "nodes": [
-            ("umog_MotherNode", "Mother Node"),
-            ("umog_ScriptNode", "Script Node")
-        ]
-    }),
-    ("object_menu", {
-        "bl_idname": "umog_object_menu",
-        "bl_label": "Object Menu",
-        "text": "Object",
-        "bl_description": "Lorem Ipsum",
-        "icon": "MESH_CUBE",
-        "nodes": [
-            ("umog_ObjectNode", "Object"),
-            ("umog_ObjectAlternatorNode", "Object Alternator")
-        ]
-    }),
-    ("geometry_menu", {
-        "bl_idname": "umog_geometry_menu",
-        "bl_label": "Geometry Menu",
-        "text": "Geometry",
-        "bl_description": "Lorem Ipsum",
+    ("mesh_menu", {
+        "bl_idname": "umog_mesh_menu",
+        "bl_label": "Mesh Menu",
+        "text": "Mesh",
+        "bl_description": "Nodes that deal with meshes",
         "icon": "MESH_UVSPHERE",
         "nodes": [
-            ("umog_DisplaceNode", "Displace"),
-            ("umog_DissolveDegenerateNode", "Dissolve Degenerate"),
-            ("umog_DissolveLimitedNode", "Dissolve Limited"),
-            ("umog_SubdivideNode", "Subdivide"),
-            ("umog_SharpEdgesNode", "Sharp Edges"),
-            ("umog_SharpFacesNode", "Sharp Faces")
+            ("umog_GetMeshNode", "Get Mesh"),
+            ("umog_SetMeshNode", "Set Mesh"),
+            ("umog_DisplaceNode", "Displace Node"),
         ]
     }),
     ("  ", "separator"),
@@ -153,34 +37,15 @@ menus = OrderedDict([
         "bl_description": "",
         "icon": "LINENUMBERS_ON",
         "nodes": [
-            ("umog_IntegerNode", "Integer"),
-            ("umog_IntegerMathNode", "Integer Math"),
-            ("umog_IntegerCompareNode", "Integer Compare"),
-            ("umog_IntegerFrameNode", "Integer Frame"),
-            ("umog_IntegerSubframeNode", "Integer Subframe")
-        ]
-    }),
-    ("float_menu", {
-        "bl_idname": "umog_float_menu",
-        "bl_label": "Float Menu",
-        "text": "Float",
-        "bl_description": "Lorem Ipsum",
-        "icon": "LINENUMBERS_ON",
-        "nodes": [
-            ("umog_FloatNode", "Float"),
-            ("umog_FloatMathNode", "Float Math"),
-            ("umog_FloatCompareNode", "Float Compare")
-        ]
-    }),
-    ("boolean_menu", {
-        "bl_idname": "umog_boolean_menu",
-        "bl_label": "Boolean Menu",
-        "text": "Boolean",
-        "bl_description": "Lorem Ipsum",
-        "icon": "CLIPUV_DEHLT",
-        "nodes": [
-            ("umog_BooleanNode", "Boolean"),
-            ("umog_BooleanOpshNode", "Boolean Operations")
+            ("umog_NumberNode", "Number"),
+            ("umog_AddNode", "Add"),
+            ("umog_SubtractNode", "Subtract"),
+            ("umog_MultiplyNode", "Multiply"),
+            ("umog_DivideNode", "Divide"),
+            ("umog_NegateNode", "Negate"),
+            ("umog_PowerNode", "Power"),
+            ("umog_ModulusNode", "Modulus"),
+            ("umog_TimeSequenceNode", "Time Sequence"),
         ]
     }),
     ("matrix_menu", {
@@ -204,24 +69,11 @@ menus = OrderedDict([
         "bl_description": "Lorem Ipsum",
         "icon": "IMGDISPLAY",
         "nodes": [
-            ("umog_TextureNode", "Texture"),
+            ("umog_GetTextureNode", "Get Texture"),
+            ("umog_SetTextureNode", "Set Texture"),
+            ("umog_SaveTextureNode", "Save Texture"),
+            ("umog_LoadTextureNode", "Load Texture(s)"),
             ("umog_TextureAlternatorNode", "Texture Alternator"),
-            ("umog_SaveTextureNode", "Texture Save")
-        ]
-    }),
-        ("texture3d_menu", {
-        "bl_idname": "umog_texture3d_menu",
-        "bl_label": "Texture 3d Menu",
-        "text": "Texture3",
-        "bl_description": "",
-        "icon": "IMGDISPLAY",
-        "nodes": [
-            ("umog_Texture3ShapeNode", "Shapes"),
-            ("umog_Texture3LatheNode", "Lathe"),
-            ("umog_Texture3SolidGeometryNode", "Solid Geometry"),
-            ("umog_SaveTexture3dNode", "Save Texture Slices"),
-            ("umog_Texture3TransformNode", "Transform"),
-            ("umog_Texture3MeshNode", "Convert To Mesh"),
         ]
     }),
     ("  ", "separator"),
@@ -237,6 +89,154 @@ menus = OrderedDict([
         ]
     })
 ])# yapf: disable
+
+# menus from master branch
+# menus = OrderedDict([
+#     ("algorithm_menu", {
+#         "bl_idname": "umog_algorithm_menu",
+#         "bl_label": "Algorithm Menu",
+#         "text": "Algorithm",
+#         "bl_description": "Lorem Ipsum",
+#         "icon": "STICKY_UVS_LOC",
+#         "nodes": [
+#             #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
+#             ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node"),
+#             ("umog_PyGLNode", "3d Reaction Diffusion"),
+#             #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
+#             ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion GPU"),
+#             ("umog_ConvolveNode", "Convolve")
+#         ]
+#     }),
+#     (" ", "separator"),
+#     ("develop_menu", {
+#         "bl_idname": "umog_develop_menu",
+#         "bl_label": "Develop Menu",
+#         "text": "Develop",
+#         "bl_description": "Lorem Ipsum",
+#         "icon": "RECOVER_AUTO",
+#         "nodes": [
+#             ("umog_MotherNode", "Mother Node"),
+#             ("umog_ScriptNode", "Script Node")
+#         ]
+#     }),
+#     ("object_menu", {
+#         "bl_idname": "umog_object_menu",
+#         "bl_label": "Object Menu",
+#         "text": "Object",
+#         "bl_description": "Lorem Ipsum",
+#         "icon": "MESH_CUBE",
+#         "nodes": [
+#             ("umog_ObjectNode", "Object"),
+#             ("umog_ObjectAlternatorNode", "Object Alternator")
+#         ]
+#     }),
+#     ("geometry_menu", {
+#         "bl_idname": "umog_geometry_menu",
+#         "bl_label": "Geometry Menu",
+#         "text": "Geometry",
+#         "bl_description": "Lorem Ipsum",
+#         "icon": "MESH_UVSPHERE",
+#         "nodes": [
+#             ("umog_DisplaceNode", "Displace"),
+#             ("umog_DissolveDegenerateNode", "Dissolve Degenerate"),
+#             ("umog_DissolveLimitedNode", "Dissolve Limited"),
+#             ("umog_SubdivideNode", "Subdivide"),
+#             ("umog_SharpEdgesNode", "Sharp Edges"),
+#             ("umog_SharpFacesNode", "Sharp Faces")
+#         ]
+#     }),
+#     ("  ", "separator"),
+#     ("math_menu", {
+#         "bl_idname": "umog_math_menu",
+#         "bl_label": "Math Menu",
+#         "text": "Math",
+#         "bl_description": "",
+#         "icon": "LINENUMBERS_ON",
+#         "nodes": [
+#             ("umog_IntegerNode", "Integer"),
+#             ("umog_IntegerMathNode", "Integer Math"),
+#             ("umog_IntegerCompareNode", "Integer Compare"),
+#             ("umog_IntegerFrameNode", "Integer Frame"),
+#             ("umog_IntegerSubframeNode", "Integer Subframe")
+#         ]
+#     }),
+#     ("float_menu", {
+#         "bl_idname": "umog_float_menu",
+#         "bl_label": "Float Menu",
+#         "text": "Float",
+#         "bl_description": "Lorem Ipsum",
+#         "icon": "LINENUMBERS_ON",
+#         "nodes": [
+#             ("umog_FloatNode", "Float"),
+#             ("umog_FloatMathNode", "Float Math"),
+#             ("umog_FloatCompareNode", "Float Compare")
+#         ]
+#     }),
+#     ("boolean_menu", {
+#         "bl_idname": "umog_boolean_menu",
+#         "bl_label": "Boolean Menu",
+#         "text": "Boolean",
+#         "bl_description": "Lorem Ipsum",
+#         "icon": "CLIPUV_DEHLT",
+#         "nodes": [
+#             ("umog_BooleanNode", "Boolean"),
+#             ("umog_BooleanOpshNode", "Boolean Operations")
+#         ]
+#     }),
+#     ("matrix_menu", {
+#         "bl_idname": "umog_matrix_menu",
+#         "bl_label": "Matrix Menu",
+#         "text": "Matrix",
+#         "bl_description": "Lorem Ipsum",
+#         "icon": "MESH_GRID",
+#         "nodes": [
+#             ("umog_Mat3Node", "Matrix 3x3 Node"),
+#             ("umog_MatrixMathNode", "Matrix Math"),
+#             ("umog_GaussNode", "Gaussian Blur"),
+#             ("umog_LaplaceNode", "Laplacian Filter"),
+#         ]
+#     }),
+#     ("  ", "separator"),
+#     ("texture_menu", {
+#         "bl_idname": "umog_texture_menu",
+#         "bl_label": "Texture Menu",
+#         "text": "Texture",
+#         "bl_description": "Lorem Ipsum",
+#         "icon": "IMGDISPLAY",
+#         "nodes": [
+#             ("umog_TextureNode", "Texture"),
+#             ("umog_TextureAlternatorNode", "Texture Alternator"),
+#             ("umog_SaveTextureNode", "Texture Save")
+#         ]
+#     }),
+#         ("texture3d_menu", {
+#         "bl_idname": "umog_texture3d_menu",
+#         "bl_label": "Texture 3d Menu",
+#         "text": "Texture3",
+#         "bl_description": "",
+#         "icon": "IMGDISPLAY",
+#         "nodes": [
+#             ("umog_Texture3ShapeNode", "Shapes"),
+#             ("umog_Texture3LatheNode", "Lathe"),
+#             ("umog_Texture3SolidGeometryNode", "Solid Geometry"),
+#             ("umog_SaveTexture3dNode", "Save Texture Slices"),
+#             ("umog_Texture3TransformNode", "Transform"),
+#             ("umog_Texture3MeshNode", "Convert To Mesh"),
+#         ]
+#     }),
+#     ("  ", "separator"),
+#     ("debug_menu", {
+#         "bl_idname": "umog_debug_menu",
+#         "bl_label": "Debug Menu",
+#         "text": "Debug",
+#         "bl_description": "Nodes for debugging",
+#         "icon": "IMGDISPLAY",
+#         "nodes": [
+#             ("umog_PrintNode", "Print"),
+#             ("umog_ShowNumberNode", "Show Number"),
+#         ]
+#     })
+# ])# yapf: disable
 
 
 def UMOGCreateMenus():
