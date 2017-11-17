@@ -21,7 +21,8 @@ class DisplaceNode(UMOGNode):
             [types.Mesh(), types.Array(1, 100, 100, 1, 0, 1)],
             [types.Mesh()],
             [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 1)])
+            [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 1)],
+            [])
 
     def update(self):
         pass

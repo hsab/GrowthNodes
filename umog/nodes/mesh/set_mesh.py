@@ -21,7 +21,8 @@ class SetMeshNode(UMOGOutputNode):
             [types.Mesh()],
             [],
             [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0)])
+            [engine.Argument(engine.ArgumentType.SOCKET, 0)],
+            [])
 
     def get_buffer_values(self):
         return []

@@ -17,7 +17,8 @@ class NegateNode(UMOGNode):
             [types.Scalar()],
             [types.Scalar()],
             [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0)])
+            [engine.Argument(engine.ArgumentType.SOCKET, 0)],
+            [])
 
     def update(self):
         pass

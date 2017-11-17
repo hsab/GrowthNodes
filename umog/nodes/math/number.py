@@ -21,7 +21,8 @@ class NumberNode(UMOGNode):
             [],
             [types.Scalar()],
             [types.Scalar()],
-            [engine.Argument(engine.ArgumentType.BUFFER, 0)])
+            [engine.Argument(engine.ArgumentType.BUFFER, 0)],
+            [])
 
     def get_buffer_values(self):
         return [self.value]

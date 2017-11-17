@@ -21,6 +21,7 @@ class GetMeshNode(UMOGNode):
             [],
             [types.Mesh()],
             [types.Mesh()],
+            [],
             [])
 
     def get_buffer_values(self):

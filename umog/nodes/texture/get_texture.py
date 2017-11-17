@@ -35,6 +35,7 @@ class GetTextureNode(UMOGNode):
             [],
             [types.Array(1, 100, 100, 1, 0, 1)],
             [types.Array(1, 100, 100, 1, 0, 1)],
+            [],
             [])
 
     def get_buffer_values(self):

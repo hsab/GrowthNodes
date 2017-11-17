@@ -23,7 +23,8 @@ class TimeSequenceNode(UMOGNode):
             [],
             [types.Array(1,1,1,1,int(self.start),int(self.end-self.start))],
             [types.Array(1,1,1,1,int(self.start),int(self.end-self.start))],
-            [engine.Argument(engine.ArgumentType.BUFFER, 0)])
+            [engine.Argument(engine.ArgumentType.BUFFER, 0)],
+            [])
 
     def get_buffer_values(self):
         return [engine.sequence(self.start, self.end)]
