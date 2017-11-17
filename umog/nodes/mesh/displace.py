@@ -2,7 +2,7 @@ from ..umog_node import *
 from ...engine import types, engine
 import bpy
 
-class DisplaceNode(UMOGOutputNode):
+class DisplaceNode(UMOGNode):
     bl_idname = "umog_DisplaceNode"
     bl_label = "Displace Node"
 
