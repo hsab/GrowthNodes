@@ -23,8 +23,6 @@ class UMOGNodeEditorPanel(bpy.types.Panel):
                 
                 self.layout.operator(
                     "umog.bake_meshes", icon='RENDER_RESULT', text="Bake Mesh(es)")
-                self.layout.operator(
-                    "umog.render_animation", icon='RENDER_ANIMATION', text="Render Animation")
 
                 props = tree.properties
                 self.layout.prop(props, 'StartFrame')

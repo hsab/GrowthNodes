@@ -161,7 +161,7 @@ class UMOGNodeTree(NodeTree):
         for node in self.linearizedNodes:
             node.disableUnlinkedHighlight()
 
-    def execute(self, refholder, animate = False):
+    def execute(self, refholder):
         self.update()
 
         for node in self.linearizedNodes:

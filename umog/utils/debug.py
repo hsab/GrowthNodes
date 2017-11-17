@@ -4,12 +4,13 @@ from __future__ import unicode_literals
 import sys
 import os
 
-from ..preferences import getDeveloperSettings
+from ..preferences import getPreferences
 
 def DBG(*messages, **options):
     try:
-        isTraceEnabled = getDeveloperSettings().traceInfo
-        isExecutionInfoEnabled = getDeveloperSettings().executionInfo
+        preferences = getPreferences()
+        isTraceEnabled = preferences.developer.traceInfo
+        isExecutionInfoEnabled = preferences.developer.executionInfo
     except:
         return
     

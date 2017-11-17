@@ -53,8 +53,8 @@ if "numpy" not in globals():
         "that comes with numpy (e.g. the newest official Blender release).")
     raise Exception(message)
 
-from .preferences import getBlenderVersion
-if getBlenderVersion() < (2, 76, 0):
+import bpy
+if bpy.app.version < (2, 76, 0):
     message = ("\n\n"
         "UMOG requires at least Blender 2.77.\n"
         "Your are using an older version.\n"
@@ -117,11 +117,6 @@ else:
 #
 from . import import_modules
 modules = import_modules.importAllSubmodules(__path__[0], __package__)
-
-if "bpy" in locals():
-    print("UMOG can't be reloaded.")
-
-import bpy
 
 def register():
     bpy.utils.register_module(__name__)

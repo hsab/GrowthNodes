@@ -1,7 +1,6 @@
 import bpy
 from bpy.props import *
 from collections import defaultdict
-from .. utils.names import getRandomString, toVariableName
 from .. utils.events import propUpdate
 from .. utils.debug import *
 
@@ -10,7 +9,6 @@ class SocketTextProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_SocketTextProperties"
     unique = BoolProperty(default=False)
     editable = BoolProperty(default=False)
-    variable = BoolProperty(default=False)
 
 
 class SocketDisplayProperties(bpy.types.PropertyGroup):
@@ -61,11 +59,7 @@ class UMOGSocket(bpy.types.NodeSocket):
     drawOutput = BoolProperty(default=False)
     drawLabel = BoolProperty(default=True)
 
-    def textChanged(self, context):
-        updateText(self)
-        propUpdate(context)
-
-    text = StringProperty(default="Default Name", update=textChanged)
+    text = StringProperty(default="Default Name")
     defaultDrawType = StringProperty(default="TEXT_PROPERTY")
 
     isUsed = BoolProperty(name="Is Used", default=True,
@@ -438,26 +432,6 @@ class UMOGSocket(bpy.types.NodeSocket):
     @classmethod
     def getCopyExpression(cls):
         return "value[:]"
-
-def updateText(socket):
-    correctText(socket)
-
-def correctText(socket):
-    if socket.textProps.variable:
-        socket.text = toVariableName(socket.text)
-    if socket.textProps.unique:
-        text = socket.text
-        socket.text = "temporary name to avoid some errors"
-        socket.text = getNotUsedText(socket.node, prefix=text)
-    socket.node.customSocketNameChanged(socket)
-
-
-def getNotUsedText(node, prefix):
-    text = prefix
-    while isTextUsed(node, text):
-        text = prefix + "_" + getRandomString(2)
-    return text
-
 
 def isTextUsed(node, name):
     for socket in node.sockets:
