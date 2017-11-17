@@ -53,8 +53,8 @@ class DisplaceNode(UMOGOutputNode):
         obj = self.inputs[0].getObject()
         vertexGroup = self.inputs[1].value
         texture = self.inputs[2].getTexture()
-        midLevel = self.inputs[3].value
-        strength = self.inputs[4].value
+        midLevel = self.inputs[3].getProperty()
+        strength = self.inputs[4].getProperty()
 
         # Is Object and Texture are Linked
         if self.inputs[0].is_linked and self.inputs[2].value != '':

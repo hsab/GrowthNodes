@@ -11,7 +11,7 @@ class FloatSocket(UMOGSocket):
 
     objectName = bpy.props.StringProperty()
 
-    float_value = bpy.props.FloatProperty()
+    value = bpy.props.FloatProperty()
 
     def draw_color(self, context, node):
         return (1, 0, 1, 0.5)
@@ -22,3 +22,6 @@ class FloatSocket(UMOGSocket):
     # Optional function for drawing the socket input value
     def draw(self, context, layout, node, text):
         layout.label(text=text)
+
+    def getProperty(self):
+        return self.value
