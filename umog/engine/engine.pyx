@@ -133,9 +133,10 @@ cdef class Engine:
                 boolean_xor(<ArrayData>self.buffers[instruction.outs[0]], <ArrayData>self.buffers[instruction.ins[0]], <ArrayData>self.buffers[instruction.ins[1]])
 
             elif instruction.op == DISPLACE:
-                displace((<MeshData>self.buffers[instruction.ins[0]]).mesh, (<ArrayData>self.buffers[instruction.ins[1]]).array)
-                # mesh.copy((<MeshData>self.buffers[instruction.ins[0]]).mesh, (<MeshData>self.buffers[instruction.outs[0]]).mesh)
-                pass
+                # don't copy if we're mutating in place
+                if instruction.outs[0] != instruction.ins[0]:
+                    (<MeshData>self.buffers[instruction.outs[0]]).mesh = copy_mesh((<MeshData>self.buffers[instruction.ins[0]]).mesh)
+                displace((<MeshData>self.buffers[instruction.outs[0]]).mesh, (<ArrayData>self.buffers[instruction.ins[1]]).array)
             elif instruction.op == LOOP:
                 pass
             elif instruction.op == CONST:

@@ -5,7 +5,7 @@ import cython
 
 from libc.math cimport fmod
 from libc.stdint cimport uintptr_t
-from libc.string cimport memset
+from libc.string cimport memset, memcpy
 
 from ..packages.cymem.cymem cimport Pool
 
@@ -54,6 +54,14 @@ cpdef void to_blender_mesh(Mesh mesh, uintptr_t blender_mesh_ptr) nogil:
         blender_mesh.mvert[i].no[0] = mesh.normals[i].x
         blender_mesh.mvert[i].no[1] = mesh.normals[i].y
         blender_mesh.mvert[i].no[2] = mesh.normals[i].z
+
+cdef Mesh copy_mesh(Mesh old):
+    cdef Mesh new = Mesh(old.n_vertices, old.n_polygon_vertices, old.n_polygons)
+    memcpy(new.vertices, old.vertices, old.n_vertices * sizeof(Vec3))
+    memcpy(new.normals, old.normals, old.n_vertices * sizeof(Vec3))
+    memcpy(new.polygon_vertices, old.polygon_vertices, old.n_polygon_vertices * sizeof(int))
+    memcpy(new.polygons, old.polygons, old.n_polygons * 2 * sizeof(int))
+    return new
 
 cdef void displace(Mesh mesh, float[:,:,:,:,:] texture):
     cdef int i

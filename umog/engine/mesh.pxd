@@ -10,6 +10,7 @@ cdef class Mesh:
     cdef int *polygons
 
 cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh) nogil
+cdef Mesh copy_mesh(Mesh mesh)
 cdef void displace(Mesh mesh, float[:,:,:,:,:] texture)
 
 cdef extern from "blender/makesdna/DNA_meshdata_types.h":
