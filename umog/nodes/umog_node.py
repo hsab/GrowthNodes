@@ -3,8 +3,6 @@ import bpy
 from bpy.props import *
 from ..utils.debug import *
 import random
-from ..operators.callbacks import newNodeCallback
-from ..operators.dynamic_operators import getInvokeFunctionOperator
 from ..utils.events import propUpdate
 
 from ..engine import types, engine
@@ -95,9 +93,6 @@ class UMOGNode(bpy.types.Node):
 
     def destroy(self):
         pass
-
-    def newCallback(self, functionName):
-        return newNodeCallback(self, functionName)
 
     # this will be called when the node is executed by bake meshes
     # will be called each iteration
@@ -232,18 +227,6 @@ class UMOGNode(bpy.types.Node):
     def _setSocketProperties(self, socket, properties):
         for key, value in properties.items():
             setattr(socket, key, value)
-
-    def invokeFunction(self, layout, functionName, text = "", icon = "NONE",
-                       description = "", emboss = True, confirm = False, data = None,
-                       passEvent = False):
-        idName = getInvokeFunctionOperator(description)
-        props = layout.operator(idName, text = text, icon = icon, emboss = emboss)
-        props.callback = self.newCallback(functionName)
-        props.invokeWithData = data is not None
-        props.confirm = confirm
-        props.data = str(data)
-        props.passEvent = passEvent
-
 
     # engine
     def get_operation(self):
