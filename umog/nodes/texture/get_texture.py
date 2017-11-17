@@ -5,18 +5,16 @@ import bpy
 class GetTextureNode(UMOGNode):
     bl_idname = "umog_GetTextureNode"
     bl_label = "Get Texture Node"
-    assignedType = "Texture2"
 
-    texture = bpy.props.StringProperty()
     texture_name = bpy.props.StringProperty()
 
     def init(self, context):
-        socket = self.newOutput(
-            self.assignedType, "Texture", drawOutput=True, drawLabel=False)
-        socket.display.refreshableIcon = False
-        socket.display.packedIcon = False
+        self.outputs.new("ArraySocketType", "texture")
+        super().init(context)
 
     def draw_buttons(self, context, layout):
+        layout.prop_search(self, "texture_name", bpy.data, "textures", icon="TEXTURE_DATA", text="")
+
         # only one template_preview can exist per screen area https://developer.blender.org/T46733
         # make sure that at most one preview can be opened at any time
         try:
