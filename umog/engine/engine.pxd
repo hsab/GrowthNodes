@@ -8,6 +8,7 @@ cimport mesh
 cdef enum:
     MAX_INS = 2
     MAX_OUTS = 2
+    MAX_PARAMETERS = 1
 
 cpdef enum Opcode:
     CONST
@@ -49,6 +50,7 @@ cdef class Instruction:
     cdef Opcode op
     cdef int ins[MAX_INS]
     cdef int outs[MAX_OUTS]
+    cdef int parameters[MAX_PARAMETERS]
 
 # data
 

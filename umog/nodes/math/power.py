@@ -18,7 +18,8 @@ class PowerNode(UMOGNode):
             [types.Scalar(), types.Scalar()],
             [types.Scalar()],
             [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 1)])
+            [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 1)],
+            [])
 
     def update(self):
         pass

@@ -20,7 +20,7 @@ from enum import Enum
 
 # operation
 
-Operation = namedtuple('Operation', ['opcode', 'input_types', 'output_types', 'buffer_types', 'arguments'])
+Operation = namedtuple('Operation', ['opcode', 'input_types', 'output_types', 'buffer_types', 'arguments', 'parameters'])
 class ArgumentType(Enum):
     SOCKET = 0
     BUFFER = 1
@@ -63,6 +63,8 @@ cdef class Engine:
 
             instruction = Instruction()
             instruction.op = operation.opcode
+            for (i, parameter) in enumerate(operation.parameters):
+                instruction.parameters[i] = parameter
 
             # create internal buffers
             buffer_indices = []
