@@ -12,6 +12,7 @@ cdef class Mesh:
 cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh) nogil
 cdef Mesh copy_mesh(Mesh mesh)
 cdef void displace(Mesh mesh, float[:,:,:,:,:] texture)
+cdef void iterated_displace(Mesh mesh, float[:,:,:,:,:] texture, int iterations)
 
 cdef extern from "blender/makesdna/DNA_meshdata_types.h":
     cdef struct MVert:

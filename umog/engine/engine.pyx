@@ -144,6 +144,11 @@ cdef class Engine:
                 if instruction.outs[0] != instruction.ins[0]:
                     (<MeshData>self.buffers[instruction.outs[0]]).mesh = copy_mesh((<MeshData>self.buffers[instruction.ins[0]]).mesh)
                 displace((<MeshData>self.buffers[instruction.outs[0]]).mesh, (<ArrayData>self.buffers[instruction.ins[1]]).array)
+            elif instruction.op == ITERATED_DISPLACE:
+                if instruction.outs[0] != instruction.ins[0]:
+                    (<MeshData>self.buffers[instruction.outs[0]]).mesh = copy_mesh((<MeshData>self.buffers[instruction.ins[0]]).mesh)
+                iterated_displace((<MeshData>self.buffers[instruction.outs[0]]).mesh, (<ArrayData>self.buffers[instruction.ins[1]]).array, instruction.parameters[0])
+
             elif instruction.op == LOOP:
                 pass
             elif instruction.op == CONST:
