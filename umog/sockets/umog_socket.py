@@ -1,9 +1,7 @@
 import bpy
 from bpy.props import *
 from collections import defaultdict
-from .. operators.callbacks import newSocketCallback
 from .. utils.names import getRandomString, toVariableName
-from .. operators.dynamic_operators import getInvokeFunctionOperator
 from .. utils.events import propUpdate
 from .. utils.debug import *
 
@@ -150,23 +148,23 @@ class UMOGSocket(bpy.types.NodeSocket):
                 subrow.prop(self.display, "notPackedInfo",
                             text="", icon=icon)
 
-    def drawMoveOperators(self, context, subrow, node):
-        if self.moveable and self.display.moveOperators:
-            if self.isInput:
-                subrow.separator()
-            self.invokeFunction(subrow, node, "moveUpInGroup", icon="TRIA_UP")
-            self.invokeFunction(
-                subrow, node, "moveDownInGroup", icon="TRIA_DOWN")
-            if not self.isInput:
-                subrow.separator()
+    # def drawMoveOperators(self, context, subrow, node):
+    #     if self.moveable and self.display.moveOperators:
+    #         if self.isInput:
+    #             subrow.separator()
+    #         self.invokeFunction(subrow, node, "moveUpInGroup", icon="TRIA_UP")
+    #         self.invokeFunction(
+    #             subrow, node, "moveDownInGroup", icon="TRIA_DOWN")
+    #         if not self.isInput:
+    #             subrow.separator()
 
-    def drawRemoveOperators(self, context, subrow, node):
-        if self.removeable and self.display.removeOperator:
-            if self.isInput:
-                subrow.separator()
-            self.invokeFunction(subrow, node, "remove", icon="X")
-            if not self.isInput:
-                subrow.separator()
+    # def drawRemoveOperators(self, context, subrow, node):
+    #     if self.removeable and self.display.removeOperator:
+    #         if self.isInput:
+    #             subrow.separator()
+    #         self.invokeFunction(subrow, node, "remove", icon="X")
+    #         if not self.isInput:
+    #             subrow.separator()
 
     def drawIsUsedProperty(self, context, subrow, node):
         icon = "LAYER_ACTIVE" if self.isUsed else "LAYER_USED"
@@ -224,14 +222,14 @@ class UMOGSocket(bpy.types.NodeSocket):
         if self.isInput:
             subrow = rightSubrow
             self.drawIsUsedProperty(context, subrow, node)
-            self.drawMoveOperators(context, subrow, node)
-            self.drawRemoveOperators(context, subrow, node)
+            # self.drawMoveOperators(context, subrow, node)
+            # self.drawRemoveOperators(context, subrow, node)
         else:
             subrow = leftSubrow
             subrow.alignment = "LEFT"
             self.drawRemoveOperators(context, subrow, node)
-            self.drawMoveOperators(context, subrow, node)
-            self.drawIsUsedProperty(context, subrow, node)
+            # self.drawMoveOperators(context, subrow, node)
+            # self.drawIsUsedProperty(context, subrow, node)
 
     def drawSocket(self, context, layout, layoutParent, text, node, drawType="TEXT_PROPERTY"):
         '''
@@ -276,20 +274,6 @@ class UMOGSocket(bpy.types.NodeSocket):
         self.display.textInput = other.display.textInput
         self.display.moveOperators = other.display.moveOperators
         self.display.removeOperator = other.display.removeOperator
-
-    def invokeFunction(self, layout, node, functionName, text="", icon="NONE",
-                       description="", emboss=True, confirm=False,
-                       data=None, passEvent=False):
-        idName = getInvokeFunctionOperator(description)
-        props = layout.operator(idName, text=text, icon=icon, emboss=emboss)
-        props.callback = self.newCallback(node, functionName)
-        props.invokeWithData = data is not None
-        props.confirm = confirm
-        props.data = str(data)
-        props.passEvent = passEvent
-
-    def newCallback(self, node, functionName):
-        return newSocketCallback(self, node, functionName)
 
     # Misc
     ##########################################################
