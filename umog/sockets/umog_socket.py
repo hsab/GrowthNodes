@@ -57,14 +57,12 @@ class UMOGSocket(bpy.types.NodeSocket):
 
     originalName = StringProperty(default="Default Name")
 
-    display = PointerProperty(type=SocketDisplayProperties)
     removeable = BoolProperty(default=False)
     moveable = BoolProperty(default=False)
     moveGroup = IntProperty(default=0)
 
     drawOutput = BoolProperty(default=False)
     drawLabel = BoolProperty(default=True)
-    textProps = PointerProperty(type=SocketTextProperties)
 
     def textChanged(self, context):
         updateText(self)
@@ -103,8 +101,6 @@ class UMOGSocket(bpy.types.NodeSocket):
                 #     "Before: " + str(beforeValue),
                 #     "After:  " + str(afterValue),
                 #     trace=True)
-            if self.isInput and self.isUnlinked:
-                self.reverseName()
                 
     def freeSocket(self):
         self.destroy()
@@ -152,9 +148,6 @@ class UMOGSocket(bpy.types.NodeSocket):
 
     # Drawing
     ##########################################################
-
-    def reverseName(self):
-        self.name = self.originalName
 
     def drawRefreshContain(self, subrow):
         subrow.enabled = False
@@ -532,6 +525,10 @@ def register():
     bpy.types.NodeSocket.getIndex = getSocketIndex
     bpy.types.NodeSocket.isUMOGNodeSocket = BoolProperty(
         default=False, get=isUMOGNodeSocket)
+
+    # PointerProperties can only be added after the PropertyGroup is registered
+    bpy.types.NodeSocket.display = PointerProperty(type=SocketDisplayProperties)
+    bpy.types.NodeSocket.textProps = PointerProperty(type=SocketTextProperties)
 
 
 def unregister():

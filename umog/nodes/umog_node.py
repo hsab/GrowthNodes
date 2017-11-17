@@ -25,7 +25,7 @@ class UMOGNodeDisplayProperties(bpy.types.PropertyGroup):
                                          default = (0.6, 0.4, 0.4), min = 0, max = 1)
 
 class UMOGNode(bpy.types.Node):
-    bl_width_min = 10
+    bl_width_min = 40
     bl_width_max = 5000
 
     _IsUMOGNode = True
@@ -111,6 +111,9 @@ class UMOGNode(bpy.types.Node):
 
     # will be called once at the end of each frame
     def postFrame(self, refholder):
+        pass
+
+    def postBake(self, refholder):
         pass
 
 

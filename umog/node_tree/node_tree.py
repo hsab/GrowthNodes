@@ -96,11 +96,6 @@ class UMOGNodeTree(NodeTree):
 
             self.updateInProgress = False
 
-    def updateUnlinkedNodesSocketNames(self):
-        for node in self.unlinkedNodes:
-            for socket in node.sockets:
-                socket.reverseName()
-                
     def getNextUniqueID(self):
         temp = self.properties.UniqueIDTracker
         self.properties.UniqueIDTracker = self.properties.UniqueIDTracker + 1
