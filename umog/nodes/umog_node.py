@@ -229,7 +229,7 @@ class UMOGNode(bpy.types.Node):
             setattr(socket, key, value)
 
     # engine
-    def get_operation(self):
+    def get_operation(self, input_types):
         return engine.Operation(engine.NOP, [], [], [], [])
 
     def get_buffer_values(self):

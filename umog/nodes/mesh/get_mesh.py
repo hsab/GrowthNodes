@@ -15,7 +15,7 @@ class GetMeshNode(UMOGNode):
     def draw_buttons(self, context, layout):
         layout.prop_search(self, "mesh_name", bpy.data, "meshes", icon="MESH_CUBE", text="")
 
-    def get_operation(self):
+    def get_operation(self, input_types):
         return engine.Operation(
             engine.CONST,
             [],

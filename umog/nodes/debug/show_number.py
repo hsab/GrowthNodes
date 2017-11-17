@@ -22,7 +22,7 @@ class ShowNumberNode(UMOGOutputNode):
     def draw_buttons(self, context, layout):
         layout.prop(self, "value", text="value", emboss=False, slider=True)
 
-    def get_operation(self):
+    def get_operation(self, input_types):
         return engine.Operation(
             engine.OUT,
             [types.Scalar()],

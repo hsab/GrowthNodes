@@ -29,7 +29,7 @@ class GetTextureNode(UMOGNode):
     def preExecute(self, refholder):
         pass
 
-    def get_operation(self):
+    def get_operation(self, input_types):
         return engine.Operation(
             engine.CONST,
             [],

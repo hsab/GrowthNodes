@@ -17,7 +17,7 @@ class TimeSequenceNode(UMOGNode):
         layout.prop(self, "start", text="Value")
         layout.prop(self, "end", text="Value")
 
-    def get_operation(self):
+    def get_operation(self, input_types):
         return engine.Operation(
             engine.CONST,
             [],

@@ -12,7 +12,7 @@ class AndNode(UMOGNode):
         self.outputs.new("FloatSocketType", "out")
         super().init(context)
 
-    def get_operation(self):
+    def get_operation(self, input_types):
         return engine.Operation(
             engine.AND,
             [types.Scalar(), types.Scalar()],
