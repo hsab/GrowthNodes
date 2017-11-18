@@ -10,3 +10,12 @@ class Array(Type):
 
 class Mesh(Type):
     tag = MESH
+
+class CompilationError(Exception):
+    pass
+
+class CyclicNodeGraphError(CompilationError):
+    pass
+
+class UMOGTypeError(CompilationError):
+    pass

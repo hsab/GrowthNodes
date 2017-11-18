@@ -208,7 +208,7 @@ class UMOGNodeTree(NodeTree):
             if permanent[node.name]:
                 return
             if temporary[node.name]:
-                raise CyclicNodeGraphError()
+                raise engine.CyclicNodeGraphError()
 
             temporary[node.name] = True
 
@@ -231,9 +231,3 @@ class UMOGNodeTree(NodeTree):
                 visit(node)
 
         return nodes
-
-class CompilationError(Exception):
-    pass
-
-class CyclicNodeGraphError(CompilationError):
-    pass
