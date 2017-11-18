@@ -199,14 +199,14 @@ class UMOGNodeTree(NodeTree):
 
     # returns [(node, [(node_index, socket_index)])]
     def topological_sort(self):
-        permanent = defaultdict(lambda: False)
+        permanent = defaultdict(lambda: None)
         temporary = defaultdict(lambda: False)
 
         nodes = []
 
         def visit(node):
             if permanent[node.name]:
-                return
+                return permanent[node.name]
             if temporary[node.name]:
                 raise engine.CyclicNodeGraphError()
 
@@ -220,10 +220,9 @@ class UMOGNodeTree(NodeTree):
                     index = visit(input.links[0].from_node)
                     input_indices.append((index, list(input.links[0].from_node.outputs).index(input.links[0].from_socket)))
 
-            permanent[node.name] = True
-
             index = len(nodes)
             nodes.append((node, input_indices))
+            permanent[node.name] = index
             return index
 
         for node in self.nodes:
