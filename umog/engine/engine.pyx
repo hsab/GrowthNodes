@@ -177,7 +177,7 @@ def create_buffer(buffer_type, value=None):
             max(buffer_type.x_size, 1), max(buffer_type.y_size, 1), max(buffer_type.z_size, 1),
             max(buffer_type.t_size, 1))
         if value is not None:
-            array.from_memoryview(arr, <np.ndarray>value)
+            array.from_memoryview(arr, <np.ndarray[float, ndim=5, mode="c"]>value)
         else:
             array.clear(arr)
         return arr

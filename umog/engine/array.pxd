@@ -3,7 +3,7 @@ from data cimport *
 
 cdef class Array(Data):
     cdef Pool mem
-    cdef float[:,:,:,:,:] array
+    cdef public float[:,:,:,:,:] array
 
 cdef void clear(Array array)
 cdef void copy(Array dest, Array src)
