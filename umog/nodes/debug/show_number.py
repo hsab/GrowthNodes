@@ -25,7 +25,7 @@ class ShowNumberNode(UMOGOutputNode):
     def get_operation(self, input_types):
         return engine.Operation(
             engine.OUT,
-            [types.Scalar()],
+            [types.Array(0,0,0,0,0,0)],
             [],
             [],
             [engine.Argument(engine.ArgumentType.SOCKET, 0)],
@@ -35,7 +35,7 @@ class ShowNumberNode(UMOGOutputNode):
         return []
 
     def output_value(self, value):
-        self.hidden_value = value[0,0,0,0,0]
+        self.hidden_value = value.array[0,0,0,0,0]
 
     def update(self):
         pass

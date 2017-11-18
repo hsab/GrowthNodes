@@ -15,8 +15,8 @@ class NotEqualNode(UMOGNode):
     def get_operation(self, input_types):
         return engine.Operation(
             engine.NEQ,
-            [types.Scalar(), types.Scalar()],
-            [types.Scalar()],
+            [types.Array(0,0,0,0,0,0), types.Array(0,0,0,0,0,0)],
+            [types.Array(0,0,0,0,0,0)],
             [],
             [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 1)],
             [])

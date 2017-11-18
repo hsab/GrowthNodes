@@ -9,18 +9,22 @@ from libc.string cimport memset, memcpy
 
 from ..packages.cymem.cymem cimport Pool
 
-cdef class Mesh:
-    def __init__(Mesh self, int n_vertices, int n_polygon_vertices, int n_polygons):
+from data cimport *
+
+cdef class Mesh(Data):
+    def __init__(Mesh self):
+        self.tag = MESH
         self.mem = Pool()
 
-        self.n_vertices = n_vertices
-        self.n_polygon_vertices = n_polygon_vertices
-        self.n_polygons = n_polygons
+cdef void allocate(Mesh mesh, int n_vertices, int n_polygon_vertices, int n_polygons):
+    mesh.n_vertices = n_vertices
+    mesh.n_polygon_vertices = n_polygon_vertices
+    mesh.n_polygons = n_polygons
 
-        self.vertices = <Vec3 *>self.mem.alloc(n_vertices, sizeof(Vec3))
-        self.normals = <Vec3 *>self.mem.alloc(n_vertices, sizeof(Vec3))
-        self.polygon_vertices = <int *>self.mem.alloc(n_polygon_vertices, sizeof(int))
-        self.polygons = <int *>self.mem.alloc(n_polygons * 2, sizeof(int))
+    mesh.vertices = <Vec3 *>mesh.mem.alloc(n_vertices, sizeof(Vec3))
+    mesh.normals = <Vec3 *>mesh.mem.alloc(n_vertices, sizeof(Vec3))
+    mesh.polygon_vertices = <int *>mesh.mem.alloc(n_polygon_vertices, sizeof(int))
+    mesh.polygons = <int *>mesh.mem.alloc(n_polygons * 2, sizeof(int))
 
 @cython.boundscheck(False)
 cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh) nogil:
@@ -55,8 +59,9 @@ cpdef void to_blender_mesh(Mesh mesh, uintptr_t blender_mesh_ptr) nogil:
         blender_mesh.mvert[i].no[1] = mesh.normals[i].y
         blender_mesh.mvert[i].no[2] = mesh.normals[i].z
 
-cdef Mesh copy_mesh(Mesh old):
-    cdef Mesh new = Mesh(old.n_vertices, old.n_polygon_vertices, old.n_polygons)
+cdef Mesh copy(Mesh old):
+    cdef Mesh new = Mesh()
+    allocate(new, old.n_vertices, old.n_polygon_vertices, old.n_polygons)
     memcpy(new.vertices, old.vertices, old.n_vertices * sizeof(Vec3))
     memcpy(new.normals, old.normals, old.n_vertices * sizeof(Vec3))
     memcpy(new.polygon_vertices, old.polygon_vertices, old.n_polygon_vertices * sizeof(int))

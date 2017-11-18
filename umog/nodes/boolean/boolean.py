@@ -19,8 +19,8 @@ class BooleanNode(UMOGNode):
         return engine.Operation(
             engine.CONST,
             [],
-            [types.Scalar()],
-            [types.Scalar()],
+            [types.Array(0,0,0,0,0,0)],
+            [types.Array(0,0,0,0,0,0)],
             [engine.Argument(engine.ArgumentType.BUFFER, 0)],
             [])
 
