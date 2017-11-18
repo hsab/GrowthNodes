@@ -24,7 +24,7 @@ from enum import Enum
 
 # operation
 
-Operation = namedtuple('Operation', ['opcode', 'input_types', 'output_types', 'buffer_types', 'arguments', 'parameters'])
+Operation = namedtuple('Operation', ['opcode', 'output_types', 'buffer_types', 'arguments', 'parameters'])
 class ArgumentType(Enum):
     SOCKET = 0
     BUFFER = 1

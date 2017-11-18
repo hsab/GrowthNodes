@@ -18,7 +18,6 @@ class GetMeshNode(UMOGNode):
     def get_operation(self, input_types):
         return engine.Operation(
             engine.CONST,
-            [],
             [types.Mesh()],
             [types.Mesh()],
             [],

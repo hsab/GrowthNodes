@@ -18,9 +18,11 @@ class IteratedDisplaceNode(UMOGNode):
         layout.prop(self, "iterations", "iterations")
 
     def get_operation(self, input_types):
+        types.assert_type(input_types[0], types.MESH)
+        types.assert_type(input_types[1], types.ARRAY)
+
         return engine.Operation(
             engine.ITERATED_DISPLACE,
-            [types.Mesh(), types.Array(1, 100, 100, 1, 0, 1)],
             [types.Mesh()],
             [],
             [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 1)],
