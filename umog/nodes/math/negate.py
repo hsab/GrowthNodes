@@ -14,8 +14,8 @@ class NegateNode(UMOGNode):
     def get_operation(self, input_types):
         return engine.Operation(
             engine.NEGATE,
-            [types.Scalar()],
-            [types.Scalar()],
+            [types.Array(0,0,0,0,0,0)],
+            [types.Array(0,0,0,0,0,0)],
             [],
             [engine.Argument(engine.ArgumentType.SOCKET, 0)],
             [])
