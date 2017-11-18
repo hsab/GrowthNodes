@@ -56,6 +56,7 @@ cdef class Instruction:
     cdef int parameters[MAX_PARAMETERS]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void add(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -63,9 +64,12 @@ cdef inline void add(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] + b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] + \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void sub(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -73,9 +77,12 @@ cdef inline void sub(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] - b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] - \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void mul(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -83,9 +90,12 @@ cdef inline void mul(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] * b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] * \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void div(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -93,9 +103,12 @@ cdef inline void div(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] / b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] / \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void neg(Array out, Array a) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -106,6 +119,7 @@ cdef inline void neg(Array out, Array a) nogil:
                         out.array[channel,x,y,z,t] = -a.array[channel,x,y,z,t]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void pow(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -113,9 +127,12 @@ cdef inline void pow(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] ** b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] ** \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void mod(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -123,9 +140,12 @@ cdef inline void mod(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] % b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] % \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void eq(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -133,9 +153,12 @@ cdef inline void eq(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] == b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] == \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void neq(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -143,9 +166,12 @@ cdef inline void neq(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] != b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] != \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void lt(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -153,9 +179,12 @@ cdef inline void lt(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] < b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] < \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void gt(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -163,9 +192,12 @@ cdef inline void gt(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] > b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] > \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void leq(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -173,9 +205,12 @@ cdef inline void leq(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] <= b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] <= \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void geq(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -183,9 +218,12 @@ cdef inline void geq(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] >= b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] >= \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void boolean_not(Array out, Array a) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -196,6 +234,7 @@ cdef inline void boolean_not(Array out, Array a) nogil:
                         out.array[channel,x,y,z,t] = not a.array[channel,x,y,z,t]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void boolean_and(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -203,9 +242,12 @@ cdef inline void boolean_and(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] and b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] and \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void boolean_or(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -213,9 +255,12 @@ cdef inline void boolean_or(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t] or b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = \
+                            a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] or \
+                            b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void boolean_xor(Array out, Array a, Array b) nogil:
     cdef int channel, x, y, z, t
     for t in prange(out.array.shape[4]):
@@ -223,9 +268,12 @@ cdef inline void boolean_xor(Array out, Array a, Array b) nogil:
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = <bint>a.array[channel,x,y,z,t] ^ <bint>b.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] =  \
+                            <bint>a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] ^\
+                            <bint>b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 cdef inline void convolve(Array out, Array kernel, Array a) nogil:
     cdef int cx = kernel.array.shape[1] // 2
     cdef int cy = kernel.array.shape[2] // 2
