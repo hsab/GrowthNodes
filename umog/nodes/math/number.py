@@ -1,5 +1,6 @@
 from ..umog_node import *
 from ...engine import types, engine
+import numpy as np
 import bpy
 
 class NumberNode(UMOGNode):
@@ -25,7 +26,7 @@ class NumberNode(UMOGNode):
             [])
 
     def get_buffer_values(self):
-        return [self.value]
+        return [np.array([self.value], dtype=np.float32).reshape((1,1,1,1,1))]
 
     def update(self):
         pass
