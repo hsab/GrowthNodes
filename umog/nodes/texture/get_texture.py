@@ -32,7 +32,6 @@ class GetTextureNode(UMOGNode):
     def get_operation(self, input_types):
         return engine.Operation(
             engine.CONST,
-            [],
             [types.Array(1, 100, 100, 1, 0, 1)],
             [types.Array(1, 100, 100, 1, 0, 1)],
             [],

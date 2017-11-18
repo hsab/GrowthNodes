@@ -16,9 +16,10 @@ class SetMeshNode(UMOGOutputNode):
         layout.prop_search(self, "mesh_name", bpy.data, "meshes", icon="MESH_CUBE", text="")
 
     def get_operation(self, input_types):
+        types.assert_type(input_types[0], types.MESH)
+
         return engine.Operation(
             engine.OUT,
-            [types.Mesh()],
             [],
             [],
             [engine.Argument(engine.ArgumentType.SOCKET, 0)],

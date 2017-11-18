@@ -16,7 +16,6 @@ class PrintNode(UMOGOutputNode):
     def get_operation(self, input_types):
         return engine.Operation(
             engine.OUT,
-            [types.Array(0,0,0,0,0,0)],
             [],
             [],
             [engine.Argument(engine.ArgumentType.SOCKET, 0)],

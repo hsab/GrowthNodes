@@ -12,10 +12,11 @@ class NegateNode(UMOGNode):
         super().init(context)
 
     def get_operation(self, input_types):
+        types.assert_type(input_types[0], types.ARRAY)
+
         return engine.Operation(
             engine.NEGATE,
-            [types.Array(0,0,0,0,0,0)],
-            [types.Array(0,0,0,0,0,0)],
+            [input_types[0]],
             [],
             [engine.Argument(engine.ArgumentType.SOCKET, 0)],
             [])

@@ -23,9 +23,10 @@ class ShowNumberNode(UMOGOutputNode):
         layout.prop(self, "value", text="value", emboss=False, slider=True)
 
     def get_operation(self, input_types):
+        types.assert_type(input_types[0], types.ARRAY)
+
         return engine.Operation(
             engine.OUT,
-            [types.Array(0,0,0,0,0,0)],
             [],
             [],
             [engine.Argument(engine.ArgumentType.SOCKET, 0)],

@@ -13,10 +13,11 @@ class LessThanNode(UMOGNode):
         super().init(context)
 
     def get_operation(self, input_types):
+        output_types = types.binary_scalar(input_types[0], input_types[1])
+
         return engine.Operation(
             engine.LT,
-            [types.Array(0,0,0,0,0,0), types.Array(0,0,0,0,0,0)],
-            [types.Array(0,0,0,0,0,0)],
+            output_types,
             [],
             [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 1)],
             [])

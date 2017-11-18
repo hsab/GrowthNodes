@@ -19,7 +19,6 @@ class NumberNode(UMOGNode):
     def get_operation(self, input_types):
         return engine.Operation(
             engine.CONST,
-            [],
             [types.Array(0,0,0,0,0,0)],
             [types.Array(0,0,0,0,0,0)],
             [engine.Argument(engine.ArgumentType.BUFFER, 0)],
