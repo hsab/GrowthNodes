@@ -49,7 +49,12 @@ cdef class Engine:
 
         cdef object output_type
         for (node_i, (node, inputs)) in enumerate(nodes):
-            input_types = [buffer_types[indices[input]] for input in inputs]
+            input_types = []
+            for input in inputs:
+                if input is None:
+                    input_types.append(types.Type())
+                else:
+                    input_types.append(buffer_types[indices[input]])
             operation = node.get_operation(input_types)
             buffer_values = node.get_buffer_values()
 

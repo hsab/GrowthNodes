@@ -1,5 +1,5 @@
 class Type:
-    pass
+    tag = NONE
 
 class Array(Type):
     tag = ARRAY
