@@ -1,2 +1,2 @@
 cpdef enum TypeTag:
-    ARRAY, MESH
+    ARRAY, MESH, NONE
