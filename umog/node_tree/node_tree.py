@@ -220,6 +220,8 @@ class UMOGNodeTree(NodeTree):
             index = len(nodes)
             nodes.append((node, input_indices))
             permanent[node.name] = index
+            temporary[node.name] = False
+
             return index
 
         for node in self.nodes:
