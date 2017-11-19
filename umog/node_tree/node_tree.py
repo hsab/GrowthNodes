@@ -5,10 +5,7 @@ from ..utils.debug import *
 from collections import defaultdict
 
 from ..engine import engine
-import bpy
-from bpy.types import NodeTree
-from collections import defaultdict
-
+from ..engine import types
 
 class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_NodeTreeProperties"
@@ -208,7 +205,7 @@ class UMOGNodeTree(NodeTree):
             if permanent[node.name]:
                 return permanent[node.name]
             if temporary[node.name]:
-                raise engine.CyclicNodeGraphError()
+                raise types.CyclicNodeGraphError()
 
             temporary[node.name] = True
 
