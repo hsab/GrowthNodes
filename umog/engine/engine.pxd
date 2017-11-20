@@ -1,5 +1,6 @@
 import cython
 from cython.parallel import prange
+from libc.math cimport fmax
 
 from data cimport *
 from array cimport *
@@ -9,7 +10,7 @@ from array cimport *
 cdef enum:
     MAX_INS = 2
     MAX_OUTS = 2
-    MAX_PARAMETERS = 1
+    MAX_PARAMETERS = 5
 
 cpdef enum Opcode:
     CONST
@@ -42,6 +43,8 @@ cpdef enum Opcode:
     MULTIPLY_MATRIX_MATRIX
     MULTIPLY_MATRIX_VECTOR
     CONVOLVE
+
+    REACTION_DIFFUSION_STEP
 
     # mesh
     DISPLACE
@@ -317,6 +320,25 @@ cdef inline void convolve(Array out, Array kernel, Array array) nogil:
                                     out.array[channel,x,y,z,t] += \
                                         kernel.array[channel % kernel.array.shape[0], cx + x_ - x, cy + y_ - y, cz + z_ - z, t % kernel.array.shape[4]] * \
                                         array.array[channel % array.array.shape[0], x_, y_, z_, t % array.array.shape[4]]
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef inline void reaction_diffusion_step(Array out, Array a, float feed, float kill, float Da, float Db, float dt):
+    cdef int x, y
+
+    cdef Array kernel = Array(1, 3, 3, 1, 1)
+    kernel.array[0,0,0,0,0] = 0; kernel.array[0,0,0,0,0] = 1; kernel.array[0,0,0,0,0] = 0
+    kernel.array[0,0,0,0,0] = 1; kernel.array[0,0,0,0,0] = -4; kernel.array[0,0,0,0,0] = 1
+    kernel.array[0,0,0,0,0] = 0; kernel.array[0,0,0,0,0] = 1; kernel.array[0,0,0,0,0] = 0
+
+    cdef Array laplacian = Array(a.array.shape[0], a.array.shape[1], a.array.shape[2], a.array.shape[3], a.array.shape[4])
+    convolve(laplacian, kernel, a)
+
+    with nogil:
+        for y in prange(out.array.shape[2]):
+            for x in range(out.array.shape[1]):
+                out.array[0,x,y,0,0] = fmax(a.array[0,x,y,0,0] + (Da * laplacian.array[0,x,y,0,0] - (a.array[0,x,y,0,0]*a.array[1,x,y,0,0]*a.array[1,x,y,0,0]) + feed*(1.0 - a.array[0,x,y,0,0]))*dt, 0.0)
+                out.array[1,x,y,0,0] = fmax(a.array[1,x,y,0,0] + (Db * laplacian.array[1,x,y,0,0] + (a.array[0,x,y,0,0]*a.array[1,x,y,0,0]*a.array[1,x,y,0,0]) - (kill + feed)*a.array[1,x,y,0,0])*dt, 0.0)
 
 cdef inline int max(int a, int b) nogil:
     if a > b:
