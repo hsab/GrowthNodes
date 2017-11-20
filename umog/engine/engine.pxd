@@ -39,6 +39,8 @@ cpdef enum Opcode:
     XOR
 
     # array
+    MULTIPLY_MATRIX_MATRIX
+    MULTIPLY_MATRIX_VECTOR
     CONVOLVE
 
     # mesh
@@ -274,17 +276,41 @@ cdef inline void boolean_xor(Array out, Array a, Array b) nogil:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef inline void convolve(Array out, Array kernel, Array a) nogil:
-    cdef int cx = kernel.array.shape[1] // 2
-    cdef int cy = kernel.array.shape[2] // 2
-    cdef int cz = kernel.array.shape[3] // 2
+cdef inline void multiply_matrix_matrix(Array out, Array a, Array b) nogil:
+    cdef int x, y, t, i
+    for t in prange(out.array.shape[4]):
+        for y in prange(out.array.shape[2]):
+            for x in prange(out.array.shape[1]):
+                out.array[0,x,y,0,t] = 0.0
+                for i in prange(a.array.shape[1]):
+                    out.array[0,x,y,0,t] += a.array[0,i,y,0,t % a.array.shape[4]] * b.array[0,x,i,0,t % b.array.shape[4]]
 
-    cdef int channel, x, y, z, t
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef inline void multiply_matrix_vector(Array out, Array matrix, Array vector) nogil:
+    cdef int channel, x, y, z, t, i
     for t in prange(out.array.shape[4]):
         for z in prange(out.array.shape[3]):
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
-                    # for dx in prange()
-
                     for channel in prange(out.array.shape[0]):
-                        out.array[channel,x,y,z,t] = a.array[channel,x,y,z,t]
+                        out.array[channel,x,y,z,t] = 0
+                        for i in prange(vector.array.shape[0]):
+                            out.array[channel,x,y,z,t] += matrix.array[0, i, channel, 0, t % matrix.array.shape[4]] * vector.array[i, x, y, z, t % vector.array.shape[4]]
+
+# @cython.boundscheck(False)
+# @cython.wraparound(False)
+# cdef inline void convolve(Array out, Array kernel, Array a) nogil:
+#     cdef int cx = kernel.array.shape[1] // 2
+#     cdef int cy = kernel.array.shape[2] // 2
+#     cdef int cz = kernel.array.shape[3] // 2
+
+#     cdef int channel, x, y, z, t
+#     for t in prange(out.array.shape[4]):
+#         for z in prange(out.array.shape[3]):
+#             for y in prange(out.array.shape[2]):
+#                 for x in prange(out.array.shape[1]):
+#                     # for dx in prange()
+
+#                     for channel in prange(out.array.shape[0]):
+#                         out.array[channel,x,y,z,t] = matrix.array[channel,x,y,z,t]
