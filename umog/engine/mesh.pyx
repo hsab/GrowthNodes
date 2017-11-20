@@ -77,7 +77,7 @@ cdef void displace(Mesh mesh, float[:,:,:,:,:] texture):
         # value = sample_texture(texture, 100.0 * mesh.vertices[i].x, 100.0 * mesh.vertices[i].y)
         # value = texture[0,<int>(100 * mesh.vertices[i].x + 50) % 100,<int>(100 * mesh.vertices[i].y + 50) % 100,0,0]
         value = sample_texture(texture,100 * mesh.vertices[i].x + 50,100 * mesh.vertices[i].y)
-        c = .1 * (value - 0.5)
+        c = value
         vec3_scale(&normal, c, &mesh.normals[i])
         vec3_add(&mesh.vertices[i], &mesh.vertices[i], &normal)
 
