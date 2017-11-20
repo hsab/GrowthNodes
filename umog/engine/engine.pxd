@@ -271,7 +271,7 @@ cdef inline void boolean_xor(Array out, Array a, Array b) nogil:
                 for x in prange(out.array.shape[1]):
                     for channel in prange(out.array.shape[0]):
                         out.array[channel,x,y,z,t] =  \
-                            <bint>a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] ^\
+                            <bint>a.array[channel % a.array.shape[0], x % a.array.shape[1], y % a.array.shape[2], z % a.array.shape[3], t % a.array.shape[4]] ^ \
                             <bint>b.array[channel % b.array.shape[0], x % b.array.shape[1], y % b.array.shape[2], z % b.array.shape[3], t % b.array.shape[4]]
 
 @cython.boundscheck(False)
@@ -298,19 +298,34 @@ cdef inline void multiply_matrix_vector(Array out, Array matrix, Array vector) n
                         for i in prange(vector.array.shape[0]):
                             out.array[channel,x,y,z,t] += matrix.array[0, i, channel, 0, t % matrix.array.shape[4]] * vector.array[i, x, y, z, t % vector.array.shape[4]]
 
-# @cython.boundscheck(False)
-# @cython.wraparound(False)
-# cdef inline void convolve(Array out, Array kernel, Array a) nogil:
-#     cdef int cx = kernel.array.shape[1] // 2
-#     cdef int cy = kernel.array.shape[2] // 2
-#     cdef int cz = kernel.array.shape[3] // 2
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef inline void convolve(Array out, Array kernel, Array array) nogil:
+    cdef int cx = (kernel.array.shape[1] - 1) // 2
+    cdef int cy = (kernel.array.shape[2] - 1) // 2
+    cdef int cz = (kernel.array.shape[3] - 1) // 2
 
-#     cdef int channel, x, y, z, t
-#     for t in prange(out.array.shape[4]):
-#         for z in prange(out.array.shape[3]):
-#             for y in prange(out.array.shape[2]):
-#                 for x in prange(out.array.shape[1]):
-#                     # for dx in prange()
+    cdef int channel, x, y, z, t, x_, y_, z_
+    for t in prange(out.array.shape[4]):
+        for z in prange(out.array.shape[3]):
+            for y in prange(out.array.shape[2]):
+                for x in prange(out.array.shape[1]):
+                    for z_ in prange(max(0, z - cz), min(array.array.shape[3], z - cz + kernel.array.shape[3])):
+                        for y_ in prange(max(0, y - cy), min(array.array.shape[2], y - cy + kernel.array.shape[2])):
+                            for x_ in prange(max(0, x - cx), min(array.array.shape[1], x - cx + kernel.array.shape[1])):
+                                for channel in prange(out.array.shape[0]):
+                                    out.array[channel,x,y,z,t] += \
+                                        kernel.array[channel % kernel.array.shape[0], cx + x_ - x, cy + y_ - y, cz + z_ - z, t % kernel.array.shape[4]] * \
+                                        array.array[channel % array.array.shape[0], x_, y_, z_, t % array.array.shape[4]]
 
-#                     for channel in prange(out.array.shape[0]):
-#                         out.array[channel,x,y,z,t] = matrix.array[channel,x,y,z,t]
+cdef inline int max(int a, int b) nogil:
+    if a > b:
+        return a
+    else:
+        return b
+
+cdef inline int min(int a, int b) nogil:
+    if a < b:
+        return a
+    else:
+        return b
