@@ -1,5 +1,5 @@
 import bpy
-from .. import UMOGNode
+from ..umog_node import *
 
 class TextureAlternatorNode(UMOGNode):
     bl_idname = "umog_ReactionDiffusionNode2"

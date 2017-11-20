@@ -1,4 +1,4 @@
-from .. import UMOGOutputNode
+from ..umog_node import *
 import bpy
 import numpy as np
 from mathutils import Vector

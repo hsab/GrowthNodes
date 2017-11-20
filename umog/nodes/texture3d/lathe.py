@@ -1,4 +1,4 @@
-from .. import UMOGNode
+from ..umog_node import *
 from . import pyglet_lathe_impl
 
 import threading

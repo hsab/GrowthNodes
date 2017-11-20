@@ -1,4 +1,4 @@
-from .. import UMOGOutputNode
+from ..umog_node import *
 import copy
 import bpy
 

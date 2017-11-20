@@ -1,4 +1,4 @@
-from .. import UMOGNode
+from ..umog_node import *
 import bpy
 import numpy as np
 

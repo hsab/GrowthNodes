@@ -1,4 +1,4 @@
-from .. import UMOGNode
+from ..umog_node import *
 from ...engine import types, engine, mesh
 import bpy
 
