@@ -1,12 +1,10 @@
 from ..umog_node import UMOGNode
 import bpy
-import copy
-import numpy as np
-from ...events import events
+from ...engine import types, engine
 
 class ReactionDiffusionNode(UMOGNode):
     bl_idname = "umog_ReactionDiffusionNode"
-    bl_label = "Reaction Diffusion Node"
+    bl_label = "Reaction Diffusion"
 
     feed = bpy.props.FloatProperty(default=0.055)
     kill = bpy.props.FloatProperty(default=0.062)
@@ -15,10 +13,8 @@ class ReactionDiffusionNode(UMOGNode):
     dt = bpy.props.FloatProperty(default=1.0)
 
     def init(self, context):
-        self.outputs.new("TextureSocketType", "A'")
-        self.outputs.new("TextureSocketType", "B'")
-        self.inputs.new("TextureSocketType", "A")
-        self.inputs.new("TextureSocketType", "B")
+        self.inputs.new("TextureSocketType", "in")
+        self.outputs.new("TextureSocketType", "out")
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -28,44 +24,15 @@ class ReactionDiffusionNode(UMOGNode):
         layout.prop(self, "Db", "Db")
         layout.prop(self, "dt", "dt")
 
+    def get_operation(self, input_types):
+        types.assert_type(input_types[0], types.ARRAY)
+
+        return engine.Operation(
+            engine.REACTION_DIFFUSION_STEP,
+            [input_types[0]],
+            [],
+            [engine.Argument(engine.ArgumentType.SOCKET, 0)],
+            [self.feed, self.kill, self.Da, self.Db, self.dt])
+
     def update(self):
         pass
-
-    def execute(self, refholder):
-        # compute A'
-        mask = np.array([[0.05, 0.2, 0.05], [0.2, -1, 0.2], [0.05, 0.2, 0.05]])
-        Ap = refholder.np2dtextures[self.outputs[0].texture_index]
-        A = refholder.np2dtextures[self.inputs[0].links[0].from_socket.texture_index]
-        A *= refholder.execution_scratch[self.name]["Ap_scale"]
-        A += refholder.execution_scratch[self.name]["Ap_offset"]
-        LA = copy.deepcopy(A)
-        events.convolve2d(Ap, mask, LA)
-
-        Bp = refholder.np2dtextures[self.outputs[1].texture_index]
-        B = refholder.np2dtextures[self.inputs[1].links[0].from_socket.texture_index]
-        B *= refholder.execution_scratch[self.name]["Bp_scale"]
-        B += refholder.execution_scratch[self.name]["Bp_offset"]
-        LB = copy.deepcopy(B)
-        events.convolve2d(Bp, mask, LB)
-
-        events.ReactionDiffusion2d(A, Ap, LA, B, Bp, LB, mask, self.Da, self.Db, self.feed, self.kill, self.dt)
-        
-        refholder.execution_scratch[self.name]["Ap_offset"] = np.amin(Ap)
-        refholder.execution_scratch[self.name]["Ap_scale"] = np.amax(Ap) - np.amin(Ap)
-        refholder.execution_scratch[self.name]["Bp_offset"] = np.amin(Bp)
-        refholder.execution_scratch[self.name]["Bp_scale"] = np.amax(Bp) - np.amin(Bp)
-        
-        Ap -= refholder.execution_scratch[self.name]["Ap_offset"]
-        Ap /= refholder.execution_scratch[self.name]["Ap_scale"]
-        Bp -= refholder.execution_scratch[self.name]["Bp_offset"]
-        Bp /= refholder.execution_scratch[self.name]["Bp_scale"]
-        
-
-    def preExecute(self, refholder):
-        self.outputs[0].texture_index = refholder.createRefForTexture2d()
-        self.outputs[1].texture_index = refholder.createRefForTexture2d()
-        refholder.execution_scratch[self.name] = {}
-        refholder.execution_scratch[self.name]["Ap_offset"] = 0.0
-        refholder.execution_scratch[self.name]["Ap_scale"] = 1.0
-        refholder.execution_scratch[self.name]["Bp_offset"] = 0.0
-        refholder.execution_scratch[self.name]["Bp_scale"] = 1.0
