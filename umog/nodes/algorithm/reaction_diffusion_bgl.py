@@ -4,8 +4,6 @@ import copy
 import numpy as np
 from ..umog_node import *
 from ... events import bgl_helper
-#import pyximport
-#pyximport.install()
 from ...events import events
 
 class UMOGReactionDiffusionData(dict):

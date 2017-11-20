@@ -6,9 +6,6 @@ import sys
 import bpy
 import copy
 import numpy as np
-#import pyximport
-#pyximport.install()
-
 
 class PyGLNode(UMOGNode):
     bl_idname = "umog_PyGLNode"

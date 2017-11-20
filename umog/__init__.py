@@ -72,20 +72,7 @@ import json
 with open(compilationInfoPath) as f:
     compilation_info = json.load(f)
 
-if "sys.pyximport" in compilation_info:
-    try:
-        import pyximport
-    except:
-        pass
-    if "pyximport" not in globals():
-        message = ("\n\n"
-            "UMOG's pyximport is enabled.\n\n"
-            "This is for development purposes and is not intended for production.\n"
-            "Your python does not include the pyximport library.\n\n"
-            "Please download a compiled build for you operating system,\nor follow development guides on wiki.")
-        raise Exception(message)
-
-elif compilation_info["sys.platform"] != sys.platform:
+if compilation_info["sys.platform"] != sys.platform:
     message = ("\n\n"
         "This UMOG build is for another OS.\n\n"
         "You are using: {}\n"
