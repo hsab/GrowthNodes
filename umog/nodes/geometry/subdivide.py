@@ -8,19 +8,17 @@ class SubdivideNode(UMOGOutputNode):
     bl_idname = "umog_SubdivideNode"
     bl_label = "Subdivide"
 
-    assignedType = "Object"
-
     def init(self, context):
-        self.newInput(self.assignedType, "Object")
-        self.newInput("VertexGroup", "Vertex Group")
+        self.newInput("ObjectSocketType", "Object")
+        self.newInput("VertexGroupSocketType", "Vertex Group")
 
-        self.newInput("Integer", "Cut Count", value = 1, minValue = 1, maxValue = 6)
-        self.newInput("Float", "Smooth Factor", value = 0.0, minValue = 0.0, maxValue = 1.0)
+        self.newInput("IntegerSocketType", "Cut Count", value = 1, minValue = 1, maxValue = 6)
+        self.newInput("FloatSocketType", "Smooth Factor", value = 0.0, minValue = 0.0, maxValue = 1.0)
         
-        socket = self.newOutput(self.assignedType, "Object")
+        socket = self.newOutput("ObjectSocketType", "Object")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
-        socket = self.newOutput("VertexGroup", "Vertex Group")
+        socket = self.newOutput("VertexGroupSocketType", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 

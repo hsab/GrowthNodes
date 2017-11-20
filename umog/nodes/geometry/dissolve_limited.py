@@ -9,8 +9,6 @@ class DissolveLimitedNode(UMOGOutputNode):
     bl_idname = "umog_DissolveLimitedNode"
     bl_label = "Dissolve Limited Node"
 
-    assignedType = "Object"
-
     delimitOptions = bpy.props.EnumProperty(items=
         (('NORMAL', 'Normal', 'Delimit by face directions.'),
          ('MATERIAL ', 'Material', 'Delimit by face material.'),
@@ -26,15 +24,15 @@ class DissolveLimitedNode(UMOGOutputNode):
         layout.prop(self, "delimitOptions", "Delimit Operation")
 
     def init(self, context):
-        self.newInput(self.assignedType, "Object")
-        self.newInput("VertexGroup", "Vertex Group")
-        self.newInput("Float", "Angle Limit", value = 0.001, minValue = 0.0, maxValue= 180)
-        self.newInput("Boolean", "All Boundries")
+        self.newInput("ObjectSocketType", "Object")
+        self.newInput("VertexGroupSocketType", "Vertex Group")
+        self.newInput("FloatSocketType", "Angle Limit", value = 0.001, minValue = 0.0, maxValue= 180)
+        self.newInput("BooleanSocketType", "All Boundries")
 
-        socket = self.newOutput(self.assignedType, "Output")
+        socket = self.newOutput("ObjectSocketType", "Output")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
-        socket = self.newOutput("VertexGroup", "Vertex Group")
+        socket = self.newOutput("VertexGroupSocketType", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 

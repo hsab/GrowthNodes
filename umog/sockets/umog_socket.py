@@ -4,15 +4,9 @@ from collections import defaultdict
 from .. utils.events import propUpdate
 from .. utils.debug import *
 
-
-class SocketTextProperties(bpy.types.PropertyGroup):
-    bl_idname = "umog_SocketTextProperties"
-    unique = BoolProperty(default=False)
-    editable = BoolProperty(default=False)
-
-
 class SocketDisplayProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_SocketDisplayProperties"
+    editable = BoolProperty(default = False)
     text = BoolProperty(default=False)
     textInput = BoolProperty(default=False)
     moveOperators = BoolProperty(default=False)
@@ -38,23 +32,12 @@ class SocketDisplayProperties(bpy.types.PropertyGroup):
         Value of this socket will affects this node's calculations on every frame''')
 
 
-class SocketExecutionProperties(bpy.types.PropertyGroup):
-    bl_idname = "umog_SocketExecutionProperties"
-    neededCopies = IntProperty(default=0, min=0)
-
-
-alternativeIdentifiersPerSocket = defaultdict(list)
-
-
 class UMOGSocket(bpy.types.NodeSocket):
     _isUMOGSocket = True
     drawColor = (1, 1, 1, 1)
 
-    originalName = StringProperty(default="Default Name")
-
     removeable = BoolProperty(default=False)
     moveable = BoolProperty(default=False)
-    moveGroup = IntProperty(default=0)
 
     drawOutput = BoolProperty(default=False)
     drawLabel = BoolProperty(default=True)
@@ -78,11 +61,11 @@ class UMOGSocket(bpy.types.NodeSocket):
     ##########################################################
     def refreshSocket(self):
         if self.isRefreshable and not (self.isPacked and self.nodeTree.executeInProgress):
-            if self.isInput and self.isLinked:
+            if not self.is_output and self.isLinked:
                 self.socketRecentlyRefreshed = True
                 beforeValue = self.getProperty()
-                afterValue = self.getFromSocket.getProperty()
-                self.setProperty(self.getFromSocket.getProperty())
+                afterValue = self.links[0].from_socket.getProperty()
+                self.setProperty(self.links[0].from_socket.getProperty())
                 self.refresh()
 
                 # DBG("SOCKET SUCCESSFULLY REFRESHED:",
@@ -93,17 +76,11 @@ class UMOGSocket(bpy.types.NodeSocket):
                 #     "After:  " + str(afterValue),
                 #     trace=True)
                 
-    def freeSocket(self):
-        self.destroy()
-    
     def packSocket(self):
         if self.isPacked:
             self.pack()
     # Overwrite in subclasses
     ##########################################################
-
-    def destroy(self):
-        pass
 
     def pack(self):
         pass
@@ -142,37 +119,19 @@ class UMOGSocket(bpy.types.NodeSocket):
                 subrow.prop(self.display, "notPackedInfo",
                             text="", icon=icon)
 
-    # def drawMoveOperators(self, context, subrow, node):
-    #     if self.moveable and self.display.moveOperators:
-    #         if self.isInput:
-    #             subrow.separator()
-    #         self.invokeFunction(subrow, node, "moveUpInGroup", icon="TRIA_UP")
-    #         self.invokeFunction(
-    #             subrow, node, "moveDownInGroup", icon="TRIA_DOWN")
-    #         if not self.isInput:
-    #             subrow.separator()
-
-    # def drawRemoveOperators(self, context, subrow, node):
-    #     if self.removeable and self.display.removeOperator:
-    #         if self.isInput:
-    #             subrow.separator()
-    #         self.invokeFunction(subrow, node, "remove", icon="X")
-    #         if not self.isInput:
-    #             subrow.separator()
-
     def drawIsUsedProperty(self, context, subrow, node):
         icon = "LAYER_ACTIVE" if self.isUsed else "LAYER_USED"
         if self.useIsUsedProperty:
-            if not self.isInput:
+            if self.is_output:
                 subrow.prop(self, "isUsed", text="", icon=icon)
             if self.is_linked and not self.isUsed:
-                if self.isInput:
+                if not self.is_output:
                     subrow.label("", icon="QUESTION")
                     subrow.label("", icon="TRIA_RIGHT")
                 else:
                     subrow.label("", icon="TRIA_RIGHT")
                     subrow.label("", icon="QUESTION")
-            if self.isInput:
+            if not self.is_output:
                 subrow.prop(self, "isUsed", text="", icon=icon)
 
     def draw(self, context, layout, node, text):
@@ -189,17 +148,17 @@ class UMOGSocket(bpy.types.NodeSocket):
         col = row.column()
         rightSubrow = col.row(align=True)
 
-        if self.textProps.editable and self.display.textInput:
+        if self.displayProps.editable and self.display.textInput:
             self.drawRefreshContain(leftSubrow)
             middleSubrow.prop(self, "text", text="")
 
         else:
-            if self.isInput and self.isUnlinked and self.isUsed:
+            if not self.is_output and self.isUnlinked and self.isUsed:
                 self.drawRefreshContain(leftSubrow)
                 self.drawSocket(context, middleSubrow, row, 
                                 displayText, node, self.defaultDrawType)
             else:
-                if self.isOutput:
+                if self.is_output:
                     middleSubrow.alignment = "RIGHT"
                     if not self.drawOutput:
                         self.drawRefreshContain(rightSubrow)
@@ -213,7 +172,7 @@ class UMOGSocket(bpy.types.NodeSocket):
                 if self.drawLabel:
                     middleSubrow.label(displayText)
 
-        if self.isInput:
+        if not self.is_output:
             subrow = rightSubrow
             self.drawIsUsedProperty(context, subrow, node)
             # self.drawMoveOperators(context, subrow, node)
@@ -256,125 +215,19 @@ class UMOGSocket(bpy.types.NodeSocket):
             layout.label(text)
 
     def getDisplayedName(self):
-        if self.display.text or (self.textProps.editable and self.display.textInput):
+        if self.display.text or (self.displayProps.editable and self.display.textInput):
             return self.text
         return self.name
 
     def draw_color(self, context, node):
         return self.drawColor
 
-    def copyDisplaySettingsFrom(self, other):
-        self.display.text = other.display.text
-        self.display.textInput = other.display.textInput
-        self.display.moveOperators = other.display.moveOperators
-        self.display.removeOperator = other.display.removeOperator
-
-    # Misc
-    ##########################################################
-
-    def free(self):
-        try:
-            del alternativeIdentifiersPerSocket[self.getTemporaryIdentifier()]
-        except:
-            pass
-        try:
-            del colorOverwritePerSocket[self.getTemporaryIdentifier()]
-        except:
-            pass
-
-    @property
-    def alternativeIdentifiers(self):
-        return alternativeIdentifiersPerSocket[self.getTemporaryIdentifier()]
-
-    @alternativeIdentifiers.setter
-    def alternativeIdentifiers(self, value):
-        alternativeIdentifiersPerSocket[self.getTemporaryIdentifier()] = value
-
-    def getTemporaryIdentifier(self):
-        return str(hash(self)) + self.identifier
-
-    # Move Utilities
-    ##########################################################
-
-    def moveUp(self):
-        self.moveTo(self.index - 1)
-
-    def moveTo(self, index, node=None):
-        ownIndex = self.index
-        if ownIndex != index:
-            self.sockets.move(ownIndex, index)
-            self.node.socketMoved()
-
-    def moveUpInGroup(self):
-        """Cares about moveable sockets"""
-        self.moveInGroup(moveUp=True)
-
-    def moveDownInGroup(self):
-        """Cares about moveable sockets"""
-        self.moveInGroup(moveUp=False)
-
-    def moveInGroup(self, moveUp=True):
-        """Cares about moveable sockets"""
-        if not self.moveable:
-            return
-        moveableSocketIndices = [index for index, socket in enumerate(
-            self.sockets) if socket.moveable and socket.moveGroup == self.moveGroup]
-        currentIndex = list(self.sockets).index(self)
-
-        targetIndex = -1
-        for index in moveableSocketIndices:
-            if moveUp and index < currentIndex:
-                targetIndex = index
-            if not moveUp and index > currentIndex:
-                targetIndex = index
-                break
-
-        if targetIndex != -1:
-            self.sockets.move(currentIndex, targetIndex)
-            if moveUp:
-                self.sockets.move(targetIndex + 1, currentIndex)
-            else:
-                self.sockets.move(targetIndex - 1, currentIndex)
-            self.node.socketMoved()
-
-    # Link/Remove Utilities
-    ##########################################################
-
-    def linkWith(self, socket):
-        if self.isOutput:
-            return self.nodeTree.links.new(socket, self)
-        else:
-            return self.nodeTree.links.new(self, socket)
-
-    def remove(self):
-        self.free()
-        node = self.node
-        node.removeSocket(self)
-        node.socketRemoved()
-
-    def removeLinks(self):
-        removedLink = False
-        if self.is_linked:
-            tree = self.nodeTree
-            for link in self.links:
-                tree.links.remove(link)
-                removedLink = True
-        return removedLink
-
-    def isLinkedToType(self, dataType):
-        return any(socket.dataType == dataType for socket in self.linkedSockets)
-
     # Properties
     ##########################################################
 
     @property
-    def getFromSocket(self):
-        if not self.isOutput:
-            return self.links[0].from_socket
-
-    @property
     def getConnectedNode(self):
-        if self.isOutput:
+        if self.is_output:
             return self.links[0].to_node
         else:
             return self.links[0].from_node
@@ -382,7 +235,7 @@ class UMOGSocket(bpy.types.NodeSocket):
     @property
     def getConnectedNodes(self):
         nodes = []
-        if self.isOutput:
+        if self.is_output:
             for link in self.links:
                 nodes.append(link.to_node)
         else:
@@ -397,21 +250,8 @@ class UMOGSocket(bpy.types.NodeSocket):
         return list(self.node.inputs).index(self)
 
     @property
-    def isOutput(self):
-        return self.is_output
-
-    @property
-    def isInput(self):
-        return not self.is_output
-
-    @property
     def nodeTree(self):
         return self.id_data
-
-    @property
-    def sockets(self):
-        """Returns all sockets next to this one (all inputs or outputs)"""
-        return self.node.outputs if self.isOutput else self.node.inputs
 
     @property
     def isLinked(self):
@@ -425,46 +265,9 @@ class UMOGSocket(bpy.types.NodeSocket):
     def hasProperty(cls):
         return hasattr(cls, "drawProperty")
 
-    @classmethod
-    def isCopyable(self):
-        return hasattr(self, "getCopyExpression")
-
-    @classmethod
-    def getCopyExpression(cls):
-        return "value[:]"
-
-def isTextUsed(node, name):
-    for socket in node.sockets:
-        if socket.text == name:
-            return True
-    return False
-
-    # Register
+# Register
 ##################################
 
-
-def getSocketIndex(socket, node=None):
-    if node is None:
-        node = socket.node
-    if socket.is_output:
-        return list(node.outputs).index(socket)
-    return list(node.inputs).index(socket)
-
-
-def isUMOGNodeSocket(socket):
-    return getattr(socket, "_isUMOGSocket", False)
-
-
 def register():
-    bpy.types.NodeSocket.getIndex = getSocketIndex
-    bpy.types.NodeSocket.isUMOGNodeSocket = BoolProperty(
-        default=False, get=isUMOGNodeSocket)
-
     # PointerProperties can only be added after the PropertyGroup is registered
     bpy.types.NodeSocket.display = PointerProperty(type=SocketDisplayProperties)
-    bpy.types.NodeSocket.textProps = PointerProperty(type=SocketTextProperties)
-
-
-def unregister():
-
-    del bpy.types.NodeSocket.isUMOGNodeSocket

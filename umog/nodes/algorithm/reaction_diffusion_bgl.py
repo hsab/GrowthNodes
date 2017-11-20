@@ -16,7 +16,6 @@ class ReactionDiffusionBGLNode(UMOGNode):
     bl_idname = "umog_ReactionDiffusionBGLNode"
     bl_label = "Reaction Diffusion GPU"
 
-    assignedType = "Texture2"
     rdData = UMOGReactionDiffusionData()
 
 
@@ -96,17 +95,17 @@ class ReactionDiffusionBGLNode(UMOGNode):
     """
 
     def create(self):
-        self.newInput(self.assignedType, "A").isPacked = True
-        self.newInput(self.assignedType, "B").isPacked = True
-        self.newInput("Float", "Feed", value=0.055, minValue = 0.0, maxValue = 1.0).isPacked = True
-        self.newInput("Float", "Kill", value=0.062, minValue = 0.0, maxValue = 1.0).isPacked = True
-        self.newInput("Float", "A Rate", value=1.0, minValue = 0.0, maxValue = 1.0).isPacked = True
-        self.newInput("Float", "B Rate", value=0.5, minValue = 0.0, maxValue = 1.0).isPacked = True
-        self.newInput("Float", "Delta Time", value=1.0, minValue = 0.0, maxValue = 1.0).isPacked = True
-        self.newInput("Integer", "Steps", value=1, minValue = 1).isPacked = True
-        self.newOutput(self.assignedType, "A'").isPacked = True
-        self.newOutput(self.assignedType, "B'").isPacked = True
-        self.newOutput(self.assignedType, "Combined").isPacked = True
+        self.newInput("Texture2SocketType", "A").isPacked = True
+        self.newInput("Texture2SocketType", "B").isPacked = True
+        self.newInput("FloatSocketType", "Feed", value=0.055, minValue = 0.0, maxValue = 1.0).isPacked = True
+        self.newInput("FloatSocketType", "Kill", value=0.062, minValue = 0.0, maxValue = 1.0).isPacked = True
+        self.newInput("FloatSocketType", "A Rate", value=1.0, minValue = 0.0, maxValue = 1.0).isPacked = True
+        self.newInput("FloatSocketType", "B Rate", value=0.5, minValue = 0.0, maxValue = 1.0).isPacked = True
+        self.newInput("FloatSocketType", "Delta Time", value=1.0, minValue = 0.0, maxValue = 1.0).isPacked = True
+        self.newInput("IntegerSocketType", "Steps", value=1, minValue = 1).isPacked = True
+        self.newOutput("Texture2SocketType", "A'").isPacked = True
+        self.newOutput("Texture2SocketType", "B'").isPacked = True
+        self.newOutput("Texture2SocketType", "Combined").isPacked = True
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "channels", "Channels")

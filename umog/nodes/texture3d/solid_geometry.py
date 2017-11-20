@@ -21,9 +21,9 @@ class UMOGTexture3SolidGeometryNode(UMOGNode):
     threshold = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=1.0, step=1, precision=2)
     
     def init(self, context):
-        self.newInput("Texture3", "A").isPacked = True
-        self.newInput("Texture3", "B").isPacked = True
-        self.newOutput("Texture3", "Texture").isPacked = True
+        self.newInput("Texture3SocketType", "A").isPacked = True
+        self.newInput("Texture3SocketType", "B").isPacked = True
+        self.newOutput("Texture3SocketType", "Texture").isPacked = True
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "geo_op")
@@ -33,8 +33,8 @@ class UMOGTexture3SolidGeometryNode(UMOGNode):
     def execute(self, refholder):
         if self.inputs[0].isLinked and self.inputs[1].isLinked:
             temps = {}
-            temps["A"] = self.inputs[0].getFromSocket.getPixels()
-            temps["B"] = self.inputs[1].getFromSocket.getPixels()
+            temps["A"] = self.inputs[0].links[0].from_socket.getPixels()
+            temps["B"] = self.inputs[1].links[0].from_socket.getPixels()
             temps["operation"] = self.geo_op
             temps["threshold"] = self.threshold
             #pydevd.settrace()

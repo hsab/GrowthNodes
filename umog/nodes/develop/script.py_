@@ -71,7 +71,7 @@ class ScriptNode(UMOGNode):
 
     def newVariable(self):
         socket = self.newInput(self.assignedType, "Variable")
-        socket.textProps.editable = True
+        socket.displayProps.editable = True
         socket.display.textInput = True
         socket.display.text = True
         socket.text = "varName"

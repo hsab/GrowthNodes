@@ -8,17 +8,15 @@ class DissolveDegenerateNode(UMOGOutputNode):
     bl_idname = "umog_DissolveDegenerateNode"
     bl_label = "Dissolve Degenerate Node"
 
-    assignedType = "Object"
-
     def init(self, context):
-        self.newInput(self.assignedType, "Object")
-        self.newInput("VertexGroup", "Vertex Group")
+        self.newInput("ObjectSocketType", "Object")
+        self.newInput("VertexGroupSocketType", "Vertex Group")
 
-        self.newInput("Float", "Threshold", value = 0.001, minValue = 0.0, maxValue= 10.0)
-        socket = self.newOutput(self.assignedType, "Object")
+        self.newInput("FloatSocketType", "Threshold", value = 0.001, minValue = 0.0, maxValue= 10.0)
+        socket = self.newOutput("ObjectSocketType", "Object")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
-        socket = self.newOutput("VertexGroup", "Vertex Group")
+        socket = self.newOutput("VertexGroupSocketType", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 

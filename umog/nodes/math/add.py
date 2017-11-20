@@ -6,8 +6,11 @@ class AddNode(UMOGNode):
     bl_idname = "umog_AddNode"
     bl_label = "Add Node"
 
+    default_a = bpy.props.FloatProperty(default = 0.0)
+
     def init(self, context):
-        self.inputs.new("FloatSocketType", "a")
+        a = self.inputs.new("FloatSocketType", "a")
+        a.value_path = "default_a"
         self.inputs.new("FloatSocketType", "b")
         self.outputs.new("FloatSocketType", "out")
         super().init(context)

@@ -7,8 +7,6 @@ from mathutils import Vector
 #     bl_idname = "umog_DisplaceNode"
 #     bl_label = "Displace Node"
 
-#     assignedType = "Object"
-
 #     mesh_name = bpy.props.StringProperty()
 #     mesh_dupl_name = bpy.props.StringProperty()
 
@@ -21,15 +19,15 @@ from mathutils import Vector
 #     mod_strength = bpy.props.FloatProperty(default = 1.0)
 
 #     def init(self, context):
-#         self.newInput(self.assignedType, "Object")
-#         self.newInput("VertexGroup", "Vertex Group")
-#         socket = self.newInput("Texture2", "Texture")
-#         self.newInput("Float", "Midlevel", value = 0.5)
-#         self.newInput("Float", "Strength", value = 0.1)
-#         socket = self.newOutput(self.assignedType, "Output")
+#         self.newInput("ObjectSocketType", "Object")
+#         self.newInput("VertexGroupSocketType", "Vertex Group")
+#         socket = self.newInput("Texture2SocketType", "Texture")
+#         self.newInput("FloatSocketType", "Midlevel", value = 0.5)
+#         self.newInput("FloatSocketType", "Strength", value = 0.1)
+#         socket = self.newOutput("ObjectSocketType", "Output")
 #         socket.display.refreshableIcon = False
 #         socket.display.packedIcon = False
-#         socket = self.newOutput("VertexGroup", "Vertex Group")
+#         socket = self.newOutput("VertexGroupSocketType", "Vertex Group")
 #         socket.display.refreshableIcon = False
 #         socket.display.packedIcon = False
 

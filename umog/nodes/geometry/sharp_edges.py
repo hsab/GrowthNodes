@@ -9,17 +9,15 @@ class SharpEdgesNode(UMOGOutputNode):
     bl_idname = "umog_SharpEdgesNode"
     bl_label = "Sharp Edges Node"
 
-    assignedType = "Object"
-
     def init(self, context):
-        self.newInput(self.assignedType, "Object")
-        self.newInput("Float", "Sharpness", value = 20, minValue = 0.0, maxValue= 180)
-        self.newInput("Float", "Weight", value = 1.0, minValue = 0.0, maxValue= 1.0)
+        self.newInput("ObjectSocketType", "Object")
+        self.newInput("FloatSocketType", "Sharpness", value = 20, minValue = 0.0, maxValue= 180)
+        self.newInput("FloatSocketType", "Weight", value = 1.0, minValue = 0.0, maxValue= 1.0)
 
-        socket = self.newOutput(self.assignedType, "Output")
+        socket = self.newOutput("ObjectSocketType", "Output")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
-        socket = self.newOutput("VertexGroup", "Vertex Group")
+        socket = self.newOutput("VertexGroupSocketType", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 
