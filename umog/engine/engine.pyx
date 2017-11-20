@@ -147,12 +147,12 @@ cdef class Engine:
             elif instruction.op == DISPLACE:
                 # don't copy if we're mutating in place
                 if instruction.outs[0] != instruction.ins[0]:
-                    self.buffers[instruction.outs[0]] = mesh.copy((<Mesh>self.buffers[instruction.ins[0]]))
-                mesh.displace((<Mesh>self.buffers[instruction.outs[0]]), (<Array>self.buffers[instruction.ins[1]]).array)
+                    self.buffers[instruction.outs[0]] = mesh.copy_mesh((<Mesh>self.buffers[instruction.ins[0]]))
+                mesh.displace((<Mesh>self.buffers[instruction.outs[0]]), (<Array>self.buffers[instruction.ins[1]]))
             elif instruction.op == ITERATED_DISPLACE:
                 if instruction.outs[0] != instruction.ins[0]:
-                    self.buffers[instruction.outs[0]] = mesh.copy((<Mesh>self.buffers[instruction.ins[0]]))
-                mesh.iterated_displace((<Mesh>self.buffers[instruction.outs[0]]), (<Array>self.buffers[instruction.ins[1]]).array, instruction.parameters[0])
+                    self.buffers[instruction.outs[0]] = mesh.copy_mesh((<Mesh>self.buffers[instruction.ins[0]]))
+                mesh.iterated_displace((<Mesh>self.buffers[instruction.outs[0]]), (<Array>self.buffers[instruction.ins[1]]), instruction.parameters[0])
 
             elif instruction.op == LOOP:
                 pass

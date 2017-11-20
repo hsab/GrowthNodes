@@ -1,6 +1,7 @@
 from ..packages.cymem.cymem cimport Pool
 from vector cimport *
 from data cimport *
+from array cimport Array
 
 cdef class Mesh(Data):
     cdef Pool mem
@@ -12,9 +13,9 @@ cdef class Mesh(Data):
 
 cdef void allocate(Mesh mesh, int n_vertices, int n_polygon_vertices, int n_polygons)
 cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh) nogil
-cdef Mesh copy(Mesh mesh)
-cdef void displace(Mesh mesh, float[:,:,:,:,:] texture)
-cdef void iterated_displace(Mesh mesh, float[:,:,:,:,:] texture, int iterations)
+cdef Mesh copy_mesh(Mesh mesh)
+cdef void displace(Mesh mesh, Array texture)
+cdef void iterated_displace(Mesh mesh, Array texture, int iterations)
 
 cdef extern from "blender/makesdna/DNA_meshdata_types.h":
     cdef struct MVert:
