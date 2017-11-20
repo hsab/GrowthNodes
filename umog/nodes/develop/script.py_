@@ -1,6 +1,6 @@
 import bpy
 from bpy.props import *
-from .. import UMOGNode
+from ..umog_node import *
 from ... utils.debug import *
 
 

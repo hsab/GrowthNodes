@@ -1,5 +1,5 @@
 import bpy
-from .. import UMOGNode
+from ..umog_node import *
 
 class UMOGNoiseGenerationNode(UMOGNode):
     bl_idname = "umog_NoiseGenerationNode"

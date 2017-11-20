@@ -2,7 +2,7 @@ import bpy
 import bgl
 import copy
 import numpy as np
-from .. import UMOGNode
+from ..umog_node import *
 from ... events import bgl_helper
 #import pyximport
 #pyximport.install()
