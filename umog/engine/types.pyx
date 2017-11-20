@@ -21,6 +21,9 @@ class UMOGTypeError(CompilationError):
     pass
 
 def binary_scalar(a, b):
+    assert_type(a, ARRAY)
+    assert_type(b, ARRAY)
+
     if a.channels == b.channels:
         channels = a.channels
     elif a.channels == 0:

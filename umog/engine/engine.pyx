@@ -136,6 +136,11 @@ cdef class Engine:
             elif instruction.op == XOR:
                 boolean_xor(<Array>self.buffers[instruction.outs[0]], <Array>self.buffers[instruction.ins[0]], <Array>self.buffers[instruction.ins[1]])
 
+            elif instruction.op == MULTIPLY_MATRIX_MATRIX:
+                multiply_matrix_matrix(<Array>self.buffers[instruction.outs[0]], <Array>self.buffers[instruction.ins[0]], <Array>self.buffers[instruction.ins[1]])
+            elif instruction.op == MULTIPLY_MATRIX_VECTOR:
+                multiply_matrix_vector(<Array>self.buffers[instruction.outs[0]], <Array>self.buffers[instruction.ins[0]], <Array>self.buffers[instruction.ins[1]])
+
             elif instruction.op == DISPLACE:
                 # don't copy if we're mutating in place
                 if instruction.outs[0] != instruction.ins[0]:
