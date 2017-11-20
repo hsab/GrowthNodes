@@ -12,7 +12,6 @@ menus = OrderedDict([
         "nodes": [
             #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
             ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node"),
-            ("umog_ConvolveNode", "Convolve"),
             ("umog_ConvolveGLNode", "Convolve opengl"),
         ]
     }),
@@ -85,11 +84,12 @@ menus = OrderedDict([
         "bl_description": "Lorem Ipsum",
         "icon": "MESH_GRID",
         "nodes": [
-            ("umog_Mat3Node", "Matrix 3x3 Node"),
+            ("umog_Matrix3x3Node", "3x3 Matrix"),
             ("umog_MultiplyMatrixMatrixNode", "Matrix * Matrix"),
             ("umog_MultiplyMatrixVectorNode", "Matrix * Vector"),
             ("umog_GaussNode", "Gaussian Blur"),
             ("umog_LaplaceNode", "Laplacian Filter"),
+            ("umog_ConvolveNode", "Convolve"),
         ]
     }),
     ("  ", "separator"),
@@ -104,7 +104,6 @@ menus = OrderedDict([
             ("umog_SetTextureNode", "Set Texture"),
             ("umog_SaveTextureNode", "Save Texture"),
             ("umog_LoadTextureNode", "Load Texture(s)"),
-            ("umog_TextureAlternatorNode", "Texture Alternator"),
         ]
     }),
     ("  ", "separator"),
