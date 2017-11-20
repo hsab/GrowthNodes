@@ -17,7 +17,7 @@ class UMOGTexture3MeshNode(UMOGNode):
     iso_level = bpy.props.FloatProperty(default=0, soft_min=0.0, step=1, precision=2)
     
     def init(self, context):
-        self.newInput("Texture3", "A").isPacked = True
+        self.newInput("Texture3SocketType", "A").isPacked = True
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "mesh_name")
@@ -26,7 +26,7 @@ class UMOGTexture3MeshNode(UMOGNode):
 
     def execute(self, refholder):
         if self.inputs[0].isLinked:
-            verts, tris = mcubes.marching_cubes(self.inputs[0].getFromSocket.getPixels(),self.iso_level)
+            verts, tris = mcubes.marching_cubes(self.inputs[0].links[0].from_socket.getPixels(),self.iso_level)
             
             me = bpy.data.meshes.new(self.mesh_name)
             ob = bpy.data.objects.new(self.mesh_name, me)

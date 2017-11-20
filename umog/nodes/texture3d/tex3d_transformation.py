@@ -27,8 +27,8 @@ class UMOGTexture3TransformNode(UMOGNode):
     point = bpy.props.FloatVectorProperty(default=(0.5,0.5,0.5))
     
     def init(self, context):
-        self.newInput("Texture3", "A").isPacked = True
-        self.newOutput("Texture3", "Texture").isPacked = True
+        self.newInput("Texture3SocketType", "A").isPacked = True
+        self.newOutput("Texture3SocketType", "Texture").isPacked = True
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "tr_op")
@@ -47,7 +47,7 @@ class UMOGTexture3TransformNode(UMOGNode):
     def execute(self, refholder):
         if self.inputs[0].isLinked:
             temps = {}
-            temps["A"] = self.inputs[0].getFromSocket.getPixels()
+            temps["A"] = self.inputs[0].links[0].from_socket.getPixels()
             #set transform with the correct mat4
             if self.tr_op == "translation":
                 temps["transform"] = transformations.translation_matrix(self.direction)

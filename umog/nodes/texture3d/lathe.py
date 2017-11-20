@@ -20,7 +20,7 @@ class UMOGTexture3LatheNode(UMOGNode):
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
         socket.isPacked = True
-        self.newInput("Texture2", "A").isPacked = True
+        self.newInput("Texture2SocketType", "A").isPacked = True
         
 
     def draw_buttons(self, context, layout):

@@ -146,7 +146,7 @@ class UMOGNodeTree(NodeTree):
         node.execution.visited = True
         node.execution.connectedComponent = connectedComponent
 
-        for socket in node.sockets:
+        for socket in list(node.inputs) + list(node.outputs):
             connectedNodes = socket.getConnectedNodes
             for adjacentNode in connectedNodes:
                 if adjacentNode.execution.visited == False:

@@ -13,17 +13,17 @@ class PyGLNode(UMOGNode):
     
     def create(self):
         print("pyglet create")
-        self.newInput("Texture3", "A").isPacked = True
-        self.newInput("Texture3", "B").isPacked = True
-        self.newInput("Float", "Feed", value=0.055).isPacked = True
-        self.newInput("Float", "Kill", value=0.062).isPacked = True
-        self.newInput("Float", "A Rate", value=1.0).isPacked = True
-        self.newInput("Float", "B Rate", value=0.5).isPacked = True
-        self.newInput("Float", "Delta Time", value=0.2).isPacked = True
-        self.newInput("Integer", "Steps", value=500).isPacked = True
+        self.newInput("Texture3SocketType", "A").isPacked = True
+        self.newInput("Texture3SocketType", "B").isPacked = True
+        self.newInput("FloatSocketType", "Feed", value=0.055).isPacked = True
+        self.newInput("FloatSocketType", "Kill", value=0.062).isPacked = True
+        self.newInput("FloatSocketType", "A Rate", value=1.0).isPacked = True
+        self.newInput("FloatSocketType", "B Rate", value=0.5).isPacked = True
+        self.newInput("FloatSocketType", "Delta Time", value=0.2).isPacked = True
+        self.newInput("IntegerSocketType", "Steps", value=500).isPacked = True
         
-        self.newOutput("Texture3", "A'").isPacked = True
-        self.newOutput("Texture3", "B'").isPacked = True
+        self.newOutput("Texture3SocketType", "A'").isPacked = True
+        self.newOutput("Texture3SocketType", "B'").isPacked = True
 
     def refresh(self):
         pass
@@ -38,8 +38,8 @@ class PyGLNode(UMOGNode):
     def execute(self, refholder):
         if self.inputs[0].isLinked and self.inputs[1].isLinked:
             temps = {}
-            temps["A"] = self.inputs[0].getFromSocket.getPixels()
-            temps["B"] = self.inputs[1].getFromSocket.getPixels()
+            temps["A"] = self.inputs[0].links[0].from_socket.getPixels()
+            temps["B"] = self.inputs[1].links[0].from_socket.getPixels()
             temps["feed"] = self.inputs[2].getValue()
             temps["kill"] = self.inputs[3].getValue()
             temps["dA"] = self.inputs[4].getValue()
@@ -60,8 +60,8 @@ class PyGLNode(UMOGNode):
                 
                 self.outputs[0].setPixels(temps["Aout"])
                 self.outputs[1].setPixels(temps["Bout"])
-                self.inputs[0].getFromSocket.setPixels(temps["Aout"])
-                self.inputs[1].getFromSocket.setPixels(temps["Bout"])
+                self.inputs[0].links[0].from_socket.setPixels(temps["Aout"])
+                self.inputs[1].links[0].from_socket.setPixels(temps["Bout"])
             except:
                 print("thread start failed")
                 print("Unexpected error:", sys.exc_info()[0])

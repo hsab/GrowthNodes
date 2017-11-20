@@ -8,8 +8,6 @@ class SaveTexture3dNode(UMOGNode):
     bl_idname = "umog_SaveTexture3dNode"
     bl_label = "Save Texture 3d"
 
-    assignedType = "Texture3"
-
     temp_texture_prefix = "__umog_texture_saver_"
     texture_name_temp = bpy.props.StringProperty()
 
@@ -21,7 +19,7 @@ class SaveTexture3dNode(UMOGNode):
     texture_index = bpy.props.IntProperty()
 
     def init(self, context):
-        socket = self.newInput(self.assignedType, "Texture3")
+        socket = self.newInput("Texture3SocketType", "Texture3")
         socket.drawLabel = False
 
     def draw_buttons(self, context, layout):
@@ -34,7 +32,7 @@ class SaveTexture3dNode(UMOGNode):
             resolution = self.nodeTree.properties.TextureResolution
             image = bpy.data.images.new(self.temp_texture_prefix + self.name, resolution, resolution, alpha = False, float_buffer = True)
             
-            tex3d = self.inputs[0].getFromSocket.getPixels()
+            tex3d = self.inputs[0].links[0].from_socket.getPixels()
             for i in range(resolution):
                 slc = tex3d[:,:,i]
                 ti = np.ones((resolution, resolution, 4), dtype="float")

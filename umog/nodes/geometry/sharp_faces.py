@@ -9,20 +9,18 @@ class SharpFacesNode(UMOGOutputNode):
     bl_idname = "umog_SharpFacesNode"
     bl_label = "Sharp Faces Node"
 
-    assignedType = "Object"
-
     def init(self, context):
-        self.newInput(self.assignedType, "Object")
-        self.newInput("Float", "Angle", value = 20, minValue = 0.0, maxValue= 180)
-        self.newInput("Boolean", "Inverse Select", value = False)
-        self.newInput("Boolean", "Top", value = True)
-        self.newInput("Boolean", "Bottom", value = True)
-        self.newInput("Float", "Weight", value = 1.0, minValue = 0.0, maxValue= 1.0)
+        self.newInput("Object", "Object")
+        self.newInput("FloatSocketType", "Angle", value = 20, minValue = 0.0, maxValue= 180)
+        self.newInput("BooleanSocketType", "Inverse Select", value = False)
+        self.newInput("BooleanSocketType", "Top", value = True)
+        self.newInput("BooleanSocketType", "Bottom", value = True)
+        self.newInput("FloatSocketType", "Weight", value = 1.0, minValue = 0.0, maxValue= 1.0)
 
-        socket = self.newOutput(self.assignedType, "Output")
+        socket = self.newOutput("ObjectSocketType", "Output")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
-        socket = self.newOutput("VertexGroup", "Vertex Group")
+        socket = self.newOutput("VertexGroupSocketType", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 

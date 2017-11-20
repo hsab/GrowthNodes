@@ -38,7 +38,7 @@ class Texture3Socket(UMOGSocket):
 
     def pack(self):
         resolution = self.nodeTree.properties.TextureResolution
-        if self.isOutput:
+        if self.is_output:
             pass
         else:
             self.data[self.identifier] = np.zeros((resolution, resolution, resolution), dtype = "float")
@@ -53,7 +53,3 @@ class Texture3Socket(UMOGSocket):
 
     def refresh(self):
         self.name = self.identifier
-
-    def destroy(self):
-        if self.isPacked and self.identifier in self.data:
-            del self.data[self.identifier]

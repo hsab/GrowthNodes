@@ -10,23 +10,21 @@ def propUpdate(self = None, context = None):
 
     if context is not None:
         #  Property changed from socket
-        if hasattr(self, 'isUMOGNodeSocket'):
-            if self.isUMOGNodeSocket:
-                if not self.socketRecentlyRefreshed:
-                    # DBG("PROPERTY CHANGED FROM SOCKET:",
-                    #     "Type:   "+self.dataType,
-                    #     "Name:   "+self.name,
-                    #     "Path:   "+self.path_from_id(),
-                    #     trace = True)
+        if self._isUMOGSocket:
+            if not self.socketRecentlyRefreshed:
+                # DBG("PROPERTY CHANGED FROM SOCKET:",
+                #     "Type:   "+self.dataType,
+                #     "Name:   "+self.name,
+                #     "Path:   "+self.path_from_id(),
+                #     trace = True)
 
-                    nodeTreeUpdateFrom(self.node)
-                else:
-                    self.socketRecentlyRefreshed = False
+                nodeTreeUpdateFrom(self.node)
+            else:
+                self.socketRecentlyRefreshed = False
                     
         # Property changed from node
-        elif hasattr(self, 'isUMOGNode'):
-            if self.isUMOGNode:
-                nodeTreeUpdateFrom(self)
+        if self._IsUMOGNode:
+            nodeTreeUpdateFrom(self)
 
 
 @persistent

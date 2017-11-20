@@ -42,7 +42,7 @@ class Texture2Socket(UMOGSocket):
 
     def pack(self):
         resolution = self.nodeTree.properties.TextureResolution
-        if self.isOutput:
+        if self.is_output:
             self.initOutputData(resolution)
         else:
             self.packInputData(resolution)
@@ -113,7 +113,7 @@ class Texture2Socket(UMOGSocket):
         return pixels
 
     def setPackedImageFromPixels(self, newPixels, flatten=True):
-        if self.isOutput and self.isPacked:
+        if self.is_output and self.isPacked:
             texture = self.getTexture()
             image = texture.image
             if flatten:
@@ -126,7 +126,7 @@ class Texture2Socket(UMOGSocket):
             assert(False)
 
     def setPackedImageFromChannels(self, newPixels, channel, flatten=True):
-        if self.isOutput and self.isPacked:
+        if self.is_output and self.isPacked:
             texture = self.getTexture()
             image = texture.image
             npImage = np.asarray(image.pixels, dtype = "float")
@@ -138,7 +138,7 @@ class Texture2Socket(UMOGSocket):
                 image.pixels = npImage
             image.update()
 
-        elif self.isInput and self.isPacked:
+        elif not self.is_output and self.isPacked:
             self.data[self.identifier][:,:,channel] = newPixels
             
 
@@ -162,7 +162,3 @@ class Texture2Socket(UMOGSocket):
 
     def getTexture(self):
         return bpy.data.textures[self.value]
-
-    def destroy(self):
-        if self.isPacked and self.identifier in self.data:
-            del self.data[self.identifier]

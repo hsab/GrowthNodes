@@ -36,7 +36,7 @@ class VertexGroupSocket(UMOGSocket):
         return self.value
 
     def setProperty(self, data):
-        self.object = self.getFromSocket.object
+        self.object = self.links[0].from_socket.object
         self.value = data
 
     def getProperty(self):
