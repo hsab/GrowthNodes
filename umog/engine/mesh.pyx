@@ -117,7 +117,7 @@ cdef void recalculate_normals(Mesh mesh):
         vec3_normalize(&mesh.normals[i], &mesh.normals[i])
 
 def array_from_texture(object blender_texture, int width, int height):
-    texture = np.ndarray(shape=(1,width,height,1,1), dtype=np.float32)
+    texture = np.ndarray(shape=(1,width,height,1,1), dtype=np.float32, order="F")
 
     cdef int x, y, i
     cdef object pixel

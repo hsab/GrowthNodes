@@ -187,7 +187,7 @@ def create_buffer(buffer_type, value=None):
             max(buffer_type.x_size, 1), max(buffer_type.y_size, 1), max(buffer_type.z_size, 1),
             max(buffer_type.t_size, 1))
         if value is not None:
-            array.from_memoryview(arr, <np.ndarray[float, ndim=5, mode="c"]>value)
+            array.from_memoryview(arr, <np.ndarray[float, ndim=5, mode="fortran"]>value)
         else:
             array.clear(arr)
         return arr
@@ -201,7 +201,7 @@ def create_buffer(buffer_type, value=None):
 
 cpdef float[:,:,:,:,:] sequence(int start, int end):
     cdef int i
-    cdef float[:,:,:,:,:] result = np.ndarray(shape=(1,1,1,1,end-start), dtype=np.float32)
+    cdef float[:,:,:,:,:] result = np.ndarray(shape=(1,1,1,1,end-start), dtype=np.float32, order="F")
     for i in range(start, end):
         result[0,0,0,0,i] = <float>i
     return result
