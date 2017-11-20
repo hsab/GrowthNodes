@@ -1,10 +1,7 @@
 from ..umog_node import *
 import numpy as np
 import bpy
-#import pyximport
-#pyximport.install()
 from ...events import events
-
 
 class ConvolveNode(UMOGNode):
     bl_idname = "umog_ConvolveNode"
