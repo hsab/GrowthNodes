@@ -25,7 +25,7 @@ class NumberNode(UMOGNode):
             [])
 
     def get_buffer_values(self):
-        return [np.array([self.value], dtype=np.float32).reshape((1,1,1,1,1))]
+        return [np.array([self.value], dtype=np.float32, order="F").reshape((1,1,1,1,1))]
 
     def update(self):
         pass

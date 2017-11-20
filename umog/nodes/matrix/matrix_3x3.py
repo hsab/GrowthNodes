@@ -31,7 +31,7 @@ class Matrix3x3Node(UMOGNode):
             [])
 
     def get_buffer_values(self):
-        return [np.column_stack((np.array(self.row1, dtype=np.float32), np.array(self.row2, dtype=np.float32), np.array(self.row3, dtype=np.float32))).reshape((1,3,3,1,1))]
+        return [np.column_stack((np.array(self.row1, dtype=np.float32, order="F"), np.array(self.row2, dtype=np.float32, order="F"), np.array(self.row3, dtype=np.float32, order="F"))).reshape((1,3,3,1,1))]
 
     def update(self):
         pass

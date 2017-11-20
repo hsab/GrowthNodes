@@ -7,7 +7,7 @@ cdef class Array(Data):
         self.tag = ARRAY
         self.mem = Pool()
 
-        self.array = <float[:channels, :x_size, :y_size, :z_size, :t_size]>self.mem.alloc(
+        self.array = <float[:channels:1, :x_size, :y_size, :z_size, :t_size]>self.mem.alloc(
             channels * x_size * y_size * z_size * t_size, sizeof(float))
 
 cdef void clear(Array array):
