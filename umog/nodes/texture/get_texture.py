@@ -1,5 +1,5 @@
 from ..umog_node import *
-from ...engine import types, engine, mesh
+from ...engine import types, engine, array
 import bpy
 
 class GetTextureNode(UMOGNode):
@@ -32,13 +32,13 @@ class GetTextureNode(UMOGNode):
     def get_operation(self, input_types):
         return engine.Operation(
             engine.CONST,
-            [types.Array(1, 100, 100, 1, 0, 1)],
-            [types.Array(1, 100, 100, 1, 0, 1)],
+            [types.Array(4, 100, 100, 1, 0, 1)],
+            [types.Array(4, 100, 100, 1, 0, 1)],
             [],
             [])
 
     def get_buffer_values(self):
-        return [mesh.array_from_texture(bpy.data.textures[self.texture_name], 100, 100)]
+        return [array.array_from_texture(bpy.data.textures[self.texture_name], 100, 100)]
 
     def update(self):
         pass

@@ -1,15 +1,12 @@
-import numpy as np
-cimport numpy as np
-
 import cython
 
-from libc.math cimport fmod
 from libc.stdint cimport uintptr_t
 from libc.string cimport memset, memcpy
 
 from ..packages.cymem.cymem cimport Pool
 
 from data cimport *
+from array cimport *
 
 cdef class Mesh(Data):
     def __init__(Mesh self):
@@ -59,7 +56,7 @@ cpdef void to_blender_mesh(Mesh mesh, uintptr_t blender_mesh_ptr) nogil:
         blender_mesh.mvert[i].no[1] = mesh.normals[i].y
         blender_mesh.mvert[i].no[2] = mesh.normals[i].z
 
-cdef Mesh copy(Mesh old):
+cdef Mesh copy_mesh(Mesh old):
     cdef Mesh new = Mesh()
     allocate(new, old.n_vertices, old.n_polygon_vertices, old.n_polygons)
     memcpy(new.vertices, old.vertices, old.n_vertices * sizeof(Vec3))
@@ -68,7 +65,7 @@ cdef Mesh copy(Mesh old):
     memcpy(new.polygons, old.polygons, old.n_polygons * 2 * sizeof(int))
     return new
 
-cdef void displace(Mesh mesh, float[:,:,:,:,:] texture):
+cdef void displace(Mesh mesh, Array texture):
     cdef int i
     cdef float value
     cdef float c
@@ -83,7 +80,7 @@ cdef void displace(Mesh mesh, float[:,:,:,:,:] texture):
 
     recalculate_normals(mesh)
 
-cdef void iterated_displace(Mesh mesh, float[:,:,:,:,:] texture, int iterations):
+cdef void iterated_displace(Mesh mesh, Array texture, int iterations):
     cdef int i
     for i in range(iterations):
         displace(mesh, texture)
@@ -115,39 +112,3 @@ cdef void recalculate_normals(Mesh mesh):
 
     for i in range(mesh.n_vertices):
         vec3_normalize(&mesh.normals[i], &mesh.normals[i])
-
-def array_from_texture(object blender_texture, int width, int height):
-    texture = np.ndarray(shape=(1,width,height,1,1), dtype=np.float32, order="F")
-
-    cdef int x, y, i
-    cdef object pixel
-    for x in range(width):
-        for y in range(height):
-            pixel = blender_texture.evaluate([<float>x / <float>width, <float>y / <float>height, 0.0])
-            texture.data[0,x,y,0,0] = pixel[3]# * (pixel[0] + pixel[1] + pixel[2])
-            # print(x,y)
-            # print(texture.data[0,x,y,0,0])
-
-    return texture
-
-cdef float sample_texture(float[:,:,:,:,:] data, float x, float y):
-    cdef int x1 = <int>x % data.shape[0]
-    cdef int x2 = (x1 + 1) % data.shape[0]
-    cdef int y1 = <int>y % data.shape[1]
-    cdef int y2 = (y1 + 1) % data.shape[1]
-
-    cdef float xt = fmod(x, 1.0)
-    if xt < 0.0: xt += 1.0
-    cdef float yt = fmod(y, 1.0)
-    if yt < 0.0: yt += 1.0
-
-    # cdef float[:] result = np.ndarray(shape=(data.shape[2]), dtype=np.float32)
-    cdef float result
-
-    # cdef int channel
-    # for channel in range(data.shape[2]):
-    f1 = (1.0 - xt) * data[0,x1,y1,0,0] + xt * data[0,x2,y1,0,0]
-    f2 = (1.0 - xt) * data[0,x1,y2,0,0] + xt * data[0,x2,y2,0,0]
-    result = (1.0 - yt) * f1 + yt * f2
-
-    return result
