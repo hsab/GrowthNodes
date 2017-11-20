@@ -1,23 +1,28 @@
 from ..umog_node import *
+from ...engine import types, engine
 import bpy
 import numpy as np
 
 class LaplaceNode(UMOGNode):
     bl_idname = "umog_LaplaceNode"
-    bl_label = "Laplace Filter"
+    bl_label = "Laplace Kernel"
 
-    laplace_matrix = np.array([[0.0, -1.0, 0.0], [-1.0, 4.0, -1.0], [0.0, -1.0, 0.0]])
-    
+    bl_width_default = 150
+
     def init(self, context):
-        self.outputs.new("Mat3SocketType", "Output")
+        self.outputs.new("ArraySocketType", "Output")
         super().init(context)
 
-    def preExecute(self, refholder):
-        print('begin preExecute laplace')
-        
-        self.outputs[0].matrix_ref = refholder.getRefForMatrix(self.laplace_matrix)
+    def draw_buttons(self, context, layout):
+        pass
 
-    def execute(self, refholder):
-        print('begin laplace')
-        for elem in self.laplace_matrix:
-            print(elem)
+    def get_operation(self, input_types):
+        return engine.Operation(
+            engine.CONST,
+            [types.Array(0,3,3,0,0,0)],
+            [types.Array(0,3,3,0,0,0)],
+            [engine.Argument(engine.ArgumentType.BUFFER, 0)],
+            [])
+
+    def get_buffer_values(self):
+        return [np.array([[0.25, 0.5, 0.25], [0.5, -3, 0.5], [0.25, 0.5, 0.25]], dtype=np.float32, order="F").reshape((1,3,3,1,1))]
