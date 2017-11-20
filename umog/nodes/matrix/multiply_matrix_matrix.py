@@ -26,17 +26,7 @@ class MultiplyMatrixMatrixNode(UMOGNode):
         if a.x_size != b.y_size:
             raise types.UMOGTypeError()
 
-        if a.t_start == b.t_start and a.t_size == b.t_size:
-            t_start = a.t_start
-            t_size = a.t_size
-        elif a.t_size == 0:
-            t_start = b.t_start
-            t_size = b.t_size
-        elif b.t_size == 0:
-            t_start = a.t_start
-            t_size = a.t_size
-        else:
-            raise UMOGTypeError()
+        t_start, t_size = types.broadcast_time(a, b)
 
         output_types = [types.Array(0, b.x_size, a.y_size, 0, t_start, t_size)]
 

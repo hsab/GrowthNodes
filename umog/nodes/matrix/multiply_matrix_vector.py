@@ -23,17 +23,7 @@ class MultiplyMatrixVectorNode(UMOGNode):
         if matrix.x_size != vector.channels:
             raise types.UMOGTypeError()
 
-        if matrix.t_start == vector.t_start and matrix.t_size == vector.t_size:
-            t_start = matrix.t_start
-            t_size = matrix.t_size
-        elif matrix.t_size == 0:
-            t_start = vector.t_start
-            t_size = vector.t_size
-        elif vector.t_size == 0:
-            t_start = matrix.t_start
-            t_size = matrix.t_size
-        else:
-            raise UMOGTypeError()
+        t_start, t_size = types.broadcast_time(matrix, vector)
 
         output_types = [types.Array(matrix.y_size, vector.x_size, vector.y_size, vector.z_size, t_start, t_size)]
 
