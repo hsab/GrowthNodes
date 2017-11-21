@@ -29,7 +29,7 @@ def array_from_texture(object blender_texture, int width, int height):
     cdef object pixel
     for x in range(width):
         for y in range(height):
-            pixel = blender_texture.evaluate([<float>x / <float>width, <float>y / <float>height, 0.0])
+            pixel = blender_texture.evaluate([2 * <float>x / <float>width - 1, 2 * <float>y / <float>height - 1, 0.0])
             texture.data[0,x,y,0,0] = pixel[0]
             texture.data[1,x,y,0,0] = pixel[1]
             texture.data[2,x,y,0,0] = pixel[2]
