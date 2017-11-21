@@ -31,7 +31,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
-# $Id:$
 
 import ctypes
 from pyglet import com
@@ -67,6 +66,13 @@ class WAVEFORMATEX(ctypes.Structure):
         ('wBitsPerSample', WORD),
         ('cbSize', WORD), 
     ]
+
+    def __repr__(self):
+        return 'WAVEFORMATEX(wFormatTag={}, nChannels={}, nSamplesPerSec={}, nAvgBytesPersec={}' \
+               ', nBlockAlign={}, wBitsPerSample={}, cbSize={})'.format(
+                       self.wFormatTag, self.nChannels, self.nSamplesPerSec,
+                       self.nAvgBytesPerSec, self.nBlockAlign, self.wBitsPerSample,
+                       self.cbSize)
 LPWAVEFORMATEX = ctypes.POINTER(WAVEFORMATEX)
 WAVE_FORMAT_PCM = 1
 
@@ -117,6 +123,11 @@ class DSBUFFERDESC(ctypes.Structure):
         ('dwReserved', DWORD),
         ('lpwfxFormat', LPWAVEFORMATEX),
     ]
+
+    def __repr__(self):
+        return 'DSBUFFERDESC(dwSize={}, dwFlags={}, dwBufferBytes={}, lpwfxFormat={})'.format(
+                self.dwSize, self.dwFlags, self.dwBufferBytes,
+                self.lpwfxFormat.contents if self.lpwfxFormat else None)
 LPDSBUFFERDESC = ctypes.POINTER(DSBUFFERDESC)
 
 class DS3DBUFFER(ctypes.Structure):
@@ -202,7 +213,7 @@ class IDirectSound3DListener(com.IUnknown):
         ('GetDopplerFactor',
          com.STDMETHOD(PD3DVALUE)),
         ('GetOrientation',
-         com.STDMETHOD(PD3DVECTOR)),
+         com.STDMETHOD(PD3DVECTOR, PD3DVECTOR)),
         ('GetPosition',
          com.STDMETHOD(PD3DVECTOR)),
         ('GetRolloffFactor',
@@ -406,3 +417,34 @@ DS3D_DEFAULTCONEANGLE = 360
 
 DS3D_DEFAULTCONEOUTSIDEVOLUME = DSBVOLUME_MAX
 
+# Return codes
+DS_OK = 0x00000000
+DSERR_OUTOFMEMORY = 0x00000007
+DSERR_NOINTERFACE = 0x000001AE
+DS_NO_VIRTUALIZATION = 0x0878000A
+DS_INCOMPLETE = 0x08780014
+DSERR_UNSUPPORTED = 0x80004001
+DSERR_GENERIC = 0x80004005
+DSERR_ACCESSDENIED = 0x80070005
+DSERR_INVALIDPARAM = 0x80070057
+DSERR_ALLOCATED = 0x8878000A
+DSERR_CONTROLUNAVAIL = 0x8878001E
+DSERR_INVALIDCALL = 0x88780032
+DSERR_PRIOLEVELNEEDED = 0x88780046
+DSERR_BADFORMAT = 0x88780064
+DSERR_NODRIVER = 0x88780078
+DSERR_ALREADYINITIALIZED = 0x88780082
+DSERR_BUFFERLOST = 0x88780096
+DSERR_OTHERAPPHASPRIO = 0x887800A0
+DSERR_UNINITALIZED = 0x887800AA
+DSERR_BUFFERTOOSMALL = 0x887810B4
+DSERR_DS8_REQUIRED = 0x887810BE
+DSERR_SENDLOOP = 0x887810C8
+DSERR_BADSENDBUFFERGUID = 0x887810D2
+DSERR_FXUNAVAILABLE = 0x887810DC
+DSERR_OBJECTNOTFOUND = 0x88781161
+
+# Buffer status
+DSBSTATUS_PLAYING = 0x00000001
+DSBSTATUS_BUFFERLOST = 0x00000002
+DSBSTATUS_LOOPING = 0x00000004

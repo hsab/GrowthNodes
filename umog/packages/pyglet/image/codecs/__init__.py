@@ -48,6 +48,7 @@ Modules must also implement the two functions::
         return []
     
 '''
+from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -89,7 +90,7 @@ class ImageDecoder(object):
         raise NotImplementedError()
 
     def decode_animation(self, file, filename):
-        '''Decode the given file object and return an instance of `Animation`.
+        '''Decode the given file object and return an instance of :py:class:`~pyglet.image.Animation`.
         Throws ImageDecodeException if there is an error.  filename
         can be a file type hint.
         '''

@@ -1,3 +1,4 @@
+from builtins import object
 #!/usr/bin/python
 # $Id:$
 
@@ -107,7 +108,7 @@ class Config(object):
     def get_gl_attributes(self):
         '''Return a list of attributes set on this config.
 
-        :rtype: list of tuple (name, value)
+        :rtype: list of tuple ``(name, value)``
         :return: All attributes, with unset attributes having a value of
             ``None``.
         '''
@@ -116,7 +117,7 @@ class Config(object):
     def match(self, canvas):
         '''Return a list of matching complete configs for the given canvas.
 
-        :since: pyglet 1.2
+        .. versionadded:: 1.2
 
         :Parameters:
             `canvas` : `Canvas`
@@ -167,7 +168,7 @@ class CanvasConfig(Config):
 
     Use `Config.match` to obtain an instance of this class.
 
-    :since: pyglet 1.2
+    .. versionadded:: 1.2
 
     :Ivariables:
         `canvas` : `Canvas`
@@ -362,14 +363,14 @@ class Context(object):
     def delete_buffer(self, buffer_id):
         '''Safely delete a buffer object belonging to this context.
 
-        This method behaves similarly to `delete_texture`, though for
+        This method behaves similarly to :py:func:`~pyglet.text.document.AbstractDocument.delete_texture`, though for
         ``glDeleteBuffers`` instead of ``glDeleteTextures``.
 
         :Parameters:
             `buffer_id` : int
                 The OpenGL name of the buffer to delete.
 
-        :since: pyglet 1.1
+        .. versionadded:: 1.1
         '''
         if self.object_space is gl.current_context.object_space and False:
             id = gl.GLuint(buffer_id)
@@ -380,7 +381,7 @@ class Context(object):
     def get_info(self):
         '''Get the OpenGL information for this context.
 
-        :since: pyglet 1.2
+        .. versionadded:: 1.2
 
         :rtype: `GLInfo`
         '''

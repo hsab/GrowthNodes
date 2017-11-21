@@ -43,6 +43,11 @@ References:
  * http://developer.apple.com/fonts/TTRefMan/RM06
  * http://www.microsoft.com/typography/otspec
 """
+from __future__ import division
+from builtins import zip
+from builtins import chr
+from builtins import range
+from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'  
@@ -52,7 +57,7 @@ import os
 import mmap
 import struct
 
-class TruetypeInfo:
+class TruetypeInfo(object):
     """Information about a single Truetype face.
 
     The class memory-maps the font file to read the tables, so
@@ -322,7 +327,7 @@ class TruetypeInfo:
             gmap = self.get_glyph_map()
             kerns = self.get_glyph_kernings()
             self._character_kernings = {}
-            for pair, value in list(kerns.items()):
+            for pair, value in kerns.items():
                 lglyph, rglyph = pair
                 lchar = lglyph in gmap and gmap[lglyph] or None
                 rchar = rglyph in gmap and gmap[rglyph] or None
@@ -376,7 +381,7 @@ class TruetypeInfo:
             return self._glyph_map
         cmap = self.get_character_map()
         self._glyph_map = {}
-        for ch, glyph in list(cmap.items()):
+        for ch, glyph in cmap.items():
             if not glyph in self._glyph_map:
                 self._glyph_map[glyph] = ch
         return self._glyph_map
@@ -410,7 +415,7 @@ class TruetypeInfo:
         # format ever.  Whoever the fuckwit is that thought this up is
         # a fuckwit. 
         header = _read_cmap_format4Header(self._data, offset)
-        seg_count = header.seg_count_x2 / 2
+        seg_count = header.seg_count_x2 // 2
         array_size = struct.calcsize('>%dH' % seg_count)
         end_count = self._read_array('>%dH' % seg_count, 
             offset + header.size)
@@ -464,7 +469,7 @@ def _read_table(*entries):
         name, type = entry.split(':')
         names.append(name)
         fmt += type
-    class _table_class:
+    class _table_class(object):
         size = struct.calcsize(fmt)
         def __init__(self, data, offset):
             items = struct.unpack(fmt, data[offset:offset+self.size])

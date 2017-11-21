@@ -2,6 +2,7 @@
 
 '''
 '''
+from __future__ import absolute_import
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -118,7 +119,7 @@ class CarbonCanvasConfig(CanvasConfig):
         self._pformat = pformat
         self._attributes = {}
 
-        for name, attr in list(self._attribute_ids.items()):
+        for name, attr in self._attribute_ids.items():
             value = c_int()
             result = agl.aglDescribePixelFormat(pformat, attr, byref(value))
             if result:

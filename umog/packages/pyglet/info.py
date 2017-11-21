@@ -39,6 +39,7 @@ Intended usage is to create a file for bug reports, e.g.::
     python -m pyglet.info > info.txt
 
 '''
+from __future__ import print_function
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -67,7 +68,7 @@ def dump_python():
         except:
             print('PyObjC not available')
     print('os.getcwd():', os.getcwd())
-    for key, value in list(os.environ.items()):
+    for key, value in os.environ.items():
         if key.startswith('PYGLET_'):
             print("os.environ['%s']: %s" % (key, value))
 
@@ -77,7 +78,7 @@ def dump_pyglet():
     print('pyglet.version:', pyglet.version)
     print('pyglet.compat_platform:', pyglet.compat_platform)
     print('pyglet.__file__:', pyglet.__file__)
-    for key, value in list(pyglet.options.items()):
+    for key, value in pyglet.options.items():
         print("pyglet.options['%s'] = %r" % (key, value))
 
 def dump_window():
@@ -176,10 +177,10 @@ def dump_al():
     except:
         print('OpenAL not available.')
         return
-    print('Library:', openal.al._lib)
+    print('Library:', openal.lib_openal._lib)
 
     driver = openal.create_audio_driver()
-    print('Version:', driver.get_version())
+    print('Version: {}.{}'.format(*driver.get_version()))
     print('Extensions:')
     for extension in driver.get_extensions():
         print('  ', extension)
