@@ -1,3 +1,5 @@
+from builtins import chr
+from builtins import object
 import unicodedata
 
 from pyglet.window import key
@@ -47,8 +49,8 @@ class PygletTextView_Implementation(object):
         event = NSApplication.sharedApplication().currentEvent()
         chars = event.charactersIgnoringModifiers()
         ch = chr(chars.characterAtIndex_(0))
-        if ch == '\r':
-            self._window.dispatch_event("on_text", '\r')
+        if ch == u'\r':
+            self._window.dispatch_event("on_text", u'\r')
 
     @PygletTextView.method('v@')
     def moveUp_(self, sender):

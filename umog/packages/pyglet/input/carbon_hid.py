@@ -2,6 +2,9 @@
 
 '''
 '''
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -424,7 +427,7 @@ class DarwinHIDDevice(Device):
         while r == 0:
             try:
                 control = self._control_cookies[event.elementCookie]
-                control._set_value(event.value)
+                control.value = event.value
             except KeyError:
                 pass
 
@@ -505,7 +508,12 @@ def get_devices(display=None):
     return [DarwinHIDDevice(display, service) for service in services]
 
 def get_joysticks(display=None):
-    return [_f for _f in [_create_joystick(device) for device in get_devices(display)] if _f]
+    return [joystick 
+            for joystick 
+            in [_create_joystick(device) 
+                for device 
+                in get_devices(display)] 
+            if joystick is not None]
 
 def get_apple_remote(display=None):
     for device in get_devices(display):

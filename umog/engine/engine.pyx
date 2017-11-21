@@ -22,6 +22,8 @@ from array cimport Array
 from collections import namedtuple
 from enum import Enum
 
+import reaction_diffusion_gpu
+
 # operation
 
 Operation = namedtuple('Operation', ['opcode', 'output_types', 'buffer_types', 'arguments', 'parameters'])
@@ -165,6 +167,31 @@ cdef class Engine:
                 pass
             elif instruction.op == NOP:
                 pass
+            
+            elif instruction.op == REACTION_DIFFUSION_GPU_STEP:
+                options = <Array>self.buffers[instruction.ins[2]]
+                print(options.shape)
+                reaction_diffusion_gpu.reaction_diffusion_gpu(
+                    <Array>self.buffers[instruction.outs[0]],
+                    <Array>self.buffers[instruction.outs[1]],
+                    <Array>self.buffers[instruction.ins[0]], 
+                    <Array>self.buffers[instruction.ins[1]],
+                    options.array[0,0,0,0,0], 
+                    options.array[1,0,0,0,0], 
+                    options.array[2,0,0,0,0], 
+                    options.array[3,0,0,0,0], 
+                    options.array[4,0,0,0,0],
+                    options.array[5,0,0,0,0]
+                    )
+                #options = <Array>self.buffers[instruction.ins[1]]
+                #for i in range(instruction.parameters[0]):
+                    #reaction_diffusion_step(<Array>self.buffers[instruction.outs[0]], <Array>self.buffers[instruction.ins[0]], options.array[0,0,0,0,0], options.array[1,0,0,0,0], options.array[2,0,0,0,0], options.array[3,0,0,0,0], options.array[4,0,0,0,0])
+                    #array.copy_array(<Array>self.buffers[instruction.ins[0]], <Array>self.buffers[instruction.outs[0]])
+                    
+                #reaction_diffusion_gpu(<Array>self.buffers[instruction.outs[0]],    <Array>self.buffers[instruction.outs[1]],
+                #<Array>self.buffers[instruction.ins[0]], 
+                #<Array>self.buffers[instruction.ins[1]])
+                
 
         # output values
         for (output_node, buffer_i) in self.outputs:

@@ -80,6 +80,7 @@ def main():
                 copyToBlender()
             else:
                 print("The path to Blenders addon directory does not exist")
+                print("The current addons directory is: " + config["addonsDirectory"])
                 print("Please correct the config.py file.")
 
 def setupAndReadConfigFile():

@@ -35,17 +35,16 @@
 '''Extensible attributed text format for representing pyglet formatted
 documents.
 '''
+from builtins import chr
+from builtins import map
 
-__docformat__ = 'restructuredtext'
-__version__ = '$Id: $'
-
+from functools import reduce
 import operator
 import parser
 import re
 import token
 
 import pyglet
-from functools import reduce
 
 _pattern = re.compile(r'''
     (?P<escape_hex>\{\#x(?P<escape_hex_val>[0-9a-fA-F]+)\})
@@ -132,7 +131,7 @@ class AttributedTextDecoder(pyglet.text.DocumentDecoder):
 
     def safe_node(self, node):
         if token.ISNONTERMINAL(node[0]):
-            return reduce(operator.and_, list(map(self.safe_node, node[1:])))
+            return reduce(operator.and_, map(self.safe_node, node[1:]))
         elif node[0] == token.NAME:
             return node[1] in self._safe_names
         else:

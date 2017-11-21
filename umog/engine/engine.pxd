@@ -9,9 +9,9 @@ from array cimport *
 # instructions
 
 cdef enum:
-    MAX_INS = 2
-    MAX_OUTS = 2
-    MAX_PARAMETERS = 1
+    MAX_INS = 4
+    MAX_OUTS = 4
+    MAX_PARAMETERS = 10
 
 cpdef enum Opcode:
     CONST
@@ -54,6 +54,9 @@ cpdef enum Opcode:
     # control
     LOOP
     COND
+    
+    # gpu
+    REACTION_DIFFUSION_GPU_STEP
 
 cdef class Instruction:
     cdef Opcode op

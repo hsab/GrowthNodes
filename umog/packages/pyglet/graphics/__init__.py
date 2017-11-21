@@ -39,18 +39,18 @@ This module provides an efficient low-level abstraction over OpenGL.  It gives
 very good performance for rendering OpenGL primitives; far better than the
 typical immediate-mode usage and, on modern graphics cards, better than using
 display lists in many cases.  The module is used internally by other areas of
-pyglet.  
+pyglet.
 
-See the Programming Guide for details on how to use this graphics API.
+See the :ref:`programming-guide-graphics` for details on how to use this graphics API.
 
 Batches and groups
 ==================
 
 Without even needing to understand the details on how to draw primitives with
-the graphics API, developers can make use of `Batch` and `Group`
+the graphics API, developers can make use of :py:class:`~pyglet.graphics.Batch` and :py:class:`~pyglet.graphics.Group`
 objects to improve performance of sprite and text rendering.
 
-The `Sprite`, `Label` and `TextLayout` classes all accept a ``batch`` and
+The :py:class:`~pyglet.sprite.Sprite`, :py:func:`~pyglet.text.Label` and :py:func:`~pyglet.text.layout.TextLayout` classes all accept a ``batch`` and
 ``group`` parameter in their constructors.  A batch manages a set of objects
 that will be drawn all at once, and a group describes the manner in which an
 object is drawn.
@@ -155,8 +155,11 @@ present.  This also permits use of ``GL_POLYGON``, ``GL_LINE_LOOP`` and
 ``GL_TRIANGLE_FAN``.   Unfortunately the extension is not provided by older
 video drivers, and requires indexed vertex lists.
 
-:since: pyglet 1.1
+.. versionadded:: 1.1
 '''
+from __future__ import print_function
+from builtins import zip
+from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -273,7 +276,7 @@ def _get_default_batch():
         return shared_object_space.pyglet_graphics_default_batch
 
 def vertex_list(count, *data):
-    '''Create a `VertexList` not associated with a batch, group or mode.
+    '''Create a :py:class:`~pyglet.graphics.vertexdomain.VertexList` not associated with a batch, group or mode.
 
     :Parameters:
         `count` : int
@@ -282,7 +285,7 @@ def vertex_list(count, *data):
             Attribute formats and initial data for the vertex list.  See the
             module summary for details.
 
-    :rtype: `VertexList`
+    :rtype: :py:class:`~pyglet.graphics.vertexdomain.VertexList`
     '''
     # Note that mode=0 because the default batch is never drawn: vertex lists
     # returned from this function are drawn directly by the app.
@@ -309,7 +312,7 @@ def vertex_list_indexed(count, indices, *data):
 class Batch(object):
     '''Manage a collection of vertex lists for batched rendering.
 
-    Vertex lists are added to a `Batch` using the `add` and `add_indexed`
+    Vertex lists are added to a :py:class:`~pyglet.graphics.Batch` using the `add` and `add_indexed`
     methods.  An optional group can be specified along with the vertex list,
     which gives the OpenGL state required for its rendering.  Vertex lists
     with shared mode and group are allocated into adjacent areas of memory and
@@ -338,7 +341,7 @@ class Batch(object):
         This method can be used to force the batch to re-compute the draw list
         when the ordering of groups has changed.
 
-        :since: pyglet 1.2
+        .. versionadded:: 1.2
         '''
         self._draw_list_dirty = True
 
@@ -352,13 +355,13 @@ class Batch(object):
                 OpenGL drawing mode enumeration; for example, one of
                 ``GL_POINTS``, ``GL_LINES``, ``GL_TRIANGLES``, etc.
                 See the module summary for additional information.
-            `group` : `Group`
+            `group` : `~pyglet.graphics.Group`
                 Group of the vertex list, or ``None`` if no group is required.
             `data` : data items
                 Attribute formats and initial data for the vertex list.  See
                 the module summary for details.
 
-        :rtype: `VertexList`
+        :rtype: :py:class:`~pyglet.graphics.vertexdomain.VertexList`
         '''
         formats, initial_arrays = _parse_data(data)
         domain = self._get_domain(False, mode, group, formats)
@@ -380,7 +383,7 @@ class Batch(object):
                 OpenGL drawing mode enumeration; for example, one of
                 ``GL_POINTS``, ``GL_LINES``, ``GL_TRIANGLES``, etc.
                 See the module summary for additional information.
-            `group` : `Group`
+            `group` : `~pyglet.graphics.Group`
                 Group of the vertex list, or ``None`` if no group is required.
             `indices` : sequence
                 Sequence of integers giving indices into the vertex list.
@@ -415,18 +418,21 @@ class Batch(object):
         `batch` can remain unchanged if only a group change is desired.
         
         :Parameters:
-            `vertex_list` : `VertexList`
+            `vertex_list` : `~pyglet.graphics.vertexdomain.VertexList`
                 A vertex list currently belonging to this batch.
             `mode` : int
                 The current GL drawing mode of the vertex list.
-            `group` : `Group`
+            `group` : `~pyglet.graphics.Group`
                 The new group to migrate to.
-            `batch` : `Batch`
+            `batch` : `~pyglet.graphics.Batch`
                 The batch to migrate to (or the current batch).
 
         '''
         formats = vertex_list.domain.__formats
-        domain = batch._get_domain(False, mode, group, formats)
+        if isinstance(vertex_list, vertexdomain.IndexedVertexList):
+            domain = batch._get_domain(True, mode, group, formats)
+        else:
+            domain = batch._get_domain(False, mode, group, formats)
         vertex_list.migrate(domain)
 
     def _get_domain(self, indexed, mode, group, formats):
@@ -524,11 +530,11 @@ class Batch(object):
         def dump(group, indent=''):
             print(indent, 'Begin group', group)
             domain_map = self.group_map[group]
-            for _, domain in list(domain_map.items()):
+            for _, domain in domain_map.items():
                 print(indent, '  ', domain)
                 for start, size in zip(*domain.allocator.get_allocated_regions()):
                     print(indent, '    ', 'Region %d size %d:' % (start, size))
-                    for key, attribute in list(domain.attribute_names.items()):
+                    for key, attribute in domain.attribute_names.items():
                         print(indent, '      ', end=' ')
                         try:
                             region = attribute.get_region(attribute.buffer,
@@ -574,7 +580,7 @@ class Batch(object):
 
             # Draw domains using this group
             domain_map = self.group_map[group]
-            for (_, mode, _), domain in list(domain_map.items()):
+            for (_, mode, _), domain in domain_map.items():
                 for alist in vertex_lists:
                     if alist.domain is domain:
                         alist.draw(mode)
@@ -604,7 +610,7 @@ class Group(object):
         '''Create a group.
 
         :Parameters:
-            `parent` : `Group`
+            `parent` : `~pyglet.graphics.Group`
                 Group to contain this group; its state will be set before this
                 state's.
 
@@ -655,7 +661,7 @@ class NullGroup(Group):
 
 #: The default group.
 #:
-#: :type: `Group`
+#: :type: :py:class:`~pyglet.graphics.Group`
 null_group = NullGroup()
 
 class TextureGroup(Group):
@@ -669,9 +675,9 @@ class TextureGroup(Group):
         '''Create a texture group.
 
         :Parameters:
-            `texture` : `Texture`
+            `texture` : `~pyglet.image.Texture`
                 Texture to bind.
-            `parent` : `Group`
+            `parent` : `~pyglet.graphics.Group`
                 Parent group.
 
         '''
@@ -716,7 +722,7 @@ class OrderedGroup(Group):
         :Parameters:
             `order` : int
                 Order of this group.
-            `parent` : `Group`
+            `parent` : `~pyglet.graphics.Group`
                 Parent of this group.
 
         '''

@@ -47,12 +47,13 @@ oddly if edited.
 
 No CSS styling is supported.
 '''
+from builtins import chr
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
-import html.parser
-import html.entities
+from future.moves.html.parser import HTMLParser
+from future.moves.html import entities
 import re
 
 import pyglet
@@ -89,7 +90,7 @@ def _parse_color(value):
         except KeyError:
             raise ValueError()
 
-_whitespace_re = re.compile('[\u0020\u0009\u000c\u200b\r\n]+', re.DOTALL)
+_whitespace_re = re.compile(u'[\u0020\u0009\u000c\u200b\r\n]+', re.DOTALL)
 
 _metadata_elements = ['head', 'title']
 
@@ -111,7 +112,7 @@ _block_containers = ['_top_block',
                      'ul', 'ol', 'dir', 'menu', 'dl']
 
 
-class HTMLDecoder(html.parser.HTMLParser, structured.StructuredTextDecoder):
+class HTMLDecoder(HTMLParser, structured.StructuredTextDecoder):
     '''Decoder for HTML documents.
     '''
     #: Default style attributes for unstyled text in the HTML document.
@@ -262,7 +263,7 @@ class HTMLDecoder(html.parser.HTMLParser, structured.StructuredTextDecoder):
             style['font_size'] = 12
             style['italic'] = True
         elif element == 'br':
-            self.add_text('\u2028')
+            self.add_text(u'\u2028')
             self.strip_leading_space = True
         elif element == 'p':
             if attrs.get('align') in ('left', 'center', 'right'):
@@ -279,7 +280,7 @@ class HTMLDecoder(html.parser.HTMLParser, structured.StructuredTextDecoder):
             style['margin_left'] = left_margin + 60
             style['margin_right'] = right_margin + 60
         elif element == 'q':
-            self.handle_data('\u201c')
+            self.handle_data(u'\u201c')
         elif element == 'ol':
             try:
                 start = int(attrs.get('start', 1))
@@ -292,11 +293,11 @@ class HTMLDecoder(html.parser.HTMLParser, structured.StructuredTextDecoder):
         elif element in ('ul', 'dir', 'menu'):
             type = attrs.get('type', 'disc').lower()
             if type == 'circle':
-                mark = '\u25cb'
+                mark = u'\u25cb'
             elif type == 'square':
-                mark = '\u25a1'
+                mark = u'\u25a1'
             else:
-                mark = '\u25cf'
+                mark = u'\u25cf'
             builder = structured.UnorderedListBuilder(mark)
             builder.begin(self, style)
             self.list_stack.append(builder)
@@ -343,14 +344,14 @@ class HTMLDecoder(html.parser.HTMLParser, structured.StructuredTextDecoder):
         elif element == 'pre':
             self.in_pre = False
         elif element == 'q':
-            self.handle_data('\u201d')
+            self.handle_data(u'\u201d')
         elif element in ('ul', 'ol'):
             if len(self.list_stack) > 1:
                 self.list_stack.pop()
 
     def handle_entityref(self, name):
-        if name in html.entities.name2codepoint:
-            self.handle_data(chr(html.entities.name2codepoint[name]))
+        if name in entities.name2codepoint:
+            self.handle_data(chr(entities.name2codepoint[name]))
     
     def handle_charref(self, name):
         name = name.lower()

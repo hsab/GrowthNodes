@@ -38,6 +38,7 @@ tools/genwrappers.py xsync
 
 Do not modify this file.
 '''
+from __future__ import absolute_import
 
 __docformat__ =  'restructuredtext'
 __version__ = '$Id$'
