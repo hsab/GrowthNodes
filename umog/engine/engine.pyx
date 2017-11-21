@@ -170,7 +170,6 @@ cdef class Engine:
             
             elif instruction.op == REACTION_DIFFUSION_GPU_STEP:
                 options = <Array>self.buffers[instruction.ins[2]]
-                print(options.shape)
                 reaction_diffusion_gpu.reaction_diffusion_gpu(
                     <Array>self.buffers[instruction.outs[0]],
                     <Array>self.buffers[instruction.outs[1]],
