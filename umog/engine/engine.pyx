@@ -144,8 +144,9 @@ cdef class Engine:
             elif instruction.op == CONVOLVE:
                 convolve(<Array>self.buffers[instruction.outs[0]], <Array>self.buffers[instruction.ins[0]], <Array>self.buffers[instruction.ins[1]])
             elif instruction.op == REACTION_DIFFUSION_STEP:
-                for i in range(100):
-                    reaction_diffusion_step(<Array>self.buffers[instruction.outs[0]], <Array>self.buffers[instruction.ins[0]], instruction.parameters[0], instruction.parameters[1], instruction.parameters[2], instruction.parameters[3], instruction.parameters[4])
+                options = <Array>self.buffers[instruction.ins[1]]
+                for i in range(instruction.parameters[0]):
+                    reaction_diffusion_step(<Array>self.buffers[instruction.outs[0]], <Array>self.buffers[instruction.ins[0]], options.array[0,0,0,0,0], options.array[1,0,0,0,0], options.array[2,0,0,0,0], options.array[3,0,0,0,0], options.array[4,0,0,0,0])
                     array.copy_array(<Array>self.buffers[instruction.ins[0]], <Array>self.buffers[instruction.outs[0]])
 
             elif instruction.op == DISPLACE:

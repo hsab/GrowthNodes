@@ -1,6 +1,7 @@
 import cython
 from cython.parallel import prange
-from libc.math cimport fmax
+from libc.math cimport fmin, fmax
+from libc.stdio cimport printf
 
 from data cimport *
 from array cimport *
@@ -10,7 +11,7 @@ from array cimport *
 cdef enum:
     MAX_INS = 2
     MAX_OUTS = 2
-    MAX_PARAMETERS = 5
+    MAX_PARAMETERS = 1
 
 cpdef enum Opcode:
     CONST
@@ -313,6 +314,8 @@ cdef inline void convolve(Array out, Array kernel, Array array) nogil:
         for z in prange(out.array.shape[3]):
             for y in prange(out.array.shape[2]):
                 for x in prange(out.array.shape[1]):
+                    for channel in prange(out.array.shape[0]):
+                        out.array[channel,x,y,z,t] = 0
                     for z_ in prange(max(0, z - cz), min(array.array.shape[3], z - cz + kernel.array.shape[3])):
                         for y_ in prange(max(0, y - cy), min(array.array.shape[2], y - cy + kernel.array.shape[2])):
                             for x_ in prange(max(0, x - cx), min(array.array.shape[1], x - cx + kernel.array.shape[1])):
@@ -327,9 +330,9 @@ cdef inline void reaction_diffusion_step(Array out, Array a, float feed, float k
     cdef int x, y
 
     cdef Array kernel = Array(1, 3, 3, 1, 1)
-    kernel.array[0,0,0,0,0] = 0; kernel.array[0,0,0,0,0] = 1; kernel.array[0,0,0,0,0] = 0
-    kernel.array[0,0,0,0,0] = 1; kernel.array[0,0,0,0,0] = -4; kernel.array[0,0,0,0,0] = 1
-    kernel.array[0,0,0,0,0] = 0; kernel.array[0,0,0,0,0] = 1; kernel.array[0,0,0,0,0] = 0
+    kernel.array[0,0,0,0,0] = 0.25; kernel.array[0,1,0,0,0] = 0.5; kernel.array[0,2,0,0,0] = 0.25
+    kernel.array[0,0,1,0,0] = 0.5; kernel.array[0,1,1,0,0] = -3; kernel.array[0,2,1,0,0] = 0.5
+    kernel.array[0,0,2,0,0] = 0.25; kernel.array[0,1,2,0,0] = 0.5; kernel.array[0,2,2,0,0] = 0.25
 
     cdef Array laplacian = Array(a.array.shape[0], a.array.shape[1], a.array.shape[2], a.array.shape[3], a.array.shape[4])
     convolve(laplacian, kernel, a)
@@ -337,8 +340,10 @@ cdef inline void reaction_diffusion_step(Array out, Array a, float feed, float k
     with nogil:
         for y in prange(out.array.shape[2]):
             for x in range(out.array.shape[1]):
-                out.array[0,x,y,0,0] = fmax(a.array[0,x,y,0,0] + (Da * laplacian.array[0,x,y,0,0] - (a.array[0,x,y,0,0]*a.array[1,x,y,0,0]*a.array[1,x,y,0,0]) + feed*(1.0 - a.array[0,x,y,0,0]))*dt, 0.0)
-                out.array[1,x,y,0,0] = fmax(a.array[1,x,y,0,0] + (Db * laplacian.array[1,x,y,0,0] + (a.array[0,x,y,0,0]*a.array[1,x,y,0,0]*a.array[1,x,y,0,0]) - (kill + feed)*a.array[1,x,y,0,0])*dt, 0.0)
+                out.array[0,x,y,0,0] = fmin(fmax(a.array[0,x,y,0,0] + (Da * laplacian.array[0,x,y,0,0] - (a.array[0,x,y,0,0]*a.array[1,x,y,0,0]*a.array[1,x,y,0,0]) + feed*(1.0 - a.array[0,x,y,0,0]))*dt, 0.0), 1.0)
+                out.array[1,x,y,0,0] = fmin(fmax(a.array[1,x,y,0,0] + (Db * laplacian.array[1,x,y,0,0] + (a.array[0,x,y,0,0]*a.array[1,x,y,0,0]*a.array[1,x,y,0,0]) - (kill + feed)*a.array[1,x,y,0,0])*dt, 0.0), 1.0)
+                out.array[2,x,y,0,0] = 0
+                out.array[3,x,y,0,0] = 1
 
 cdef inline int max(int a, int b) nogil:
     if a > b:
