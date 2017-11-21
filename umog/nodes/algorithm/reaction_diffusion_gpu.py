@@ -35,7 +35,7 @@ class ReactionDiffusionNode(UMOGNode):
         return engine.Operation(
             engine.REACTION_DIFFUSION_GPU_STEP,
             [input_types[0], input_types[0]],
-            [types.Array(6,0,0,0,0,0)],
+            [input_types[0], input_types[0], types.Array(6,0,0,0,0,0)],
             [engine.Argument(engine.ArgumentType.SOCKET, 0),
              engine.Argument(engine.ArgumentType.SOCKET, 1),
              engine.Argument(engine.ArgumentType.BUFFER, 0),
