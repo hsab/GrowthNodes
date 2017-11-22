@@ -35,16 +35,15 @@ class ReactionDiffusionNode(UMOGNode):
         return engine.Operation(
             engine.REACTION_DIFFUSION_GPU_STEP,
             [input_types[0], input_types[0]],
-            [input_types[0], input_types[0], types.Array(6,0,0,0,0,0)],
+            [types.Array(6,0,0,0,0,0)],
             [engine.Argument(engine.ArgumentType.SOCKET, 0),
              engine.Argument(engine.ArgumentType.SOCKET, 1),
-             engine.Argument(engine.ArgumentType.BUFFER, 0),
-             engine.Argument(engine.ArgumentType.BUFFER, 1)
+             engine.Argument(engine.ArgumentType.BUFFER, 0)
              ],
             [1])
 
     def get_buffer_values(self):
-        return [None, None, np.array([self.feed, self.kill, self.Da, self.Db, self.dt, self.iterations], dtype=np.float32, order="F").reshape((6,1,1,1,1))]
+        return [np.array([self.feed, self.kill, self.Da, self.Db, self.dt, self.iterations], dtype=np.float32, order="F").reshape((6,1,1,1,1))]
 
     def update(self):
         pass
