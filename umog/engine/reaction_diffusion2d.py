@@ -425,9 +425,7 @@ def OffScreenRender(steps, args, test=False):
                 event = self.dispatch_events()
                 
     cr = ControledRender(steps)
-    cr.run()
-    cr.cleanUP()
-    cr.close()
+    osr_runner.runner(cr)
     #del cr
     #cr = None
     print("end of osr")
