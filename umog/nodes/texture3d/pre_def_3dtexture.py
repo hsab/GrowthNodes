@@ -1,5 +1,5 @@
 from ..umog_node import *
-from . import pyglet_cr_sphere_impl
+
 
 import threading
 import sys
@@ -33,38 +33,21 @@ class UMOGTexture3ShapeNode(UMOGNode):
         if self.shapes == '1':
             layout.prop(self, "height")
 
-    def execute(self, refholder):
-        # print("get texture node execution, texture: " + self.texture)
-        # print("texture handle: " + str(self.outputs[0].texture_index))
-        # print(refholder.np2dtextures[self.outputs[0].texture_index])
-        pass
+    def get_operation(self, input_types):
+        types.assert_type(input_types[0], types.ARRAY)
 
-    def preExecute(self, refholder):
-        temps = {}
-        if self.shapes == '0':
-            temps["shape"] = "sphere"
-        elif self.shapes == '1':
-            temps["shape"] = "cylinder"
-        temps["center"] = (0.5,0.5,0.5)
+        return engine.Operation(
+            engine.REACTION_DIFFUSION_GPU_STEP,
+            [input_types[0], input_types[0]],
+            [types.Array(6,0,0,0,0,0)],
+            [engine.Argument(engine.ArgumentType.SOCKET, 0),
+             engine.Argument(engine.ArgumentType.SOCKET, 1),
+             engine.Argument(engine.ArgumentType.BUFFER, 0)
+             ],
+            [1])
 
-        temps["height"] = self.height
-        temps["radius"] = self.radius
-        temps["resolution"] = self.nodeTree.properties.TextureResolution
-        try:
-            #start a new thread to avoid poluting blender's opengl context
-            t = threading.Thread(target=pyglet_cr_sphere_impl.OffScreenRender, 
-                                args=(temps,))
-            
-            t.start()
-            t.join()
-            print("OpenglRender done")
-            #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
-            #print(temps["Aout"])
-            
-            self.outputs[0].setPixels(temps["Aout"])
+    def get_buffer_values(self):
+        return [np.array([self.height, self.radius, self.shapes], dtype=np.float32, order="F").reshape((4,1,1,1,1))]
 
-        except:
-            print("thread start failed")
-            print("Unexpected error:", sys.exc_info()[0])
-        #pydevd.settrace()
+
             

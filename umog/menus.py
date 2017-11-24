@@ -106,6 +106,22 @@ menus = OrderedDict([
             ("umog_LoadTextureNode", "Load Texture(s)"),
         ]
     }),
+    ("texture3d_menu", {
+        "bl_idname": "umog_texture3d_menu",
+        "bl_label": "Texture 3d Menu",
+        "text": "Texture3",
+        "bl_description": "",
+        "icon": "IMGDISPLAY",
+        "nodes": [
+            ("umog_Texture3ShapeNode", "Shapes"),
+            ("umog_Texture3LatheNode", "Lathe"),
+            ("umog_Texture3SolidGeometryNode", "Solid Geometry"),
+            ("umog_SaveTexture3dNode", "Save Texture Slices"),
+            ("umog_Texture3TransformNode", "Transform"),
+            ("umog_Texture3MeshNode", "Convert To Mesh"),
+        ]
+    }),
+        
     ("  ", "separator"),
     ("debug_menu", {
         "bl_idname": "umog_debug_menu",

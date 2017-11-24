@@ -1,5 +1,5 @@
 from ..umog_node import *
-from . import pyglet_sg_impl
+
 
 import threading
 import sys
@@ -30,33 +30,18 @@ class UMOGTexture3SolidGeometryNode(UMOGNode):
         layout.prop(self, "threshold", "Threshold")
         
 
-    def execute(self, refholder):
-        if self.inputs[0].isLinked and self.inputs[1].isLinked:
-            temps = {}
-            temps["A"] = self.inputs[0].links[0].from_socket.getPixels()
-            temps["B"] = self.inputs[1].links[0].from_socket.getPixels()
-            temps["operation"] = self.geo_op
-            temps["threshold"] = self.threshold
-            #pydevd.settrace()
-            try:
-                #start a new thread to avoid poluting blender's opengl context
-                t = threading.Thread(target=pyglet_sg_impl.OffScreenRender, 
-                                    args=(temps,))
-                
-                t.start()
-                t.join()
-                print("OpenglRender done")
-                #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
-                #print(temps["Aout"])
-                
-                self.outputs[0].setPixels(temps["Aout"])
+    def get_operation(self, input_types):
+        types.assert_type(input_types[0], types.ARRAY)
 
-            except:
-                print("thread start failed")
-                print("Unexpected error:", sys.exc_info()[0])
-                
-        else:
-            print("not enought inputs")
+        return engine.Operation(
+            engine.REACTION_DIFFUSION_GPU_STEP,
+            [input_types[0]],
+            [types.Array(2,0,0,0,0,0)],
+            [engine.Argument(engine.ArgumentType.SOCKET, 0),
+             engine.Argument(engine.ArgumentType.SOCKET, 1),
+             engine.Argument(engine.ArgumentType.BUFFER, 0)
+             ],
+            [1])
 
-    def preExecute(self, refholder):
-        pass
+    def get_buffer_values(self):
+        return [np.array([self.geo_op, self.threshold], dtype=np.float32, order="F").reshape((2,1,1,1,1))]
