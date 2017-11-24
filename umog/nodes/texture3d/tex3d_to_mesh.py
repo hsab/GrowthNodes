@@ -1,6 +1,5 @@
 from ..umog_node import *
-from . import pyglet_tr_impl
-from ...packages import mcubes
+
 
 import threading
 import sys
@@ -17,43 +16,26 @@ class UMOGTexture3MeshNode(UMOGNode):
     iso_level = bpy.props.FloatProperty(default=0, soft_min=0.0, step=1, precision=2)
     
     def init(self, context):
-        self.newInput("Texture3SocketType", "A").isPacked = True
+        self.inputs.new("TextureSocketType", "A")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "mesh_name")
         layout.prop(self, "iso_level", "Iso Level")
         
 
-    def execute(self, refholder):
-        if self.inputs[0].isLinked:
-            verts, tris = mcubes.marching_cubes(self.inputs[0].links[0].from_socket.getPixels(),self.iso_level)
-            
-            me = bpy.data.meshes.new(self.mesh_name)
-            ob = bpy.data.objects.new(self.mesh_name, me)
-            ob.location = (0,0,0)
-            ob.show_name = True
-            # Link object to scene
-            bpy.context.scene.objects.link(ob)
-            
-            resolution = self.nodeTree.properties.TextureResolution
-            
-            for vert_i in range(len(verts)):
-                for pos_i in range(len(verts[vert_i])):
-                    verts[vert_i][pos_i] = verts[vert_i][pos_i]/resolution -0.5
-            
-            #type conversions
-            verts = tuple(tuple(x) for x in verts)
-            tris = tuple(tuple(x) for x in tris)
-        
-            #pydevd.settrace()
-            # Create mesh from given verts, edges, faces. Either edges or
-            # faces should be [], or you ask for problems
-            me.from_pydata(verts, [], tris)
-        
-            # Update mesh with new data
-            me.update(calc_edges=True)
-            
-            
+    def get_operation(self, input_types):
+        types.assert_type(input_types[0], types.ARRAY)
 
-    def preExecute(self, refholder):
-        pass
+        return engine.Operation(
+            engine.REACTION_DIFFUSION_GPU_STEP,
+            [input_types[0], input_types[0]],
+            [types.Array(2,0,0,0,0,0)],
+            [engine.Argument(engine.ArgumentType.SOCKET, 0),
+            engine.Argument(engine.ArgumentType.SOCKET, 1),
+            engine.Argument(engine.ArgumentType.BUFFER, 0)
+            ],
+            [1])
+
+    def get_buffer_values(self):
+        return [np.array([self.iso_level, self.mesh_name], dtype=np.float32, order="F").reshape((2,1,1,1,1))]
+

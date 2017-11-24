@@ -1,5 +1,4 @@
 from ..umog_node import *
-from . import pyglet_lathe_impl
 
 import threading
 import sys
@@ -15,41 +14,26 @@ class UMOGTexture3LatheNode(UMOGNode):
     bl_label = "Lathe Node"
     
     def init(self, context):
-        socket = self.newOutput(
-            "Texture3", "Texture", drawOutput=False, drawLabel=False)
-        socket.display.refreshableIcon = False
-        socket.display.packedIcon = False
-        socket.isPacked = True
-        self.newInput("Texture2SocketType", "A").isPacked = True
+        self.inputs.new("TextureSocketType", "A")
+        self.outputs.new("TextureSocketType", "A'")
         
 
     def draw_buttons(self, context, layout):
         pass
 
-    def execute(self, refholder):
-        # print("get texture node execution, texture: " + self.texture)
-        # print("texture handle: " + str(self.outputs[0].texture_index))
-        # print(refholder.np2dtextures[self.outputs[0].texture_index])
-        pass
-
-    def preExecute(self, refholder):
-        temps = {}
-        temps["A"] = self.inputs[0].getPixels()
-        temps["outResolution"] = self.nodeTree.properties.TextureResolution
-        
-        try:
-            #start a new thread to avoid poluting blender's opengl context
-            t = threading.Thread(target=pyglet_lathe_impl.OffScreenRender, 
-                                args=(temps,))
             
-            t.start()
-            t.join()
-            print("OpenglRender done")
-            #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
-            #print(temps["Aout"])
-            
-            self.outputs[0].setPixels(temps["Aout"])
+    def get_operation(self, input_types):
+        types.assert_type(input_types[0], types.ARRAY)
+        print(input_types[0])
+        return engine.Operation(
+            engine.REACTION_DIFFUSION_GPU_STEP,
+            [input_types[0]],
+            [],
+            [engine.Argument(engine.ArgumentType.SOCKET, 0),
+             engine.Argument(engine.ArgumentType.SOCKET, 1),
+             engine.Argument(engine.ArgumentType.BUFFER, 0)
+             ],
+            [1])
 
-        except:
-            print("thread start failed")
-            print("Unexpected error:", sys.exc_info()[0])
+    def get_buffer_values(self):
+        return []
