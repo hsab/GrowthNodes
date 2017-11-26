@@ -7,6 +7,8 @@ import threading
 import sys
 import bpy
 
+import traceback
+
 from impls import reaction_diffusion2d
 from impls import pyglet_lathe_impl
 from impls import pyglet_cr_sphere_impl
@@ -65,7 +67,7 @@ def lathe_gpu(Aout, A, resolution):
     
     A = np.asarray(A.array, order="F")
     A = np.moveaxis(A, [0,1,2], [2, 0,1])
-    
+    print("lathe resolution is:" + str(resolution))
     temps = {}
     temps["A"] = A
     temps["outResolution"] = resolution
@@ -81,12 +83,17 @@ def lathe_gpu(Aout, A, resolution):
         #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
         #print(temps["Aout"])
         
-        tempA = np.moveaxis(temps["Aout"], [2, 0,1], [0,1,2])
+        #tempA = np.moveaxis(temps["Aout"], [2, 0,1], [0,1,2])
+        tempA = temps["Aout"]
+        tempA = np.expand_dims(tempA, 3)
+        tempA = np.expand_dims(tempA, 4)
+        #print("tempA shape:" + str(tempA.shape))
         array.from_memoryview(Aout, <np.ndarray[float, ndim=5, mode="c"]>tempA)
 
     except:
         print("thread start failed")
-        print("Unexpected error:", sys.exc_info()[0])
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
         
         
 def pre_def_3dtexture(Aout, height, radius, shape, resolution):
@@ -117,7 +124,8 @@ def pre_def_3dtexture(Aout, height, radius, shape, resolution):
 
     except:
         print("thread start failed")
-        print("Unexpected error:", sys.exc_info()[0])
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
     #pydevd.settrace()
     
 def solid_geometry(Aout, A, B, operation, threshold):
