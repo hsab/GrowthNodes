@@ -9,7 +9,7 @@ import numpy as np
 #pyximport.install()
 
 
-class UMOGTexture3LatheNode(UMOGNode):
+class UMOGTexture3LatheNode(UMOGOutputNode):
     bl_idname = "umog_Texture3LatheNode"
     bl_label = "Lathe Node"
     
@@ -24,16 +24,15 @@ class UMOGTexture3LatheNode(UMOGNode):
             
     def get_operation(self, input_types):
         types.assert_type(input_types[0], types.ARRAY)
+        print("input types")
         print(input_types[0])
         return engine.Operation(
-            engine.REACTION_DIFFUSION_GPU_STEP,
+            engine.LATHE_GPU,
             [input_types[0]],
-            [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0),
-             engine.Argument(engine.ArgumentType.SOCKET, 1),
-             engine.Argument(engine.ArgumentType.BUFFER, 0)
+            [types.Array(1,0,0,0,0,0)],
+            [engine.Argument(engine.ArgumentType.SOCKET, 0)
              ],
             [1])
 
     def get_buffer_values(self):
-        return []
+        return [np.array([256], dtype=np.float32, order="F").reshape((1,1,1,1,1))]

@@ -82,7 +82,6 @@ def lathe_gpu(Aout, A, resolution):
         #print(temps["Aout"])
         
         tempA = np.moveaxis(temps["Aout"], [2, 0,1], [0,1,2])
-        from ...packages import mcubes
         array.from_memoryview(Aout, <np.ndarray[float, ndim=5, mode="c"]>tempA)
 
     except:
