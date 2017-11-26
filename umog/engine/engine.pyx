@@ -182,14 +182,15 @@ cdef class Engine:
                     options.array[4,0,0,0,0],
                     options.array[5,0,0,0,0]
                     )
-                #options = <Array>self.buffers[instruction.ins[1]]
-                #for i in range(instruction.parameters[0]):
-                    #reaction_diffusion_step(<Array>self.buffers[instruction.outs[0]], <Array>self.buffers[instruction.ins[0]], options.array[0,0,0,0,0], options.array[1,0,0,0,0], options.array[2,0,0,0,0], options.array[3,0,0,0,0], options.array[4,0,0,0,0])
-                    #array.copy_array(<Array>self.buffers[instruction.ins[0]], <Array>self.buffers[instruction.outs[0]])
-                    
-                #reaction_diffusion_gpu(<Array>self.buffers[instruction.outs[0]],    <Array>self.buffers[instruction.outs[1]],
-                #<Array>self.buffers[instruction.ins[0]], 
-                #<Array>self.buffers[instruction.ins[1]])
+                
+            elif instruction.op == LATHE_GPU:
+                options = <Array>self.buffers[instruction.ins[1]]
+                reaction_diffusion_gpu.lathe_gpu(
+                    <Array>self.buffers[instruction.outs[0]],
+                    <Array>self.buffers[instruction.ins[0]],
+                    options.array[0,0,0,0,0]
+                    )
+
                 
 
         # output values
