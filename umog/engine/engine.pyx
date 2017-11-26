@@ -189,6 +189,15 @@ cdef class Engine:
                     <Array>self.buffers[instruction.ins[0]],
                     int(instruction.parameters[0])
                     )
+            elif instruction.op == SHAPE_GPU:
+                options = <Array>self.buffers[instruction.ins[1]]
+                reaction_diffusion_gpu.pre_def_3dtexture(
+                    <Array>self.buffers[instruction.outs[0]],
+                    options.array[0,0,0,0,0], 
+                    options.array[1,0,0,0,0],
+                    int(instruction.parameters[1]),
+                    instruction.parameters[0]
+                    )
 
                 
 
