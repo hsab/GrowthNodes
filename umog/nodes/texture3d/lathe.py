@@ -28,7 +28,7 @@ class UMOGTexture3LatheNode(UMOGNode):
         return engine.Operation(
             engine.LATHE_GPU,
             [types.Array(resolution, resolution, resolution, 0, 0, 0)],
-            [types.Array(1,0,0,0,0,0)],
+            [],
             [engine.Argument(engine.ArgumentType.SOCKET, 0)
              ],
             [resolution])

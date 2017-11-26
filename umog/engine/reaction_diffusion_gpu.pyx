@@ -87,7 +87,7 @@ def lathe_gpu(Aout, A, resolution):
         tempA = temps["Aout"]
         tempA = np.expand_dims(tempA, 3)
         tempA = np.expand_dims(tempA, 4)
-        #print("tempA shape:" + str(tempA.shape))
+        #print("tempA shape:" +     def get_buffer_values(self):
         array.from_memoryview(Aout, <np.ndarray[float, ndim=5, mode="c"]>tempA)
 
     except:
