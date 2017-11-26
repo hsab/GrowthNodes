@@ -7,14 +7,13 @@ class Matrix3x3Node(UMOGNode):
     bl_idname = "umog_Matrix3x3Node"
     bl_label = "3x3 Matrix"
 
-    bl_width_default = 150
-
     row1 = bpy.props.FloatVectorProperty(size=3, default=(1, 0, 0))
     row2 = bpy.props.FloatVectorProperty(size=3, default=(0, 1, 0))
     row3 = bpy.props.FloatVectorProperty(size=3, default=(0, 0, 1))
 
     def init(self, context):
         self.outputs.new("ArraySocketType", "Output")
+        self.width = 250
         super().init(context)
 
     def draw_buttons(self, context, layout):
