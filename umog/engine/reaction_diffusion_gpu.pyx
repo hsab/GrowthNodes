@@ -133,13 +133,19 @@ def pre_def_3dtexture(Aout, height, radius, shape, resolution):
 def solid_geometry(Aout, A, B, operation, threshold):
     A = np.asarray(A.array, order="F")
     B = np.asarray(B.array, order="F")
-    
-    A = np.moveaxis(A, [0,1,2], [2, 0,1])
-    B = np.moveaxis(B, [0,1,2], [2, 0,1])
     temps = {}
     temps["A"] = A
     temps["B"] = B
-    temps["operation"] = operation
+    if operation == 0:
+        temps["operation"] = "difference"
+    elif operation == 1:
+        temps["operation"] = "similar"
+    elif operation == 2:
+        temps["operation"] = "union"
+    elif operation == 3:
+        temps["operation"] = "intersect"
+    else:
+        print("invalid op used")
     temps["threshold"] = threshold
     #pydevd.settrace()
     try:
@@ -153,13 +159,15 @@ def solid_geometry(Aout, A, B, operation, threshold):
         #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
         #print(temps["Aout"])
         
-        tempA = np.moveaxis(temps["Aout"], [2, 0,1], [0,1,2])
     
+        tempA = temps["Aout"]
+        print("shape of sg result " + str(tempA.shape))
         array.from_memoryview(Aout, <np.ndarray[float, ndim=5, mode="c"]>tempA)
 
     except:
         print("thread start failed")
-        print("Unexpected error:", sys.exc_info()[0])
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
 
 
 def transformation(Aout, A, direction, angle, point, factor, origin, tr_op):
