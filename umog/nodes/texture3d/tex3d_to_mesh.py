@@ -1,5 +1,5 @@
 from ..umog_node import *
-
+from ...packages import mcubes
 
 import threading
 import sys
@@ -7,7 +7,7 @@ import bpy
 import copy
 import numpy as np
 
-class UMOGTexture3MeshNode(UMOGNode):
+class UMOGTexture3MeshNode(UMOGOutputNode):
     bl_idname = "umog_Texture3MeshNode"
     bl_label = "Mesh 3d Texture Node"
     
@@ -27,15 +27,46 @@ class UMOGTexture3MeshNode(UMOGNode):
         types.assert_type(input_types[0], types.ARRAY)
 
         return engine.Operation(
-            engine.REACTION_DIFFUSION_GPU_STEP,
-            [input_types[0], input_types[0]],
-            [types.Array(2,0,0,0,0,0)],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0),
-            engine.Argument(engine.ArgumentType.SOCKET, 1),
-            engine.Argument(engine.ArgumentType.BUFFER, 0)
-            ],
-            [1])
+            engine.OUT,
+            [],
+            [],
+            [engine.Argument(engine.ArgumentType.SOCKET, 0)],
+            [])
 
-    def get_buffer_values(self):
-        return [np.array([self.iso_level, self.mesh_name], dtype=np.float32, order="F").reshape((2,1,1,1,1))]
+    def output_value(self, value):
+        array = value.array
+        #img = bpy.data.images.new('', array.shape[1], array.shape[2], alpha=True, float_buffer=True)
+        #img.pixels = np.ravel(value.array, 'F')
+        #img.filepath_raw = self.file_path + self.file_name + ".png"
+        #img.file_format = 'PNG'
+        #img.save()
+        
+        array = np.squeeze(array)
+        
+        verts, tris = mcubes.marching_cubes(array, self.iso_level)
+        
+        me = bpy.data.meshes.new(self.mesh_name)
+        ob = bpy.data.objects.new(self.mesh_name, me)
+        ob.location = (0,0,0)
+        ob.show_name = True
+        # Link object to scene
+        bpy.context.scene.objects.link(ob)
+        
+        resolution = array.shape[0]
+        
+        for vert_i in range(len(verts)):
+            for pos_i in range(len(verts[vert_i])):
+                verts[vert_i][pos_i] = verts[vert_i][pos_i]/resolution -0.5
+        
+        #type conversions
+        verts = tuple(tuple(x) for x in verts)
+        tris = tuple(tuple(x) for x in tris)
+
+        #pydevd.settrace()
+        # Create mesh from given verts, edges, faces. Either edges or
+        # faces should be [], or you ask for problems
+        me.from_pydata(verts, [], tris)
+
+        # Update mesh with new data
+        me.update(calc_edges=True)
 
