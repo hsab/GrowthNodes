@@ -23,14 +23,15 @@ class UMOGTexture3LatheNode(UMOGNode):
 
             
     def get_operation(self, input_types):
+        resolution = 256
         types.assert_type(input_types[0], types.ARRAY)
         return engine.Operation(
             engine.LATHE_GPU,
-            [types.Array(100, 100, 100, 0, 0, 0)],
+            [types.Array(resolution, resolution, resolution, 0, 0, 0)],
             [types.Array(1,0,0,0,0,0)],
             [engine.Argument(engine.ArgumentType.SOCKET, 0)
              ],
-            [100])
+            [resolution])
 
     def get_buffer_values(self):
         return []

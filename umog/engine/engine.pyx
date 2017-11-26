@@ -184,7 +184,6 @@ cdef class Engine:
                     )
                 
             elif instruction.op == LATHE_GPU:
-                options = <Array>self.buffers[instruction.ins[1]]
                 reaction_diffusion_gpu.lathe_gpu(
                     <Array>self.buffers[instruction.outs[0]],
                     <Array>self.buffers[instruction.ins[0]],
