@@ -98,15 +98,16 @@ def lathe_gpu(Aout, A, resolution):
         
 def pre_def_3dtexture(Aout, height, radius, shape, resolution):
     temps = {}
-    if shape == '0':
+    if shape == 0:
         temps["shape"] = "sphere"
-    elif shape == '1':
+    elif shape == 1:
         temps["shape"] = "cylinder"
     temps["center"] = (0.5,0.5,0.5)
 
     temps["height"] = height
     temps["radius"] = radius
     temps["resolution"] = resolution
+    print("h " + str(height) + " r " + str(radius) + " res " + str(resolution))
     try:
         #start a new thread to avoid poluting blender's opengl context
         t = threading.Thread(target=pyglet_cr_sphere_impl.OffScreenRender, 
@@ -118,8 +119,9 @@ def pre_def_3dtexture(Aout, height, radius, shape, resolution):
         #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
         #print(temps["Aout"])
         
-        tempA = np.moveaxis(temps["Aout"], [2, 0,1], [0,1,2])
-        
+        tempA = temps["Aout"]
+        tempA = np.expand_dims(tempA, 3)
+        tempA = np.expand_dims(tempA, 4)
         array.from_memoryview(Aout, <np.ndarray[float, ndim=5, mode="c"]>tempA)
 
     except:
