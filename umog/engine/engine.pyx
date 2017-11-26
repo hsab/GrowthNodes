@@ -188,7 +188,7 @@ cdef class Engine:
                 reaction_diffusion_gpu.lathe_gpu(
                     <Array>self.buffers[instruction.outs[0]],
                     <Array>self.buffers[instruction.ins[0]],
-                    options.array[0,0,0,0,0]
+                    int(instruction.parameters[0])
                     )
 
                 

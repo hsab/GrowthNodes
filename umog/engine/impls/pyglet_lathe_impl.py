@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import os
 
 def trace(frame, event, arg):
     print("%s, %s:%d" % (event, frame.f_code.co_filename, frame.f_lineno))
@@ -13,6 +14,7 @@ def Dummy(steps, in_buffer, out_buffer):
 def OffScreenRender(args, test=False):
     cpath = os.path.dirname(os.path.realpath(__file__))
     print(cpath)
+    cpath = os.path.split(cpath)[0]
     cpath = os.path.split(cpath)[0]
     cpath = os.path.join(cpath, "packages")
     print(cpath)
