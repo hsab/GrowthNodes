@@ -198,6 +198,15 @@ cdef class Engine:
                     int(instruction.parameters[1]),
                     instruction.parameters[0]
                     )
+            elif instruction.op == SOLID_GEOMETRY_GPU:
+                options = <Array>self.buffers[instruction.ins[2]]
+                reaction_diffusion_gpu.solid_geometry(
+                    <Array>self.buffers[instruction.outs[0]],
+                    <Array>self.buffers[instruction.ins[0]],
+                    <Array>self.buffers[instruction.ins[1]],
+                    instruction.parameters[0],
+                    options.array[0,0,0,0,0]
+                    )
 
                 
 

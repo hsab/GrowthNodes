@@ -12,18 +12,18 @@ class UMOGTexture3SolidGeometryNode(UMOGNode):
     bl_label = "Solid Geometry Node"
     
     geo_op = bpy.props.EnumProperty(items=
-            (('difference', 'Difference', ''),
-            ('similar', 'Similar', ''),
-            ('union', 'Union', ''),
-            ('intersect', 'Intersect', ''),
+            (('0', 'Difference', ''),
+            ('1', 'Similar', ''),
+            ('2', 'Union', ''),
+            ('3', 'Intersect', ''),
             ),
             name="Geometric Operations")
     threshold = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=1.0, step=1, precision=2)
     
     def init(self, context):
-        self.newInput("Texture3SocketType", "A").isPacked = True
-        self.newInput("Texture3SocketType", "B").isPacked = True
-        self.newOutput("Texture3SocketType", "Texture").isPacked = True
+        self.inputs.new("TextureSocketType", "A")
+        self.inputs.new("TextureSocketType", "B")
+        self.outputs.new("TextureSocketType", "A'")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "geo_op")
@@ -32,16 +32,17 @@ class UMOGTexture3SolidGeometryNode(UMOGNode):
 
     def get_operation(self, input_types):
         types.assert_type(input_types[0], types.ARRAY)
+        types.assert_type(input_types[1], types.ARRAY)
 
         return engine.Operation(
-            engine.REACTION_DIFFUSION_GPU_STEP,
+            engine.SOLID_GEOMETRY_GPU,
             [input_types[0]],
-            [types.Array(2,0,0,0,0,0)],
+            [types.Array(1,0,0,0,0,0)],
             [engine.Argument(engine.ArgumentType.SOCKET, 0),
              engine.Argument(engine.ArgumentType.SOCKET, 1),
              engine.Argument(engine.ArgumentType.BUFFER, 0)
              ],
-            [1])
+            [int(self.geo_op)])
 
     def get_buffer_values(self):
-        return [np.array([self.geo_op, self.threshold], dtype=np.float32, order="F").reshape((2,1,1,1,1))]
+        return [np.array([ self.threshold], dtype=np.float32, order="F").reshape((1,1,1,1,1))]
