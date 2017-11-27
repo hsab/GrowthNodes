@@ -2,14 +2,14 @@ from ..umog_node import *
 from ...engine import types, engine
 import bpy
 
-class OrNode(UMOGNode):
+class OrNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_OrNode"
     bl_label = "Or Node"
 
     def init(self, context):
-        self.inputs.new("FloatSocketType", "a")
-        self.inputs.new("FloatSocketType", "b")
-        self.outputs.new("FloatSocketType", "out")
+        self.inputs.new("BooleanSocketType", "a")
+        self.inputs.new("BooleanSocketType", "b")
+        self.outputs.new("BooleanSocketType", "out")
         super().init(context)
 
     def get_operation(self, input_types):
@@ -17,9 +17,8 @@ class OrNode(UMOGNode):
 
         return engine.Operation(
             engine.OR,
+            input_types,
             output_types,
-            [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 1)],
             [])
 
     def update(self):

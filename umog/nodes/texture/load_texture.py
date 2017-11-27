@@ -5,7 +5,7 @@ import os
 import re
 
 
-class LoadTextureNode(UMOGOutputNode):
+class LoadTextureNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_LoadTextureNode"
     bl_label = "Load Texture Node"
 

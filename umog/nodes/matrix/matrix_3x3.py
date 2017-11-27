@@ -3,7 +3,7 @@ from ...engine import types, engine
 import bpy
 import numpy as np
 
-class Matrix3x3Node(UMOGNode):
+class Matrix3x3Node(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Matrix3x3Node"
     bl_label = "3x3 Matrix"
 
@@ -26,11 +26,10 @@ class Matrix3x3Node(UMOGNode):
             engine.CONST,
             [types.Array(0,3,3,0,0,0)],
             [types.Array(0,3,3,0,0,0)],
-            [engine.Argument(engine.ArgumentType.BUFFER, 0)],
             [])
 
-    def get_buffer_values(self):
-        return [np.column_stack((np.array(self.row1, dtype=np.float32, order="F"), np.array(self.row2, dtype=np.float32, order="F"), np.array(self.row3, dtype=np.float32, order="F"))).reshape((1,3,3,1,1))]
+    def get_default_value(self, index, argument_type):
+        return np.column_stack((np.array(self.row1, dtype=np.float32, order="F"), np.array(self.row2, dtype=np.float32, order="F"), np.array(self.row3, dtype=np.float32, order="F"))).reshape((1,3,3,1,1))
 
     def update(self):
         pass

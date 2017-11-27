@@ -2,13 +2,13 @@ from ..umog_node import *
 from ...engine import types, engine
 import bpy
 
-class NotNode(UMOGNode):
+class NotNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_NotNode"
     bl_label = "Not Node"
 
     def init(self, context):
-        self.inputs.new("FloatSocketType", "in")
-        self.outputs.new("FloatSocketType", "out")
+        self.inputs.new("BooleanSocketType", "in")
+        self.outputs.new("BooleanSocketType", "out")
         super().init(context)
 
     def get_operation(self, input_types):
@@ -16,10 +16,8 @@ class NotNode(UMOGNode):
 
         return engine.Operation(
             engine.NOT,
+            input_types,
             [input_types[0]],
-            [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0,
-            [])],
             [])
 
     def update(self):

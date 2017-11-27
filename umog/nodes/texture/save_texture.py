@@ -3,7 +3,7 @@ import bpy
 import numpy as np
 
 
-class SaveTextureNode(UMOGOutputNode):
+class SaveTextureNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SaveTextureNode"
     bl_label = "Save Texture"
 
@@ -14,7 +14,6 @@ class SaveTextureNode(UMOGOutputNode):
 
     def init(self, context):
         socket = self.inputs.new("ArraySocketType", "texture")
-        socket.drawLabel = False
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -26,9 +25,8 @@ class SaveTextureNode(UMOGOutputNode):
 
         return engine.Operation(
             engine.OUT,
+            input_types,
             [],
-            [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0)],
             [])
 
     def output_value(self, value):

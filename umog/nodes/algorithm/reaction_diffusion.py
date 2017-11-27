@@ -3,7 +3,7 @@ import bpy
 from ...engine import types, engine
 import numpy as np
 
-class ReactionDiffusionNode(UMOGNode):
+class ReactionDiffusionNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_ReactionDiffusionNode"
     bl_label = "Reaction Diffusion"
 
@@ -15,8 +15,8 @@ class ReactionDiffusionNode(UMOGNode):
     iterations = bpy.props.IntProperty(default=1)
 
     def init(self, context):
-        self.inputs.new("TextureSocketType", "in")
-        self.outputs.new("TextureSocketType", "out")
+        self.inputs.new("ArraySocketType", "in")
+        self.outputs.new("ArraySocketType", "out")
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -32,12 +32,11 @@ class ReactionDiffusionNode(UMOGNode):
 
         return engine.Operation(
             engine.REACTION_DIFFUSION_STEP,
+            input_types + [types.Array(5,0,0,0,0,0)],
             [input_types[0]],
-            [types.Array(5,0,0,0,0,0)],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.BUFFER, 0)],
             [self.iterations])
 
-    def get_buffer_values(self):
+    def get_buffer_values(self, buffer_types):
         return [np.array([self.feed, self.kill, self.Da, self.Db, self.dt], dtype=np.float32, order="F").reshape((5,1,1,1,1))]
 
     def update(self):

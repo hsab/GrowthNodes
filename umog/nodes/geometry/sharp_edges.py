@@ -5,19 +5,19 @@ import math
 from mathutils import Vector
 import bmesh
 
-class SharpEdgesNode(UMOGOutputNode):
+class SharpEdgesNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SharpEdgesNode"
     bl_label = "Sharp Edges Node"
 
     def init(self, context):
-        self.newInput("ObjectSocketType", "Object")
-        self.newInput("FloatSocketType", "Sharpness", value = 20, minValue = 0.0, maxValue= 180)
-        self.newInput("FloatSocketType", "Weight", value = 1.0, minValue = 0.0, maxValue= 1.0)
+        self.inputs.new("ObjectSocketType", "Object")
+        self.newInput("ScalarSocketType", "Sharpness", value = 20, minValue = 0.0, maxValue= 180)
+        self.newInput("ScalarSocketType", "Weight", value = 1.0, minValue = 0.0, maxValue= 1.0)
 
-        socket = self.newOutput("ObjectSocketType", "Output")
+        socket = self.outputs.new("ObjectSocketType", "Output")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
-        socket = self.newOutput("VertexGroupSocketType", "Vertex Group")
+        socket = self.outputs.new("VertexGroupSocketType", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 

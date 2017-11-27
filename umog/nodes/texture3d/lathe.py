@@ -10,17 +10,13 @@ import numpy as np
 #pyximport.install()
 
 
-class UMOGTexture3LatheNode(UMOGNode):
+class UMOGTexture3LatheNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Texture3LatheNode"
     bl_label = "Lathe Node"
     
     def init(self, context):
-        socket = self.newOutput(
-            "Texture3", "Texture", drawOutput=False, drawLabel=False)
-        socket.display.refreshableIcon = False
-        socket.display.packedIcon = False
-        socket.isPacked = True
-        self.newInput("Texture2SocketType", "A").isPacked = True
+        socket = self.outputs.new("Texture3", "Texture")
+        self.inputs.new("Texture2SocketType", "A")
         
 
     def draw_buttons(self, context, layout):

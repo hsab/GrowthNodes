@@ -2,7 +2,7 @@ from ..umog_node import *
 from ...engine import types, engine, array
 import bpy
 
-class GetTextureNode(UMOGNode):
+class GetTextureNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_GetTextureNode"
     bl_label = "Get Texture Node"
 
@@ -34,11 +34,10 @@ class GetTextureNode(UMOGNode):
             engine.CONST,
             [types.Array(4, 100, 100, 0, 0, 0)],
             [types.Array(4, 100, 100, 0, 0, 0)],
-            [],
             [])
 
-    def get_buffer_values(self):
-        return [array.array_from_texture(bpy.data.textures[self.texture_name], 100, 100)]
+    def get_default_value(self, index, argument_type):
+        return array.array_from_texture(bpy.data.textures[self.texture_name], 100, 100)
 
     def update(self):
         pass

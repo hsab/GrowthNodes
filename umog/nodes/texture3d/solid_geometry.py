@@ -7,7 +7,7 @@ import bpy
 import copy
 import numpy as np
 
-class UMOGTexture3SolidGeometryNode(UMOGNode):
+class UMOGTexture3SolidGeometryNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Texture3SolidGeometryNode"
     bl_label = "Solid Geometry Node"
     
@@ -21,9 +21,9 @@ class UMOGTexture3SolidGeometryNode(UMOGNode):
     threshold = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=1.0, step=1, precision=2)
     
     def init(self, context):
-        self.newInput("Texture3SocketType", "A").isPacked = True
-        self.newInput("Texture3SocketType", "B").isPacked = True
-        self.newOutput("Texture3SocketType", "Texture").isPacked = True
+        self.inputs.new("Texture3SocketType", "A")
+        self.inputs.new("Texture3SocketType", "B")
+        self.outputs.new("Texture3SocketType", "Texture")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "geo_op")

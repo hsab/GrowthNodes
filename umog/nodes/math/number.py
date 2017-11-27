@@ -3,14 +3,14 @@ from ...engine import types, engine
 import numpy as np
 import bpy
 
-class NumberNode(UMOGNode):
+class NumberNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_NumberNode"
     bl_label = "Number Node"
 
     value = bpy.props.FloatProperty(default=0.0)
 
     def init(self, context):
-        self.outputs.new("FloatSocketType", "out")
+        self.outputs.new("ScalarSocketType", "out")
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -21,11 +21,10 @@ class NumberNode(UMOGNode):
             engine.CONST,
             [types.Array(0,0,0,0,0,0)],
             [types.Array(0,0,0,0,0,0)],
-            [engine.Argument(engine.ArgumentType.BUFFER, 0)],
             [])
 
-    def get_buffer_values(self):
-        return [np.array([self.value], dtype=np.float32, order="F").reshape((1,1,1,1,1))]
+    def get_default_value(self, index, argument_type):
+        return np.array([self.value], dtype=np.float32, order="F").reshape((1,1,1,1,1))
 
     def update(self):
         pass

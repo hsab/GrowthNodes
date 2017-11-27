@@ -4,7 +4,7 @@ import numpy as np
 
 
 
-class SaveTexture3dNode(UMOGNode):
+class SaveTexture3dNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_SaveTexture3dNode"
     bl_label = "Save Texture 3d"
 
@@ -19,8 +19,7 @@ class SaveTexture3dNode(UMOGNode):
     texture_index = bpy.props.IntProperty()
 
     def init(self, context):
-        socket = self.newInput("Texture3SocketType", "Texture3")
-        socket.drawLabel = False
+        socket = self.inputs.new("Texture3SocketType", "Texture3")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "file_path", text="Path")

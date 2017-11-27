@@ -7,7 +7,7 @@ import bpy
 import copy
 import numpy as np
 
-class UMOGTexture3ShapeNode(UMOGNode):
+class UMOGTexture3ShapeNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Texture3ShapeNode"
     bl_label = "Texture Node"
 
@@ -21,10 +21,7 @@ class UMOGTexture3ShapeNode(UMOGNode):
     radius = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=0.5, step=1, precision=2)
 
     def init(self, context):
-        socket = self.newOutput(
-            "Texture3", "Texture", drawOutput=False, drawLabel=False)
-        socket.display.refreshableIcon = False
-        socket.display.packedIcon = False
+        socket = self.outputs.new("Texture3", "Texture")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "shapes", "Shapes")
