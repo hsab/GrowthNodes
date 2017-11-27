@@ -195,7 +195,6 @@ def create_buffer(buffer_type, value=None):
         m = Mesh()
         if value is not None:
             blender_mesh = <BlenderMesh *><uintptr_t>value.as_pointer()
-            mesh.allocate(m, blender_mesh.totvert, blender_mesh.totloop, blender_mesh.totpoly)
             mesh.from_blender_mesh(m, blender_mesh)
         return m
 

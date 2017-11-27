@@ -13,56 +13,113 @@ cdef class Mesh(Data):
         self.tag = MESH
         self.mem = Pool()
 
-cdef void allocate(Mesh mesh, int n_vertices, int n_polygon_vertices, int n_polygons):
+cdef void allocate(Mesh mesh, int n_vertices, int n_triangles):
     mesh.n_vertices = n_vertices
-    mesh.n_polygon_vertices = n_polygon_vertices
-    mesh.n_polygons = n_polygons
+    mesh.n_triangles = n_triangles
 
     mesh.vertices = <Vec3 *>mesh.mem.alloc(n_vertices, sizeof(Vec3))
     mesh.normals = <Vec3 *>mesh.mem.alloc(n_vertices, sizeof(Vec3))
-    mesh.polygon_vertices = <int *>mesh.mem.alloc(n_polygon_vertices, sizeof(int))
-    mesh.polygons = <int *>mesh.mem.alloc(n_polygons * 2, sizeof(int))
+    mesh.triangles = <int *>mesh.mem.alloc(n_triangles * 3, sizeof(int))
+    mesh.uvs = <Vec2 *>mesh.mem.alloc(n_triangles * 3, sizeof(Vec2))
 
 @cython.boundscheck(False)
-cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh) nogil:
-    cdef int i
-    for i in range(blender_mesh.totvert):
-        mesh.vertices[i].x = blender_mesh.mvert[i].co[0]
-        mesh.vertices[i].y = blender_mesh.mvert[i].co[1]
-        mesh.vertices[i].z = blender_mesh.mvert[i].co[2]
+cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh):
+    cdef int i, j
 
-        mesh.normals[i].x = blender_mesh.mvert[i].no[0]
-        mesh.normals[i].y = blender_mesh.mvert[i].no[1]
-        mesh.normals[i].z = blender_mesh.mvert[i].no[2]
-        vec3_normalize(&mesh.normals[i], &mesh.normals[i])
+    cdef int n_vertices = blender_mesh.totvert, n_triangles = blender_mesh.totface
+    for i in range(blender_mesh.totface):
+        if blender_mesh.mface[i].v4:
+            n_triangles += 1
 
-    for i in range(blender_mesh.totloop):
-        mesh.polygon_vertices[i] = blender_mesh.mloop[i].v
+    allocate(mesh, n_vertices, n_triangles)
 
-    for i in range(blender_mesh.totpoly):
-        mesh.polygons[2*i] = blender_mesh.mpoly[i].loopstart
-        mesh.polygons[2*i + 1] = blender_mesh.mpoly[i].totloop
+    with nogil:
+        for i in range(blender_mesh.totvert):
+            mesh.vertices[i].x = blender_mesh.mvert[i].co[0]
+            mesh.vertices[i].y = blender_mesh.mvert[i].co[1]
+            mesh.vertices[i].z = blender_mesh.mvert[i].co[2]
+
+            mesh.normals[i].x = blender_mesh.mvert[i].no[0]
+            mesh.normals[i].y = blender_mesh.mvert[i].no[1]
+            mesh.normals[i].z = blender_mesh.mvert[i].no[2]
+            vec3_normalize(&mesh.normals[i], &mesh.normals[i])
+
+        j = 0
+        for i in range(blender_mesh.totface):
+            mesh.triangles[j * 3] = blender_mesh.mface[i].v1
+            mesh.triangles[j * 3 + 1] = blender_mesh.mface[i].v2
+            mesh.triangles[j * 3 + 2] = blender_mesh.mface[i].v3
+            j += 1
+
+            if blender_mesh.mface[i].v4:
+                mesh.triangles[j * 3] = blender_mesh.mface[i].v1
+                mesh.triangles[j * 3 + 1] = blender_mesh.mface[i].v3
+                mesh.triangles[j * 3 + 2] = blender_mesh.mface[i].v4
+                j += 1
+
+        if blender_mesh.mtface:
+            j = 0
+            for i in range(blender_mesh.totface):
+                mesh.uvs[j * 3].x = blender_mesh.mtface[i].uv[0][0]
+                mesh.uvs[j * 3].y = blender_mesh.mtface[i].uv[0][1]
+                mesh.uvs[j * 3 + 1].x = blender_mesh.mtface[i].uv[1][0]
+                mesh.uvs[j * 3 + 1].y = blender_mesh.mtface[i].uv[1][1]
+                mesh.uvs[j * 3 + 2].x = blender_mesh.mtface[i].uv[2][0]
+                mesh.uvs[j * 3 + 2].y = blender_mesh.mtface[i].uv[2][1]
+                j += 1
+
+                if blender_mesh.mface[i].v4:
+                    mesh.uvs[j * 3].x = blender_mesh.mtface[i].uv[0][0]
+                    mesh.uvs[j * 3].y = blender_mesh.mtface[i].uv[0][1]
+                    mesh.uvs[j * 3 + 1].x = blender_mesh.mtface[i].uv[2][0]
+                    mesh.uvs[j * 3 + 1].y = blender_mesh.mtface[i].uv[2][1]
+                    mesh.uvs[j * 3 + 2].x = blender_mesh.mtface[i].uv[3][0]
+                    mesh.uvs[j * 3 + 2].y = blender_mesh.mtface[i].uv[3][1]
+                    j += 1
 
 @cython.boundscheck(False)
-cpdef void to_blender_mesh(Mesh mesh, uintptr_t blender_mesh_ptr) nogil:
-    cdef BlenderMesh *blender_mesh = <BlenderMesh *>blender_mesh_ptr
-    cdef int i
-    for i in range(mesh.n_vertices):
-        blender_mesh.mvert[i].co[0] = mesh.vertices[i].x
-        blender_mesh.mvert[i].co[1] = mesh.vertices[i].y
-        blender_mesh.mvert[i].co[2] = mesh.vertices[i].z
+cpdef void to_blender_mesh(Mesh mesh, object b_mesh):
+    b_mesh.vertices.add(mesh.n_vertices)
+    b_mesh.loops.add(mesh.n_triangles * 3)
+    b_mesh.polygons.add(mesh.n_triangles)
 
-        blender_mesh.mvert[i].no[0] = mesh.normals[i].x
-        blender_mesh.mvert[i].no[1] = mesh.normals[i].y
-        blender_mesh.mvert[i].no[2] = mesh.normals[i].z
+    cdef BlenderMesh *blender_mesh = <BlenderMesh *><uintptr_t>b_mesh.as_pointer()
+
+    cdef int i
+    with nogil:
+        for i in range(mesh.n_vertices):
+            blender_mesh.mvert[i].co[0] = mesh.vertices[i].x
+            blender_mesh.mvert[i].co[1] = mesh.vertices[i].y
+            blender_mesh.mvert[i].co[2] = mesh.vertices[i].z
+
+            blender_mesh.mvert[i].no[0] = mesh.normals[i].x
+            blender_mesh.mvert[i].no[1] = mesh.normals[i].y
+            blender_mesh.mvert[i].no[2] = mesh.normals[i].z
+
+        for i in range(mesh.n_triangles):
+            blender_mesh.mloop[i * 3].v = mesh.triangles[i * 3]
+            blender_mesh.mloop[i * 3 + 1].v = mesh.triangles[i * 3 + 1]
+            blender_mesh.mloop[i * 3 + 2].v = mesh.triangles[i * 3 + 2]
+
+            blender_mesh.mpoly[i].loopstart = i * 3
+            blender_mesh.mpoly[i].totloop = 3
+
+        if blender_mesh.mloopuv:
+            for i in range(mesh.n_triangles):
+                blender_mesh.mloopuv[i * 3].uv[0] = mesh.uvs[i * 3].x
+                blender_mesh.mloopuv[i * 3].uv[1] = mesh.uvs[i * 3].y
+                blender_mesh.mloopuv[i * 3 + 1].uv[0] = mesh.uvs[i * 3 + 1].x
+                blender_mesh.mloopuv[i * 3 + 1].uv[1] = mesh.uvs[i * 3 + 1].y
+                blender_mesh.mloopuv[i * 3 + 2].uv[0] = mesh.uvs[i * 3 + 2].x
+                blender_mesh.mloopuv[i * 3 + 2].uv[1] = mesh.uvs[i * 3 + 2].y
 
 cdef Mesh copy_mesh(Mesh old):
     cdef Mesh new = Mesh()
-    allocate(new, old.n_vertices, old.n_polygon_vertices, old.n_polygons)
+    allocate(new, old.n_vertices, old.n_triangles)
     memcpy(new.vertices, old.vertices, old.n_vertices * sizeof(Vec3))
     memcpy(new.normals, old.normals, old.n_vertices * sizeof(Vec3))
-    memcpy(new.polygon_vertices, old.polygon_vertices, old.n_polygon_vertices * sizeof(int))
-    memcpy(new.polygons, old.polygons, old.n_polygons * 2 * sizeof(int))
+    memcpy(new.triangles, old.triangles, old.n_triangles * 3 * sizeof(int))
+    memcpy(new.uvs, old.uvs, old.n_triangles * 3 * sizeof(Vec2))
     return new
 
 cdef void displace(Mesh mesh, Array texture):
@@ -87,28 +144,27 @@ cdef void iterated_displace(Mesh mesh, Array texture, int iterations):
 
 @cython.cdivision(True)
 cdef void recalculate_normals(Mesh mesh):
-    cdef Pool mem = Pool()
-    cdef int i, j
-    cdef int polygon_start, polygon_length
+    cdef int i
     cdef Vec3 *a
     cdef Vec3 *b
     cdef Vec3 *c
     cdef Vec3 ab, ac
-    cdef Vec3 polygon_normal
+    cdef Vec3 triangle_normal
 
     memset(mesh.normals, 0, mesh.n_vertices * sizeof(Vec3))
 
-    for i in range(mesh.n_polygons):
-        polygon_start = mesh.polygons[2*i]
-        polygon_length = mesh.polygons[2*i + 1]
-        a = &mesh.vertices[mesh.polygon_vertices[polygon_start]]
-        b = &mesh.vertices[mesh.polygon_vertices[polygon_start + 1]]
-        c = &mesh.vertices[mesh.polygon_vertices[polygon_start + 2]]
+    for i in range(mesh.n_triangles):
+        a = &mesh.vertices[mesh.triangles[i * 3]]
+        b = &mesh.vertices[mesh.triangles[i * 3 + 1]]
+        c = &mesh.vertices[mesh.triangles[i * 3 + 2]]
+
         vec3_sub(&ab, b, a)
         vec3_sub(&ac, c, a)
-        vec3_cross(&polygon_normal, &ab, &ac)
-        for j in range(polygon_start, polygon_start + polygon_length):
-            vec3_add(&mesh.normals[mesh.polygon_vertices[j]], &mesh.normals[mesh.polygon_vertices[j]], &polygon_normal)
+        vec3_cross(&triangle_normal, &ab, &ac)
+
+        vec3_add(&mesh.normals[mesh.triangles[i * 3]], &mesh.normals[mesh.triangles[i * 3]], &triangle_normal)
+        vec3_add(&mesh.normals[mesh.triangles[i * 3 + 1]], &mesh.normals[mesh.triangles[i * 3 + 1]], &triangle_normal)
+        vec3_add(&mesh.normals[mesh.triangles[i * 3 + 2]], &mesh.normals[mesh.triangles[i * 3 + 2]], &triangle_normal)
 
     for i in range(mesh.n_vertices):
         vec3_normalize(&mesh.normals[i], &mesh.normals[i])
