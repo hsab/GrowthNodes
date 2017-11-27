@@ -2,7 +2,7 @@ from ..umog_node import *
 import copy
 import bpy
 
-class SetTextureNode(UMOGOutputNode):
+class SetTextureNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SetTextureNode"
     bl_label = "Set Texture Node"
 
@@ -11,7 +11,7 @@ class SetTextureNode(UMOGOutputNode):
     texture_index = bpy.props.IntProperty()
 
     def init(self, context):
-        self.inputs.new("TextureSocketType", "Input")
+        self.inputs.new("ArraySocketType", "Input")
         super().init(context)
 
     def draw_buttons(self, context, layout):

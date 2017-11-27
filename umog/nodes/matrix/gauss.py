@@ -2,7 +2,7 @@ from ..umog_node import *
 import bpy
 import numpy as np
 
-class GaussNode(UMOGNode):
+class GaussNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_GaussNode"
     bl_label = "Gaussian Blur"
 
@@ -15,7 +15,7 @@ class GaussNode(UMOGNode):
     [0.00000067,0.00002292,0.00019117,0.00038771,0.00019117,0.00002292,0.00000067]])
     
     def init(self, context):
-        self.outputs.new("Mat3SocketType", "Output")
+        self.outputs.new("ArraySocketType", "Output")
         super().init(context)
 
     def preExecute(self, refholder):

@@ -7,23 +7,23 @@ import bpy
 import copy
 import numpy as np
 
-class PyGLNode(UMOGNode):
+class PyGLNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_PyGLNode"
     bl_label = "3d Reaction Diffusion Node"
     
     def create(self):
         print("pyglet create")
-        self.newInput("Texture3SocketType", "A").isPacked = True
-        self.newInput("Texture3SocketType", "B").isPacked = True
-        self.newInput("FloatSocketType", "Feed", value=0.055).isPacked = True
-        self.newInput("FloatSocketType", "Kill", value=0.062).isPacked = True
-        self.newInput("FloatSocketType", "A Rate", value=1.0).isPacked = True
-        self.newInput("FloatSocketType", "B Rate", value=0.5).isPacked = True
-        self.newInput("FloatSocketType", "Delta Time", value=0.2).isPacked = True
-        self.newInput("IntegerSocketType", "Steps", value=500).isPacked = True
+        self.inputs.new("Texture3SocketType", "A")
+        self.inputs.new("Texture3SocketType", "B")
+        self.newInput("ScalarSocketType", "Feed", value=0.055)
+        self.newInput("ScalarSocketType", "Kill", value=0.062)
+        self.newInput("ScalarSocketType", "A Rate", value=1.0)
+        self.newInput("ScalarSocketType", "B Rate", value=0.5)
+        self.newInput("ScalarSocketType", "Delta Time", value=0.2)
+        self.newInput("IntegerSocketType", "Steps", value=500)
         
-        self.newOutput("Texture3SocketType", "A'").isPacked = True
-        self.newOutput("Texture3SocketType", "B'").isPacked = True
+        self.outputs.new("Texture3SocketType", "A'")
+        self.outputs.new("Texture3SocketType", "B'")
 
     def refresh(self):
         pass

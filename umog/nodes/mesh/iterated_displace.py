@@ -2,7 +2,7 @@ from ..umog_node import *
 from ...engine import types, engine
 import bpy
 
-class IteratedDisplaceNode(UMOGNode):
+class IteratedDisplaceNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_IteratedDisplaceNode"
     bl_label = "Iterated Displace Node"
 
@@ -23,9 +23,8 @@ class IteratedDisplaceNode(UMOGNode):
 
         return engine.Operation(
             engine.ITERATED_DISPLACE,
+            input_types,
             [types.Mesh()],
-            [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 1)],
             [self.iterations])
 
     def update(self):

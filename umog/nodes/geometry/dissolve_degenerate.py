@@ -4,19 +4,19 @@ import numpy as np
 from mathutils import Vector
 
 
-class DissolveDegenerateNode(UMOGOutputNode):
+class DissolveDegenerateNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_DissolveDegenerateNode"
     bl_label = "Dissolve Degenerate Node"
 
     def init(self, context):
-        self.newInput("ObjectSocketType", "Object")
-        self.newInput("VertexGroupSocketType", "Vertex Group")
+        self.inputs.new("ObjectSocketType", "Object")
+        self.inputs.new("VertexGroupSocketType", "Vertex Group")
 
-        self.newInput("FloatSocketType", "Threshold", value = 0.001, minValue = 0.0, maxValue= 10.0)
-        socket = self.newOutput("ObjectSocketType", "Object")
+        self.newInput("ScalarSocketType", "Threshold", value = 0.001, minValue = 0.0, maxValue= 10.0)
+        socket = self.outputs.new("ObjectSocketType", "Object")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
-        socket = self.newOutput("VertexGroupSocketType", "Vertex Group")
+        socket = self.outputs.new("VertexGroupSocketType", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 
