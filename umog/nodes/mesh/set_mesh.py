@@ -1,6 +1,7 @@
 from ..umog_node import *
 from ...engine import types, engine, mesh
 import bpy
+import bmesh
 
 class SetMeshNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SetMeshNode"
@@ -25,8 +26,9 @@ class SetMeshNode(bpy.types.Node, UMOGOutputNode):
             [])
 
     def output_value(self, value):
-        mesh.to_blender_mesh(value, bpy.data.meshes[self.mesh_name].as_pointer())
-        bpy.data.meshes[self.mesh_name].update()
+        bmesh.new().to_mesh(bpy.data.meshes[self.mesh_name])
+        mesh.to_blender_mesh(value, bpy.data.meshes[self.mesh_name])
+        bpy.data.meshes[self.mesh_name].update(calc_edges=True)
 
     def update(self):
         pass

@@ -23,6 +23,7 @@ class GetMeshNode(bpy.types.Node, UMOGNode):
             [])
 
     def get_default_value(self, index, argument_type):
+        bpy.data.meshes[self.mesh_name].update(calc_tessface=True)
         return bpy.data.meshes[self.mesh_name]
 
     def update(self):
