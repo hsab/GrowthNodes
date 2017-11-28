@@ -36,8 +36,8 @@ class ReactionDiffusionNode(bpy.types.Node, UMOGNode):
             [input_types[0]],
             [self.iterations])
 
-    def get_buffer_values(self, buffer_types):
-        return [np.array([self.feed, self.kill, self.Da, self.Db, self.dt], dtype=np.float32, order="F").reshape((5,1,1,1,1))]
+    def get_default_value(self, index, argument_type):
+        return np.array([self.feed, self.kill, self.Da, self.Db, self.dt], dtype=np.float32, order="F").reshape((5,1,1,1,1))
 
     def update(self):
         pass
