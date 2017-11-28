@@ -38,20 +38,16 @@ def array_from_texture(object blender_texture, int width, int height):
     return texture
 
 cdef float sample_texture(Array array, float x, float y):
-    cdef int x1 = <int>x % array.array.shape[0]
-    cdef int x2 = (x1 + 1) % array.array.shape[0]
-    cdef int y1 = <int>y % array.array.shape[1]
-    cdef int y2 = (y1 + 1) % array.array.shape[1]
+    cdef int x1 = <int>((x * array.array.shape[1]) % array.array.shape[1])
+    cdef int x2 = (x1 + 1) % array.array.shape[1]
+    cdef int y1 = <int>((y * array.array.shape[1]) % array.array.shape[1])
+    cdef int y2 = (y1 + 1) % array.array.shape[2]
 
-    cdef float xt = fmod(x, 1.0)
-    if xt < 0.0: xt += 1.0
-    cdef float yt = fmod(y, 1.0)
-    if yt < 0.0: yt += 1.0
+    cdef float xt = x - <float>(<int>x)
+    cdef float yt = y - <float>(<int>y)
 
-    cdef float result
-
-    f1 = (1.0 - xt) * array.array[0,x1,y1,0,0] + xt * array.array[0,x2,y1,0,0]
-    f2 = (1.0 - xt) * array.array[0,x1,y2,0,0] + xt * array.array[0,x2,y2,0,0]
-    result = (1.0 - yt) * f1 + yt * f2
+    cdef float f1 = (1.0 - xt) * array.array[0,x1,y1,0,0] + xt * array.array[0,x2,y1,0,0]
+    cdef float f2 = (1.0 - xt) * array.array[0,x1,y2,0,0] + xt * array.array[0,x2,y2,0,0]
+    cdef float result = (1.0 - yt) * f1 + yt * f2
 
     return result
