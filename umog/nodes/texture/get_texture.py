@@ -8,7 +8,7 @@ class GetTextureNode(UMOGNode):
 
     texture_name = bpy.props.StringProperty()
     
-    resolution = 256
+    resolution = 100
 
     def init(self, context):
         self.outputs.new("ArraySocketType", "texture")
