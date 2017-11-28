@@ -69,10 +69,8 @@ def lathe_gpu(Aout, A, resolution):
     
     Ac = np.asarray(A.array, order="F")
     Ac = np.moveaxis(Ac, [0,1,2], [2, 0,1])
-    print(A)
-    print("lathe resolution is:" + str(resolution))
+    #print("lathe resolution is:" + str(resolution))
     temps = {}
-    print(Ac)
     temps["A"] = Ac
     temps["outResolution"] = resolution
     
@@ -89,7 +87,6 @@ def lathe_gpu(Aout, A, resolution):
         
         #tempA = np.moveaxis(temps["Aout"], [2, 0,1], [0,1,2])
         tempA = temps["Aout"]
-        print(tempA)
         tempA = np.expand_dims(tempA, 3)
         tempA = np.expand_dims(tempA, 4)
         #print("tempA shape:" +     def get_buffer_values(self):
@@ -246,21 +243,21 @@ def tex3d_to_mesh(A, mesh_name, iso_level):
 #1-channels in A set channel to in[channel -1]
 def mux_channels(Aout, A, new_channels):
     Atemp = np.asarray(A.array, order="F", dtype=np.float32)
-    print(Atemp.shape)
+    #print(Atemp.shape)
     outA = np.zeros(Atemp.shape, dtype=np.float32, order="F")
-    #for cur in range(Atemp.shape[0]):
-        #if new_channels[cur] == -1:
-            #outA[cur] = np.ones(Atemp.shape[1:],dtype=np.float32)
-        #else:
-            #outA[cur] = Atemp[new_channels[cur]-1]
-    for i in range(Atemp.shape[0]):
-        for j in range(Atemp.shape[1]):
-            for k in range(Atemp.shape[2]):
-                if new_channels[i] == -1:
-                    outA[i,j,k,0,0] = 1
-                elif new_channels[i] == 0:
-                    pass
-                else:
-                    outA[i,j,k,0,0] = Atemp[(new_channels[i]-1),j,k,0,0]
+    for cur in range(Atemp.shape[0]):
+        if new_channels[cur] == -1:
+            outA[cur] = np.ones(Atemp.shape[1:],dtype=np.float32, order="F")
+        else:
+            outA[cur] = Atemp[new_channels[cur]-1]
+    #for i in range(Atemp.shape[0]):
+        #for j in range(Atemp.shape[1]):
+            #for k in range(Atemp.shape[2]):
+                #if new_channels[i] == -1:
+                    #outA[i,j,k,0,0] = 1
+                #elif new_channels[i] == 0:
+                    #pass
+                #else:
+                    #outA[i,j,k,0,0] = Atemp[(new_channels[i]-1),j,k,0,0]
     
     array.from_memoryview(Aout, <np.ndarray[float, ndim=5, mode="fortran"]>outA)
