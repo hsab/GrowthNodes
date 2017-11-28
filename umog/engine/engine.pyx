@@ -232,6 +232,13 @@ cdef class Engine:
                     options.array[4,0,0,0,0],
                     options.array[5,0,0,0,0]
                     )
+            elif instruction.op == TRANSFORM_GPU:
+                options = <Array>self.buffers[instruction.ins[1]]
+                reaction_diffusion_gpu.transformation(
+                    <Array>self.buffers[instruction.outs[0]],
+                    <Array>self.buffers[instruction.ins[0]], 
+                    options.array, 
+                    )
 
                 
 

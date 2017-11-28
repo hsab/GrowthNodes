@@ -25,8 +25,8 @@ class UMOGTexture3TransformNode(UMOGNode):
     point = bpy.props.FloatVectorProperty(default=(0.5,0.5,0.5))
     
     def init(self, context):
-        self.newInput("Texture3SocketType", "A").isPacked = True
-        self.newOutput("Texture3SocketType", "Texture").isPacked = True
+        self.inputs.new("TextureSocketType", "A")
+        self.outputs.new("TextureSocketType", "A'")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "tr_op")
@@ -46,14 +46,22 @@ def get_operation(self, input_types):
     types.assert_type(input_types[0], types.ARRAY)
 
     return engine.Operation(
-        engine.REACTION_DIFFUSION_GPU_STEP,
+        engine.TRANSFORM_GPU,
         [input_types[0]],
-        [types.Array(6,0,0,0,0,0)],
+        [types.Array(4,4,0,0,0)],
         [engine.Argument(engine.ArgumentType.SOCKET, 0),
-            engine.Argument(engine.ArgumentType.SOCKET, 1),
             engine.Argument(engine.ArgumentType.BUFFER, 0)
             ],
-        [1])
+        [])
 
 def get_buffer_values(self):
-    return [np.array([self.feed, self.kill, self.Da, self.Db, self.dt, self.iterations], dtype=np.float32, order="F").reshape((6,1,1,1,1))]
+    if tr_op == "translation":
+        transform = transformations.translation_matrix(direction)
+    elif tr_op == "rotation":
+        transform = transformations.rotation_matrix(angle, direction, point)
+    elif tr_op == "scale":
+        transform = transformations.scale_matrix(factor, origin)
+    else:
+        print("no operation selected")
+    
+    return [np.array(transform, dtype=np.float32, order="F").reshape((4,4,1,1,1))]
