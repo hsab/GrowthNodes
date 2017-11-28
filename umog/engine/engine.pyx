@@ -187,7 +187,7 @@ cdef class Engine:
                 reaction_diffusion_gpu.lathe_gpu(
                     <Array>self.buffers[instruction.outs[0]],
                     <Array>self.buffers[instruction.ins[0]],
-                    int(instruction.parameters[0])
+                    instruction.parameters[0]
                     )
             elif instruction.op == SHAPE_GPU:
                 options = <Array>self.buffers[instruction.ins[1]]
@@ -206,6 +206,17 @@ cdef class Engine:
                     <Array>self.buffers[instruction.ins[1]],
                     instruction.parameters[0],
                     options.array[0,0,0,0,0]
+                    )
+            elif instruction.op == MUX_CHANNELS:
+                reaction_diffusion_gpu.mux_channels(
+                    <Array>self.buffers[instruction.outs[0]],
+                    <Array>self.buffers[instruction.ins[0]],
+                    [
+                        instruction.parameters[0],
+                        instruction.parameters[1],
+                        instruction.parameters[2],
+                        instruction.parameters[3],
+                    ]
                     )
 
                 
