@@ -237,7 +237,7 @@ cdef class Engine:
                 reaction_diffusion_gpu.transformation(
                     <Array>self.buffers[instruction.outs[0]],
                     <Array>self.buffers[instruction.ins[0]], 
-                    options.array, 
+                    options, 
                     )
 
                 

@@ -210,6 +210,7 @@ def solid_geometry(Aout, A, B, operation, threshold):
 
 def transformation(Aout, A, matrix):
     A = np.asarray(A.array, order="F")
+    matrix = np.asarray(matrix.array, order="C")
     temps = {}
     temps["A"] = A
     #set transform with the correct mat4
