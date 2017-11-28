@@ -2,6 +2,7 @@ import cython
 
 from libc.stdint cimport uintptr_t
 from libc.string cimport memset, memcpy
+from libc.math cimport atan2, asin, M_PI
 
 from ..packages.cymem.cymem cimport Pool
 
@@ -19,8 +20,8 @@ cdef void allocate(Mesh mesh, int n_vertices, int n_triangles):
 
     mesh.vertices = <Vec3 *>mesh.mem.alloc(n_vertices, sizeof(Vec3))
     mesh.normals = <Vec3 *>mesh.mem.alloc(n_vertices, sizeof(Vec3))
+    mesh.uvs = <Vec2 *>mesh.mem.alloc(n_vertices, sizeof(Vec2))
     mesh.triangles = <int *>mesh.mem.alloc(n_triangles * 3, sizeof(int))
-    mesh.uvs = <Vec2 *>mesh.mem.alloc(n_triangles * 3, sizeof(Vec2))
 
 @cython.boundscheck(False)
 cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh):
@@ -33,6 +34,7 @@ cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh):
 
     allocate(mesh, n_vertices, n_triangles)
 
+    cdef Vec3 normalized
     with nogil:
         for i in range(blender_mesh.totvert):
             mesh.vertices[i].x = blender_mesh.mvert[i].co[0]
@@ -60,22 +62,28 @@ cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh):
         if blender_mesh.mtface:
             j = 0
             for i in range(blender_mesh.totface):
-                mesh.uvs[j * 3].x = blender_mesh.mtface[i].uv[0][0]
-                mesh.uvs[j * 3].y = blender_mesh.mtface[i].uv[0][1]
-                mesh.uvs[j * 3 + 1].x = blender_mesh.mtface[i].uv[1][0]
-                mesh.uvs[j * 3 + 1].y = blender_mesh.mtface[i].uv[1][1]
-                mesh.uvs[j * 3 + 2].x = blender_mesh.mtface[i].uv[2][0]
-                mesh.uvs[j * 3 + 2].y = blender_mesh.mtface[i].uv[2][1]
+                mesh.uvs[mesh.triangles[j * 3]].x = blender_mesh.mtface[i].uv[0][0]
+                mesh.uvs[mesh.triangles[j * 3]].y = blender_mesh.mtface[i].uv[0][1]
+                mesh.uvs[mesh.triangles[j * 3 + 1]].x = blender_mesh.mtface[i].uv[1][0]
+                mesh.uvs[mesh.triangles[j * 3 + 1]].y = blender_mesh.mtface[i].uv[1][1]
+                mesh.uvs[mesh.triangles[j * 3 + 2]].x = blender_mesh.mtface[i].uv[2][0]
+                mesh.uvs[mesh.triangles[j * 3 + 2]].y = blender_mesh.mtface[i].uv[2][1]
                 j += 1
 
                 if blender_mesh.mface[i].v4:
-                    mesh.uvs[j * 3].x = blender_mesh.mtface[i].uv[0][0]
-                    mesh.uvs[j * 3].y = blender_mesh.mtface[i].uv[0][1]
-                    mesh.uvs[j * 3 + 1].x = blender_mesh.mtface[i].uv[2][0]
-                    mesh.uvs[j * 3 + 1].y = blender_mesh.mtface[i].uv[2][1]
-                    mesh.uvs[j * 3 + 2].x = blender_mesh.mtface[i].uv[3][0]
-                    mesh.uvs[j * 3 + 2].y = blender_mesh.mtface[i].uv[3][1]
+                    mesh.uvs[mesh.triangles[j * 3]].x = blender_mesh.mtface[i].uv[0][0]
+                    mesh.uvs[mesh.triangles[j * 3]].y = blender_mesh.mtface[i].uv[0][1]
+                    mesh.uvs[mesh.triangles[j * 3 + 1]].x = blender_mesh.mtface[i].uv[2][0]
+                    mesh.uvs[mesh.triangles[j * 3 + 1]].y = blender_mesh.mtface[i].uv[2][1]
+                    mesh.uvs[mesh.triangles[j * 3 + 2]].x = blender_mesh.mtface[i].uv[3][0]
+                    mesh.uvs[mesh.triangles[j * 3 + 2]].y = blender_mesh.mtface[i].uv[3][1]
                     j += 1
+        else:
+            i = 0
+            for i in range(mesh.n_vertices):
+                vec3_normalize(&normalized, &mesh.vertices[i])
+                mesh.uvs[i].x = 0.5 + atan2(-normalized.z, -normalized.x)
+                mesh.uvs[i].y = 0.5 - asin(-normalized.y / M_PI)
 
 @cython.boundscheck(False)
 cpdef void to_blender_mesh(Mesh mesh, object b_mesh):
@@ -104,43 +112,46 @@ cpdef void to_blender_mesh(Mesh mesh, object b_mesh):
             blender_mesh.mpoly[i].loopstart = i * 3
             blender_mesh.mpoly[i].totloop = 3
 
-        if blender_mesh.mloopuv:
-            for i in range(mesh.n_triangles):
-                blender_mesh.mloopuv[i * 3].uv[0] = mesh.uvs[i * 3].x
-                blender_mesh.mloopuv[i * 3].uv[1] = mesh.uvs[i * 3].y
-                blender_mesh.mloopuv[i * 3 + 1].uv[0] = mesh.uvs[i * 3 + 1].x
-                blender_mesh.mloopuv[i * 3 + 1].uv[1] = mesh.uvs[i * 3 + 1].y
-                blender_mesh.mloopuv[i * 3 + 2].uv[0] = mesh.uvs[i * 3 + 2].x
-                blender_mesh.mloopuv[i * 3 + 2].uv[1] = mesh.uvs[i * 3 + 2].y
+    # if blender_mesh.mloopuv:
+    #     for i in range(mesh.n_triangles):
+    #         blender_mesh.mloopuv[i * 3].uv[0] = mesh.uvs[i * 3].x
+    #         blender_mesh.mloopuv[i * 3].uv[1] = mesh.uvs[i * 3].y
+    #         blender_mesh.mloopuv[i * 3 + 1].uv[0] = mesh.uvs[i * 3 + 1].x
+    #         blender_mesh.mloopuv[i * 3 + 1].uv[1] = mesh.uvs[i * 3 + 1].y
+    #         blender_mesh.mloopuv[i * 3 + 2].uv[0] = mesh.uvs[i * 3 + 2].x
+    #         blender_mesh.mloopuv[i * 3 + 2].uv[1] = mesh.uvs[i * 3 + 2].y
 
 cdef Mesh copy_mesh(Mesh old):
     cdef Mesh new = Mesh()
     allocate(new, old.n_vertices, old.n_triangles)
     memcpy(new.vertices, old.vertices, old.n_vertices * sizeof(Vec3))
     memcpy(new.normals, old.normals, old.n_vertices * sizeof(Vec3))
+    memcpy(new.uvs, old.uvs, old.n_vertices * sizeof(Vec2))
     memcpy(new.triangles, old.triangles, old.n_triangles * 3 * sizeof(int))
-    memcpy(new.uvs, old.uvs, old.n_triangles * 3 * sizeof(Vec2))
     return new
 
 cdef void displace(Mesh mesh, Array texture):
     cdef int i
     cdef float value
-    cdef float c
     cdef Vec3 normal
     for i in range(mesh.n_vertices):
-        # value = sample_texture(texture, 100.0 * mesh.vertices[i].x, 100.0 * mesh.vertices[i].y)
-        # value = texture[0,<int>(100 * mesh.vertices[i].x + 50) % 100,<int>(100 * mesh.vertices[i].y + 50) % 100,0,0]
-        value = sample_texture(texture,100 * mesh.vertices[i].x + 50,100 * mesh.vertices[i].y)
-        c = value
-        vec3_scale(&normal, c, &mesh.normals[i])
+        value = sample_texture(texture, mesh.uvs[i].x, mesh.uvs[i].y)
+        vec3_scale(&normal, value, &mesh.vertices[i])
         vec3_add(&mesh.vertices[i], &mesh.vertices[i], &normal)
 
     recalculate_normals(mesh)
 
 cdef void iterated_displace(Mesh mesh, Array texture, int iterations):
-    cdef int i
-    for i in range(iterations):
-        displace(mesh, texture)
+    cdef int i, t
+    cdef float value
+    cdef Vec3 normal
+    for t in range(iterations):
+        for i in range(mesh.n_vertices):
+            value = sample_texture(texture, mesh.uvs[i].x, mesh.uvs[i].y)
+            vec3_scale(&normal, value, &mesh.vertices[i])
+            vec3_add(&mesh.vertices[i], &mesh.vertices[i], &normal)
+
+        recalculate_normals(mesh)
 
 @cython.cdivision(True)
 cdef void recalculate_normals(Mesh mesh):
