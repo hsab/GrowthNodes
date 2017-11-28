@@ -3,19 +3,7 @@ from collections import OrderedDict
 
 # menus from compile branch
 menus = OrderedDict([
-    ("algorithm_menu", {
-        "bl_idname": "umog_algorithm_menu",
-        "bl_label": "Algorithm Menu",
-        "text": "Algorithm",
-        "bl_description": "Lorem Ipsum",
-        "icon": "STICKY_UVS_LOC",
-        "nodes": [
-            ("umog_ReactionDiffusionNode", "Reaction Diffusion"),
-            ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion GPU"),
-            ("umog_PyGLNode", "3d Reaction Diffusion"),
-        ]
-    }),
-    (" ", "separator"),
+    ("  ", "separator"),
     ("mesh_menu", {
         "bl_idname": "umog_mesh_menu",
         "bl_label": "Mesh Menu",
@@ -29,7 +17,20 @@ menus = OrderedDict([
             ("umog_IteratedDisplaceNode", "Iterated Displace"),
         ]
     }),
-    ("  ", "separator"),
+    ("texture_menu", {
+        "bl_idname": "umog_texture_menu",
+        "bl_label": "Texture Menu",
+        "text": "Texture",
+        "bl_description": "Lorem Ipsum",
+        "icon": "IMGDISPLAY",
+        "nodes": [
+            ("umog_GetTextureNode", "Get Texture"),
+            ("umog_SetTextureNode", "Set Texture"),
+            ("umog_SaveTextureNode", "Save Texture"),
+            ("umog_LoadTextureNode", "Load Texture(s)"),
+        ]
+    }),
+    (" ", "separator"),
     ("math_menu", {
         "bl_idname": "umog_math_menu",
         "bl_label": "Math Menu",
@@ -92,21 +93,19 @@ menus = OrderedDict([
             ("umog_ConvolveNode", "Convolve"),
         ]
     }),
-    ("  ", "separator"),
-    ("texture_menu", {
-        "bl_idname": "umog_texture_menu",
-        "bl_label": "Texture Menu",
-        "text": "Texture",
+    ("algorithm_menu", {
+        "bl_idname": "umog_algorithm_menu",
+        "bl_label": "Algorithm Menu",
+        "text": "Algorithm",
         "bl_description": "Lorem Ipsum",
-        "icon": "IMGDISPLAY",
+        "icon": "STICKY_UVS_LOC",
         "nodes": [
-            ("umog_GetTextureNode", "Get Texture"),
-            ("umog_SetTextureNode", "Set Texture"),
-            ("umog_SaveTextureNode", "Save Texture"),
-            ("umog_LoadTextureNode", "Load Texture(s)"),
+            ("umog_ReactionDiffusionNode", "Reaction Diffusion"),
+            ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion GPU"),
+            ("umog_PyGLNode", "3d Reaction Diffusion"),
         ]
     }),
-    ("  ", "separator"),
+    ("   ", "separator"),
     ("debug_menu", {
         "bl_idname": "umog_debug_menu",
         "bl_label": "Debug Menu",
