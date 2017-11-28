@@ -43,7 +43,7 @@ class ReactionDiffusionNode(UMOGNode):
             [1])
 
     def get_buffer_values(self):
-        return [np.array([self.feed, self.kill, self.Da, self.Db, self.dt, self.iterations], dtype=np.float32, order="F").reshape((6,1,1,1,1))]
+        return [np.array([self.Da, self.Db, self.dt, self.iterations, self.feed, self.kill], dtype=np.float32, order="F").reshape((6,1,1,1,1))]
 
     def update(self):
         pass
