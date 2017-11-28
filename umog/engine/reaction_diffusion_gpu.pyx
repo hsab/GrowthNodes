@@ -14,6 +14,7 @@ from impls import pyglet_lathe_impl
 from impls import pyglet_cr_sphere_impl
 from impls import pyglet_sg_impl
 from impls import pyglet_tr_impl
+from impls import pyglet_3dRD_impl
 from ..packages import transformations
 from ..packages import mcubes
 
@@ -64,6 +65,41 @@ def reaction_diffusion_gpu(Aout, Bout, A, B, dA, dB, dt, steps, feed, kill):
         print("Unexpected error:", sys.exc_info()[0])
     pass
 
+def reaction_diffusion_3d_gpu(Aout, Bout, A, B, dA, dB, dt, steps, feed, kill):
+    print("rd 3d python function")
+    #array.copy_array(Aout, A)
+    #array.copy_array(Bout, B)
+    
+    Atemp = np.asarray(A.array, order="F")
+    Btemp = np.asarray(B.array, order="F")
+    
+    args = {}
+    args["A"] = Atemp 
+    args["B"] = Btemp
+    args["feed"] = feed
+    args["kill"] = kill
+    args["dA"] = dA
+    args["dB"] = dB
+    args["dt"] = dt
+    try:
+        #start a new thread to avoid poluting blender's opengl context
+        t = threading.Thread(target=pyglet_3dRD_impl.OffScreenRender, 
+                            args=(int(steps), args,))
+        
+        t.start()
+        t.join()
+        print("OpenglRender done")
+        #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
+        #print(temps["Aout"])
+        
+        array.from_memoryview(Aout, <np.ndarray[float, ndim=5, mode="c"]>args["Aout"])
+        
+        array.from_memoryview(Bout, <np.ndarray[float, ndim=5, mode="c"]>args["Bout"])
+        
+    except:
+        print("thread start failed")
+        print("Unexpected error:", sys.exc_info()[0])
+    pass
 
 def lathe_gpu(Aout, A, resolution):
     

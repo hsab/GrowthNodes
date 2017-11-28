@@ -12,7 +12,7 @@ menus = OrderedDict([
         "nodes": [
             ("umog_ReactionDiffusionNode", "Reaction Diffusion"),
             ("umog_ReactionDiffusionGPUNode", "Reaction Diffusion GPU"),
-            ("umog_PyGLNode", "3d Reaction Diffusion"),
+            ("umog_ReactionDiffusionVoxelGPUNode", "Voxel Reaction Diffusion"),
         ]
     }),
     (" ", "separator"),
@@ -109,8 +109,8 @@ menus = OrderedDict([
     }),
     ("texture3d_menu", {
         "bl_idname": "umog_texture3d_menu",
-        "bl_label": "Texture 3d Menu",
-        "text": "Texture3",
+        "bl_label": "Voxel Menu",
+        "text": "Voxel",
         "bl_description": "",
         "icon": "IMGDISPLAY",
         "nodes": [

@@ -59,11 +59,14 @@ cpdef enum Opcode:
     
     # gpu
     REACTION_DIFFUSION_GPU_STEP
+    REACTION_DIFFUSION_VOXEL_GPU
     
     SHAPE_GPU
     LATHE_GPU
     SOLID_GEOMETRY_GPU
     TRANSFORM_GPU
+    
+    
 
 cdef class Instruction:
     cdef Opcode op

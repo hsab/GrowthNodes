@@ -218,6 +218,20 @@ cdef class Engine:
                         instruction.parameters[3],
                     ]
                     )
+            elif instruction.op == REACTION_DIFFUSION_VOXEL_GPU:
+                options = <Array>self.buffers[instruction.ins[2]]
+                reaction_diffusion_gpu.reaction_diffusion_3d_gpu(
+                    <Array>self.buffers[instruction.outs[0]],
+                    <Array>self.buffers[instruction.outs[1]],
+                    <Array>self.buffers[instruction.ins[0]], 
+                    <Array>self.buffers[instruction.ins[1]],
+                    options.array[0,0,0,0,0], 
+                    options.array[1,0,0,0,0], 
+                    options.array[2,0,0,0,0], 
+                    options.array[3,0,0,0,0], 
+                    options.array[4,0,0,0,0],
+                    options.array[5,0,0,0,0]
+                    )
 
                 
 
