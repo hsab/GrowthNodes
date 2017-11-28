@@ -5,6 +5,7 @@ import sys
 import bpy
 import copy
 import numpy as np
+from ...packages import transformations
 
 class UMOGTexture3TransformNode(UMOGNode):
     bl_idname = "umog_Texture3TransformNode"
@@ -42,26 +43,26 @@ class UMOGTexture3TransformNode(UMOGNode):
             #layout.prop(self, "direction")
         
 
-def get_operation(self, input_types):
-    types.assert_type(input_types[0], types.ARRAY)
+    def get_operation(self, input_types):
+        types.assert_type(input_types[0], types.ARRAY)
 
-    return engine.Operation(
-        engine.TRANSFORM_GPU,
-        [input_types[0]],
-        [types.Array(4,4,0,0,0)],
-        [engine.Argument(engine.ArgumentType.SOCKET, 0),
-            engine.Argument(engine.ArgumentType.BUFFER, 0)
-            ],
-        [])
+        return engine.Operation(
+            engine.TRANSFORM_GPU,
+            [input_types[0]],
+            [types.Array(4,4,0,0,0,0)],
+            [engine.Argument(engine.ArgumentType.SOCKET, 0),
+                engine.Argument(engine.ArgumentType.BUFFER, 0)
+                ],
+            [])
 
-def get_buffer_values(self):
-    if tr_op == "translation":
-        transform = transformations.translation_matrix(direction)
-    elif tr_op == "rotation":
-        transform = transformations.rotation_matrix(angle, direction, point)
-    elif tr_op == "scale":
-        transform = transformations.scale_matrix(factor, origin)
-    else:
-        print("no operation selected")
-    
-    return [np.array(transform, dtype=np.float32, order="F").reshape((4,4,1,1,1))]
+    def get_buffer_values(self):
+        if self.tr_op == "translation":
+            transform = transformations.translation_matrix(self.direction)
+        elif self.tr_op == "rotation":
+            transform = transformations.rotation_matrix(self.angle, self.direction, self.point)
+        elif self.tr_op == "scale":
+            transform = transformations.scale_matrix(self.factor, self.origin)
+        else:
+            print("no operation selected")
+        
+        return [np.array(transform, dtype=np.float32, order="F").reshape((4,4,1,1,1))]
