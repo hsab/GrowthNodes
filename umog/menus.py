@@ -104,6 +104,7 @@ menus = OrderedDict([
             ("umog_SetTextureNode", "Set Texture"),
             ("umog_SaveTextureNode", "Save Texture"),
             ("umog_LoadTextureNode", "Load Texture(s)"),
+            ("umog_Texture_Muxer_Node", "Mux Channels"),
         ]
     }),
     ("texture3d_menu", {

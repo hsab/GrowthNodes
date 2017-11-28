@@ -46,6 +46,8 @@ cpdef enum Opcode:
     CONVOLVE
 
     REACTION_DIFFUSION_STEP
+    MUX_CHANNELS
+    
 
     # mesh
     DISPLACE
