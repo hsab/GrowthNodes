@@ -208,20 +208,12 @@ def solid_geometry(Aout, A, B, operation, threshold):
         traceback.print_exception(exc_type, exc_value, exc_traceback)
 
 
-def transformation(Aout, A, direction, angle, point, factor, origin, tr_op):
+def transformation(Aout, A, matrix):
     A = np.asarray(A.array, order="F")
-    A = np.moveaxis(A, [0,1,2], [2, 0,1])
     temps = {}
     temps["A"] = A
     #set transform with the correct mat4
-    if tr_op == "translation":
-        temps["transform"] = transformations.translation_matrix(direction)
-    elif tr_op == "rotation":
-        temps["transform"] = transformations.rotation_matrix(angle, direction, point)
-    elif tr_op == "scale":
-        temps["transform"] = transformations.scale_matrix(factor, origin)
-    else:
-        print("no operation selected")
+    temps["transform"] = matrix
     print(temps["transform"])
     #pydevd.settrace()
     try:
@@ -234,10 +226,8 @@ def transformation(Aout, A, direction, angle, point, factor, origin, tr_op):
         print("OpenglRender done")
         #buf = np.frombuffer(refholder.execution_scratch[self.name]["buffer"], dtype=np.float)
         #print(temps["Aout"])
-        
-        tempA = np.moveaxis(temps["Aout"], [2, 0,1], [0,1,2])
     
-        array.from_memoryview(Aout, <np.ndarray[float, ndim=5, mode="c"]>tempA)
+        array.from_memoryview(Aout, <np.ndarray[float, ndim=5, mode="c"]>temps["Aout"])
 
     except:
         print("thread start failed")
