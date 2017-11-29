@@ -135,8 +135,8 @@ cdef void displace(Mesh mesh, Array texture):
     cdef float value
     cdef Vec3 normal
     for i in range(mesh.n_vertices):
-        value = sample_texture(texture, mesh.uvs[i].x, mesh.uvs[i].y)
-        vec3_scale(&normal, value, &mesh.vertices[i])
+        value = sample_texture(texture, mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z)
+        vec3_scale(&normal, value, &mesh.normals[i])
         vec3_add(&mesh.vertices[i], &mesh.vertices[i], &normal)
 
     recalculate_normals(mesh)
@@ -147,8 +147,8 @@ cdef void iterated_displace(Mesh mesh, Array texture, int iterations):
     cdef Vec3 normal
     for t in range(iterations):
         for i in range(mesh.n_vertices):
-            value = sample_texture(texture, mesh.uvs[i].x, mesh.uvs[i].y)
-            vec3_scale(&normal, value, &mesh.vertices[i])
+            value = sample_texture(texture, mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z)
+            vec3_scale(&normal, value, &mesh.normals[i])
             vec3_add(&mesh.vertices[i], &mesh.vertices[i], &normal)
 
         recalculate_normals(mesh)

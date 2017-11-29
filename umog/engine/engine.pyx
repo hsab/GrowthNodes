@@ -186,8 +186,10 @@ def create_buffer(buffer_type, value=None):
             max(buffer_type.channels, 1),
             max(buffer_type.x_size, 1), max(buffer_type.y_size, 1), max(buffer_type.z_size, 1),
             max(buffer_type.t_size, 1))
-        if value is not None:
+        if isinstance(value, np.ndarray):
             array.from_memoryview(arr, <np.ndarray[float, ndim=5, mode="fortran"]>value)
+        elif isinstance(value, bpy.types.Texture):
+            array.from_blender_texture(arr, value)
         else:
             array.clear(arr)
         return arr
