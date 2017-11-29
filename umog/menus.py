@@ -25,6 +25,7 @@ menus = OrderedDict([
         "icon": "IMGDISPLAY",
         "nodes": [
             ("umog_GetTextureNode", "Get Texture"),
+            ("umog_GetVolumetricTextureNode", "Get Volumetric Texture"),
             ("umog_SetTextureNode", "Set Texture"),
             ("umog_SaveTextureNode", "Save Texture"),
             ("umog_LoadTextureNode", "Load Texture(s)"),

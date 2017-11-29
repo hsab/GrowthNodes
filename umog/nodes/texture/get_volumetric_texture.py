@@ -2,9 +2,9 @@ from ..umog_node import *
 from ...engine import types, engine, array
 import bpy
 
-class GetTextureNode(bpy.types.Node, UMOGNode):
-    bl_idname = "umog_GetTextureNode"
-    bl_label = "Get Texture Node"
+class GetVolumetricTextureNode(bpy.types.Node, UMOGNode):
+    bl_idname = "umog_GetVolumetricTextureNode"
+    bl_label = "Get Volumetric Texture Node"
 
     texture_name = bpy.props.StringProperty()
 
@@ -32,8 +32,8 @@ class GetTextureNode(bpy.types.Node, UMOGNode):
     def get_operation(self, input_types):
         return engine.Operation(
             engine.CONST,
-            [types.Array(4, 100, 100, 0, 0, 0)],
-            [types.Array(4, 100, 100, 0, 0, 0)],
+            [types.Array(4, 100, 100, 100, 0, 0)],
+            [types.Array(4, 100, 100, 100, 0, 0)],
             [])
 
     def get_default_value(self, index, argument_type):
