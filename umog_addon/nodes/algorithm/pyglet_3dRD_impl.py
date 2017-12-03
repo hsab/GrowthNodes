@@ -1,5 +1,8 @@
 import numpy as np
 import sys
+import os
+import importlib
+import traceback
 
 def trace(frame, event, arg):
     print("%s, %s:%d" % (event, frame.f_code.co_filename, frame.f_lineno))
@@ -11,6 +14,14 @@ def Dummy(steps, in_buffer, out_buffer):
     return True
 
 def OffScreenRender(steps, args, test=False):
+    cpath = os.path.dirname(os.path.realpath(__file__))
+    print(cpath)
+    cpath = os.path.split(cpath)[0]
+    cpath = os.path.split(cpath)[0]
+    cpath = os.path.join(cpath, "packages")
+    print(cpath)
+    sys.path.append(cpath)
+    print("path mod on 3d rd")
     try:
         if test:
             import pyglet
@@ -19,13 +30,15 @@ def OffScreenRender(steps, args, test=False):
             import pyglet_helper
             import numpy as np
         else:
-            from ... events import pyglet_helper
+            from ... packages import pyglet_helper
+            from ... packages import osr_runner
             from ... packages import pyglet
             from ...packages.pyglet import gl
             import ctypes
             import numpy as np
     except:
-        print("imports failed")
+        print("imports failed 3d rd")
+        traceback.print_exc()
         return
             
     print("start of osr, for " + str(steps))
@@ -457,9 +470,7 @@ def OffScreenRender(steps, args, test=False):
                 event = self.dispatch_events()
                 
     cr = ControledRender(steps)
-    cr.run()
-    cr.cleanUP()
-    cr.close()
+    osr_runner.runner(cr)
     #del cr
     #cr = None
     print("end of osr")
