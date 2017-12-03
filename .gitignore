@@ -11,5 +11,6 @@ build/
 .DS_Store
 config.py
 *.c
+*.cpp
 *.so
 umog.zip

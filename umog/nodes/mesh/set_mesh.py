@@ -1,5 +1,5 @@
 from ..umog_node import *
-from ...engine import types, engine, mesh
+from ...engine import types, engine, mesh, alembic
 import bpy
 import bmesh
 
@@ -29,6 +29,8 @@ class SetMeshNode(bpy.types.Node, UMOGOutputNode):
         bmesh.new().to_mesh(bpy.data.meshes[self.mesh_name])
         mesh.to_blender_mesh(value, bpy.data.meshes[self.mesh_name])
         bpy.data.meshes[self.mesh_name].update(calc_edges=True)
+
+        alembic.export(value)
 
     def update(self):
         pass
