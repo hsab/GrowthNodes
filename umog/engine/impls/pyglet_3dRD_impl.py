@@ -94,7 +94,7 @@ def OffScreenRender(steps, args, test=False):
         otherB += texture3D(B, vTexCoord + vec3(0, 0, -step));
         otherB += texture3D(B, vTexCoord + vec3(0, 0,  step));
 
-        float distance_squared = distance * distance;
+        float distance_squared = distance * distance * distance;
         
         // [rad] Compute greyscott equations.
         vec4 newA = dA * otherA / distance_squared - oldA * oldB * oldB + f * (1.0 - oldA);
@@ -152,7 +152,7 @@ def OffScreenRender(steps, args, test=False):
         otherB += texture3D(B, vTexCoord + vec3(0, 0, -step));
         otherB += texture3D(B, vTexCoord + vec3(0, 0,  step));
 
-        float distance_squared = distance * distance;
+        float distance_squared = distance * distance * distance;
         
         // [rad] Compute greyscott equations.
         vec4 newA = dA * otherA / distance_squared - oldA * oldB * oldB + f * (1.0 - oldA);

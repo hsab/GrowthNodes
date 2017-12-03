@@ -1,5 +1,7 @@
 import numpy as np
 cimport numpy as np
+import cython
+from cython.parallel import prange
 from ..packages.cymem.cymem cimport Pool
 from libc.string cimport memset, memcpy
 from libc.math cimport fmod
@@ -22,36 +24,47 @@ cdef void copy_array(Array dest, Array src):
 cdef void from_memoryview(Array array, float[:,:,:,:,:] memoryview):
     memcpy(&array.array[0,0,0,0,0], &memoryview[0,0,0,0,0], array.array.shape[0] * array.array.shape[1] * array.array.shape[2] * array.array.shape[3] * array.array.shape[4] * sizeof(float))
 
-def array_from_texture(object blender_texture, int width, int height):
-    texture = np.ndarray(shape=(4,width,height,1,1), dtype=np.float32, order="F")
-
-    cdef int x, y, i
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef void from_blender_texture(Array array, object blender_texture):
+    cdef int x, y, z
     cdef object pixel
-    for x in range(width):
-        for y in range(height):
-            pixel = blender_texture.evaluate([2 * <float>x / <float>width - 1, 2 * <float>y / <float>height - 1, 0.0])
-            texture.data[0,x,y,0,0] = pixel[0]
-            texture.data[1,x,y,0,0] = pixel[1]
-            texture.data[2,x,y,0,0] = pixel[2]
-            texture.data[3,x,y,0,0] = pixel[3]
 
-    return texture
+    for z in range(array.array.shape[3]):
+        for y in range(array.array.shape[2]):
+            for x in range(array.array.shape[1]):
+                pixel = blender_texture.evaluate([2 * <float>x / <float>array.array.shape[1] - 1, 2 * <float>y / <float>array.array.shape[2] - 1, 2 * <float>z / <float>array.array.shape[3] - 1])
 
-cdef float sample_texture(Array array, float x, float y):
-    cdef int x1 = <int>x % array.array.shape[0]
-    cdef int x2 = (x1 + 1) % array.array.shape[0]
-    cdef int y1 = <int>y % array.array.shape[1]
-    cdef int y2 = (y1 + 1) % array.array.shape[1]
+                array.array[0,x,y,z,0] = pixel[0]
+                array.array[1,x,y,z,0] = pixel[1]
+                array.array[2,x,y,z,0] = pixel[2]
+                array.array[3,x,y,z,0] = pixel[3]
 
-    cdef float xt = fmod(x, 1.0)
+cdef float sample_texture(Array array, float x, float y, float z):
+    x *= array.array.shape[1] / 100.0
+    y *= array.array.shape[2] / 100.0
+    z *= array.array.shape[3] / 100.0
+
+    cdef int x1 = <int>x % array.array.shape[1]
+    cdef int x2 = (x1 + 1) % array.array.shape[1]
+    cdef int y1 = <int>y % array.array.shape[2]
+    cdef int y2 = (y1 + 1) % array.array.shape[2]
+    cdef int z1 = <int>z % array.array.shape[3]
+    cdef int z2 = (z1 + 1) % array.array.shape[3]
+
+    cdef float xt = x - <float>(<int>x)
     if xt < 0.0: xt += 1.0
-    cdef float yt = fmod(y, 1.0)
+    cdef float yt = y - <float>(<int>y)
     if yt < 0.0: yt += 1.0
+    cdef float zt = z - <float>(<int>z)
+    if zt < 0.0: zt += 1.0
 
-    cdef float result
-
-    f1 = (1.0 - xt) * array.array[0,x1,y1,0,0] + xt * array.array[0,x2,y1,0,0]
-    f2 = (1.0 - xt) * array.array[0,x1,y2,0,0] + xt * array.array[0,x2,y2,0,0]
-    result = (1.0 - yt) * f1 + yt * f2
+    cdef float a = (1.0 - xt) * array.array[0,x1,y1,z1,0] + xt * array.array[0,x2,y1,z1,0]
+    cdef float b = (1.0 - xt) * array.array[0,x1,y2,z1,0] + xt * array.array[0,x2,y2,z1,0]
+    cdef float ab = (1.0 - yt) * a + yt * b
+    cdef float c = (1.0 - xt) * array.array[0,x1,y1,z2,0] + xt * array.array[0,x2,y1,z2,0]
+    cdef float d = (1.0 - xt) * array.array[0,x1,y2,z2,0] + xt * array.array[0,x2,y2,z2,0]
+    cdef float cd = (1.0 - yt) * c + yt * d
+    cdef float result = (1.0 - zt) * ab + zt * cd
 
     return result

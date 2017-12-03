@@ -25,17 +25,17 @@ def reaction_diffusion_gpu(Aout, Bout, A, B, dA, dB, dt, steps, feed, kill):
     #array.copy_array(Aout, A)
     #array.copy_array(Bout, B)
     
-    A = np.asarray(A.array, order="F")
-    B = np.asarray(B.array, order="F")
+    Atemp = np.asarray(A.array, order="F")
+    Btemp = np.asarray(B.array, order="F")
     
-    A = np.moveaxis(A, [0,1,2], [2, 0,1])
-    B = np.moveaxis(B, [0,1,2], [2, 0,1])
-    print(A.shape)
+    Atemp = np.moveaxis(Atemp, [0,1,2], [2, 0,1])
+    Btemp = np.moveaxis(Btemp, [0,1,2], [2, 0,1])
+    print(Atemp.shape)
     print(steps)
     
     args = {}
-    args["A"] = A 
-    args["B"] = B
+    args["A"] = Atemp 
+    args["B"] = Btemp
     args["feed"] = feed
     args["kill"] = kill
     args["dA"] = dA
@@ -72,7 +72,7 @@ def reaction_diffusion_3d_gpu(Aout, Bout, A, B, dA, dB, dt, steps, feed, kill):
     
     Atemp = np.asarray(A.array, order="F")
     Btemp = np.asarray(B.array, order="F")
-    
+    print("shapes " + str(Atemp.shape) + " " + str(Btemp.shape))
     args = {}
     args["A"] = Atemp 
     args["B"] = Btemp
@@ -95,7 +95,7 @@ def reaction_diffusion_3d_gpu(Aout, Bout, A, B, dA, dB, dt, steps, feed, kill):
         array.from_memoryview(Aout, <np.ndarray[float, ndim=5, mode="c"]>args["Aout"])
         
         array.from_memoryview(Bout, <np.ndarray[float, ndim=5, mode="c"]>args["Bout"])
-        
+        print("shapes " + str(args["Aout"].shape) + " " + str(args["Bout"].shape))
     except:
         print("thread start failed")
         print("Unexpected error:", sys.exc_info()[0])
@@ -275,6 +275,8 @@ def mux_channels(Aout, A, new_channels):
     for cur in range(Atemp.shape[0]):
         if new_channels[cur] == -1:
             outA[cur] = np.ones(Atemp.shape[1:],dtype=np.float32, order="F")
+        elif new_channels[cur] == 0:
+            pass
         else:
             outA[cur] = Atemp[new_channels[cur]-1]
     #for i in range(Atemp.shape[0]):

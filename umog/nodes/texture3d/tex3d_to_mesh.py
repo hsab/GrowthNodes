@@ -7,7 +7,7 @@ import bpy
 import copy
 import numpy as np
 
-class UMOGTexture3MeshNode(UMOGOutputNode):
+class UMOGTexture3MeshNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_Texture3MeshNode"
     bl_label = "Mesh 3d Texture Node"
     
@@ -16,7 +16,7 @@ class UMOGTexture3MeshNode(UMOGOutputNode):
     iso_level = bpy.props.FloatProperty(default=0, soft_min=0.0, step=1, precision=2)
     
     def init(self, context):
-        self.inputs.new("TextureSocketType", "A")
+        self.inputs.new("ArraySocketType", "A")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "mesh_name")
@@ -28,9 +28,8 @@ class UMOGTexture3MeshNode(UMOGOutputNode):
 
         return engine.Operation(
             engine.OUT,
+            input_types,
             [],
-            [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0)],
             [])
 
     def output_value(self, value):

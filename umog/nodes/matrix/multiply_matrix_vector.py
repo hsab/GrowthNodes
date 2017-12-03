@@ -2,7 +2,7 @@ from ..umog_node import *
 from ...engine import types, engine
 import bpy
 
-class MultiplyMatrixVectorNode(UMOGNode):
+class MultiplyMatrixVectorNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_MultiplyMatrixVectorNode"
     bl_label = "Matrix * Vector"
 
@@ -29,9 +29,8 @@ class MultiplyMatrixVectorNode(UMOGNode):
 
         return engine.Operation(
             engine.MULTIPLY_MATRIX_MATRIX,
+            input_types,
             output_types,
-            [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 1)],
             [])
 
     def update(self):

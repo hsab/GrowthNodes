@@ -38,3 +38,6 @@ cdef inline void vec3_cross(Vec3 *out, Vec3 *a, Vec3 *b) nogil:
     out.x = a.y * b.z - a.z * b.y
     out.y = a.z * b.x - a.x * b.z
     out.z = a.x * b.y - a.y * b.x
+
+cdef struct Vec2:
+    float x, y

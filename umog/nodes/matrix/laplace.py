@@ -3,7 +3,7 @@ from ...engine import types, engine
 import bpy
 import numpy as np
 
-class LaplaceNode(UMOGNode):
+class LaplaceNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_LaplaceNode"
     bl_label = "Laplace Kernel"
 
@@ -21,8 +21,7 @@ class LaplaceNode(UMOGNode):
             engine.CONST,
             [types.Array(0,3,3,0,0,0)],
             [types.Array(0,3,3,0,0,0)],
-            [engine.Argument(engine.ArgumentType.BUFFER, 0)],
             [])
 
-    def get_buffer_values(self):
-        return [np.array([[0.25, 0.5, 0.25], [0.5, -3, 0.5], [0.25, 0.5, 0.25]], dtype=np.float32, order="F").reshape((1,3,3,1,1))]
+    def get_default_value(self, index, argument_type):
+        return np.array([[0.25, 0.5, 0.25], [0.5, -3, 0.5], [0.25, 0.5, 0.25]], dtype=np.float32, order="F").reshape((1,3,3,1,1))

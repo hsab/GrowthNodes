@@ -5,7 +5,7 @@ import math
 from mathutils import Vector
 
 
-class DissolveLimitedNode(UMOGOutputNode):
+class DissolveLimitedNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_DissolveLimitedNode"
     bl_label = "Dissolve Limited Node"
 
@@ -24,15 +24,15 @@ class DissolveLimitedNode(UMOGOutputNode):
         layout.prop(self, "delimitOptions", "Delimit Operation")
 
     def init(self, context):
-        self.newInput("ObjectSocketType", "Object")
-        self.newInput("VertexGroupSocketType", "Vertex Group")
-        self.newInput("FloatSocketType", "Angle Limit", value = 0.001, minValue = 0.0, maxValue= 180)
-        self.newInput("BooleanSocketType", "All Boundries")
+        self.inputs.new("ObjectSocketType", "Object")
+        self.inputs.new("VertexGroupSocketType", "Vertex Group")
+        self.newInput("ScalarSocketType", "Angle Limit", value = 0.001, minValue = 0.0, maxValue= 180)
+        self.inputs.new("BooleanSocketType", "All Boundries")
 
-        socket = self.newOutput("ObjectSocketType", "Output")
+        socket = self.outputs.new("ObjectSocketType", "Output")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
-        socket = self.newOutput("VertexGroupSocketType", "Vertex Group")
+        socket = self.outputs.new("VertexGroupSocketType", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 

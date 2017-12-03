@@ -5,22 +5,22 @@ import math
 from mathutils import Vector
 import bmesh
 
-class SharpFacesNode(UMOGOutputNode):
+class SharpFacesNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SharpFacesNode"
     bl_label = "Sharp Faces Node"
 
     def init(self, context):
-        self.newInput("Object", "Object")
-        self.newInput("FloatSocketType", "Angle", value = 20, minValue = 0.0, maxValue= 180)
+        self.inputs.new("Object", "Object")
+        self.newInput("ScalarSocketType", "Angle", value = 20, minValue = 0.0, maxValue= 180)
         self.newInput("BooleanSocketType", "Inverse Select", value = False)
         self.newInput("BooleanSocketType", "Top", value = True)
         self.newInput("BooleanSocketType", "Bottom", value = True)
-        self.newInput("FloatSocketType", "Weight", value = 1.0, minValue = 0.0, maxValue= 1.0)
+        self.newInput("ScalarSocketType", "Weight", value = 1.0, minValue = 0.0, maxValue= 1.0)
 
-        socket = self.newOutput("ObjectSocketType", "Output")
+        socket = self.outputs.new("ObjectSocketType", "Output")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
-        socket = self.newOutput("VertexGroupSocketType", "Vertex Group")
+        socket = self.outputs.new("VertexGroupSocketType", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 

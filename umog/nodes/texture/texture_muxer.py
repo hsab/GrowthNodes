@@ -6,7 +6,7 @@ import numpy as np
 #pyximport.install()
 
 
-class UMOGTexture3LatheNode(UMOGNode):
+class UMOGTexture3LatheNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Texture_Muxer_Node"
     bl_label = "Muxer Node"
     
@@ -54,8 +54,8 @@ class UMOGTexture3LatheNode(UMOGNode):
             default="-1")
     
     def init(self, context):
-        self.inputs.new("TextureSocketType", "A")
-        self.outputs.new("TextureSocketType", "A'")
+        self.inputs.new("ArraySocketType", "A")
+        self.outputs.new("ArraySocketType", "A'")
         
         
             
@@ -72,10 +72,8 @@ class UMOGTexture3LatheNode(UMOGNode):
         types.assert_type(input_types[0], types.ARRAY)
         return engine.Operation(
             engine.MUX_CHANNELS,
-            [input_types[0]],
-            [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0)
-             ],
+            input_types,
+            input_types,
             [int(self.red), int(self.green), int(self.blue), int(self.alpha)])
 
     def get_buffer_values(self):

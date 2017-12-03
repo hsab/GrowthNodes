@@ -4,21 +4,21 @@ import numpy as np
 from mathutils import Vector
 
 
-class SubdivideNode(UMOGOutputNode):
+class SubdivideNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SubdivideNode"
     bl_label = "Subdivide"
 
     def init(self, context):
-        self.newInput("ObjectSocketType", "Object")
-        self.newInput("VertexGroupSocketType", "Vertex Group")
+        self.inputs.new("ObjectSocketType", "Object")
+        self.inputs.new("VertexGroupSocketType", "Vertex Group")
 
         self.newInput("IntegerSocketType", "Cut Count", value = 1, minValue = 1, maxValue = 6)
-        self.newInput("FloatSocketType", "Smooth Factor", value = 0.0, minValue = 0.0, maxValue = 1.0)
+        self.newInput("ScalarSocketType", "Smooth Factor", value = 0.0, minValue = 0.0, maxValue = 1.0)
         
-        socket = self.newOutput("ObjectSocketType", "Object")
+        socket = self.outputs.new("ObjectSocketType", "Object")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
-        socket = self.newOutput("VertexGroupSocketType", "Vertex Group")
+        socket = self.outputs.new("VertexGroupSocketType", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
 

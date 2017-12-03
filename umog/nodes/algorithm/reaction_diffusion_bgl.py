@@ -4,7 +4,6 @@ import copy
 import numpy as np
 from ..umog_node import *
 from ... events import bgl_helper
-from ...events import events
 
 class UMOGReactionDiffusionData(dict):
     bl_idname = "umog_ReactionDiffusionData"
@@ -12,7 +11,7 @@ class UMOGReactionDiffusionData(dict):
     def __init__(self):
         pass
 
-class ReactionDiffusionBGLNode(UMOGNode):
+class ReactionDiffusionBGLNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_ReactionDiffusionBGLNode"
     bl_label = "Reaction Diffusion GPU"
 
@@ -95,17 +94,17 @@ class ReactionDiffusionBGLNode(UMOGNode):
     """
 
     def create(self):
-        self.newInput("Texture2SocketType", "A").isPacked = True
-        self.newInput("Texture2SocketType", "B").isPacked = True
-        self.newInput("FloatSocketType", "Feed", value=0.055, minValue = 0.0, maxValue = 1.0).isPacked = True
-        self.newInput("FloatSocketType", "Kill", value=0.062, minValue = 0.0, maxValue = 1.0).isPacked = True
-        self.newInput("FloatSocketType", "A Rate", value=1.0, minValue = 0.0, maxValue = 1.0).isPacked = True
-        self.newInput("FloatSocketType", "B Rate", value=0.5, minValue = 0.0, maxValue = 1.0).isPacked = True
-        self.newInput("FloatSocketType", "Delta Time", value=1.0, minValue = 0.0, maxValue = 1.0).isPacked = True
-        self.newInput("IntegerSocketType", "Steps", value=1, minValue = 1).isPacked = True
-        self.newOutput("Texture2SocketType", "A'").isPacked = True
-        self.newOutput("Texture2SocketType", "B'").isPacked = True
-        self.newOutput("Texture2SocketType", "Combined").isPacked = True
+        self.inputs.new("Texture2SocketType", "A")
+        self.inputs.new("Texture2SocketType", "B")
+        self.newInput("ScalarSocketType", "Feed", value=0.055, minValue = 0.0, maxValue = 1.0)
+        self.newInput("ScalarSocketType", "Kill", value=0.062, minValue = 0.0, maxValue = 1.0)
+        self.newInput("ScalarSocketType", "A Rate", value=1.0, minValue = 0.0, maxValue = 1.0)
+        self.newInput("ScalarSocketType", "B Rate", value=0.5, minValue = 0.0, maxValue = 1.0)
+        self.newInput("ScalarSocketType", "Delta Time", value=1.0, minValue = 0.0, maxValue = 1.0)
+        self.newInput("IntegerSocketType", "Steps", value=1, minValue = 1)
+        self.outputs.new("Texture2SocketType", "A'")
+        self.outputs.new("Texture2SocketType", "B'")
+        self.outputs.new("Texture2SocketType", "Combined")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "channels", "Channels")

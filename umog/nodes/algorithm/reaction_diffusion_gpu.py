@@ -3,7 +3,7 @@ import bpy
 from ...engine import types, engine
 import numpy as np
 
-class ReactionDiffusionNode(UMOGNode):
+class ReactionDiffusionNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_ReactionDiffusionGPUNode"
     bl_label = "Reaction Diffusion GPU"
 
@@ -15,10 +15,10 @@ class ReactionDiffusionNode(UMOGNode):
     iterations = bpy.props.IntProperty(default=500, soft_min=1)
 
     def init(self, context):
-        self.inputs.new("TextureSocketType", "A")
-        self.inputs.new("TextureSocketType", "B")
-        self.outputs.new("TextureSocketType", "A'")
-        self.outputs.new("TextureSocketType", "B'")
+        self.inputs.new("ArraySocketType", "A")
+        self.inputs.new("ArraySocketType", "B")
+        self.outputs.new("ArraySocketType", "A'")
+        self.outputs.new("ArraySocketType", "B'")
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -34,16 +34,12 @@ class ReactionDiffusionNode(UMOGNode):
 
         return engine.Operation(
             engine.REACTION_DIFFUSION_GPU_STEP,
-            [input_types[0], input_types[0]],
-            [types.Array(6,0,0,0,0,0)],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0),
-             engine.Argument(engine.ArgumentType.SOCKET, 1),
-             engine.Argument(engine.ArgumentType.BUFFER, 0)
-             ],
+            [input_types[0], input_types[0], types.Array(6,0,0,0,0,0)],
+            input_types,
             [1])
 
-    def get_buffer_values(self):
-        return [np.array([self.Da, self.Db, self.dt, self.iterations, self.feed, self.kill], dtype=np.float32, order="F").reshape((6,1,1,1,1))]
+    def get_default_value(self, index, argument_type):
+        return np.array([self.Da, self.Db, self.dt, self.iterations, self.feed, self.kill], dtype=np.float32, order="F").reshape((6,1,1,1,1))
 
     def update(self):
         pass
