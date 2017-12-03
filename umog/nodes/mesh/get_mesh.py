@@ -2,7 +2,7 @@ from ..umog_node import *
 from ...engine import types, engine
 import bpy
 
-class GetMeshNode(UMOGNode):
+class GetMeshNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_GetMeshNode"
     bl_label = "Get Mesh Node"
 
@@ -20,11 +20,11 @@ class GetMeshNode(UMOGNode):
             engine.CONST,
             [types.Mesh()],
             [types.Mesh()],
-            [],
             [])
 
-    def get_buffer_values(self):
-        return [bpy.data.meshes[self.mesh_name]]
+    def get_default_value(self, index, argument_type):
+        bpy.data.meshes[self.mesh_name].update(calc_tessface=True)
+        return bpy.data.meshes[self.mesh_name]
 
     def update(self):
         pass

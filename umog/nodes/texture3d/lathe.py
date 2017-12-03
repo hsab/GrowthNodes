@@ -9,13 +9,13 @@ import numpy as np
 #pyximport.install()
 
 
-class UMOGTexture3LatheNode(UMOGNode):
+class UMOGTexture3LatheNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Texture3LatheNode"
     bl_label = "Lathe Node"
     
     def init(self, context):
-        self.inputs.new("TextureSocketType", "A")
-        self.outputs.new("TextureSocketType", "A'")
+        self.inputs.new("ArraySocketType", "A")
+        self.outputs.new("ArraySocketType", "A'")
         
 
     def draw_buttons(self, context, layout):
@@ -27,10 +27,8 @@ class UMOGTexture3LatheNode(UMOGNode):
         types.assert_type(input_types[0], types.ARRAY)
         return engine.Operation(
             engine.LATHE_GPU,
+            input_types,
             [types.Array(resolution, resolution, resolution, 0, 0, 0)],
-            [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0)
-             ],
             [resolution])
 
     def get_buffer_values(self):

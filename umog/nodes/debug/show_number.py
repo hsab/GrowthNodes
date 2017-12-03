@@ -2,7 +2,7 @@ from ..umog_node import *
 from ...engine import types, engine, mesh
 import bpy
 
-class ShowNumberNode(UMOGOutputNode):
+class ShowNumberNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_ShowNumberNode"
     bl_label = "Show Number Node"
 
@@ -16,7 +16,7 @@ class ShowNumberNode(UMOGOutputNode):
     value = bpy.props.FloatProperty(get=get_value)
 
     def init(self, context):
-        self.inputs.new("FloatSocketType", "")
+        self.inputs.new("ScalarSocketType", "")
         super().init(context)
 
     def draw_buttons(self, context, layout):
@@ -27,13 +27,9 @@ class ShowNumberNode(UMOGOutputNode):
 
         return engine.Operation(
             engine.OUT,
+            input_types,
             [],
-            [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0)],
             [])
-
-    def get_buffer_values(self):
-        return []
 
     def output_value(self, value):
         self.hidden_value = value.array[0,0,0,0,0]

@@ -26,11 +26,7 @@ import reaction_diffusion_gpu
 
 # operation
 
-Operation = namedtuple('Operation', ['opcode', 'output_types', 'buffer_types', 'arguments', 'parameters'])
-class ArgumentType(Enum):
-    SOCKET = 0
-    BUFFER = 1
-Argument = namedtuple('Argument', ['type', 'index'])
+Operation = namedtuple('Operation', ['opcode', 'argument_types', 'output_types', 'parameters'])
 
 # engine
 
@@ -58,27 +54,23 @@ cdef class Engine:
                 else:
                     input_types.append(buffer_types[indices[input]])
             operation = node.get_operation(input_types)
-            buffer_values = node.get_buffer_values()
 
             instruction = Instruction()
             instruction.op = operation.opcode
             for (i, parameter) in enumerate(operation.parameters):
                 instruction.parameters[i] = parameter
 
-            # create internal buffers
+            # hook up arguments
             buffer_indices = []
-            for (buffer_i, buffer_value) in enumerate(buffer_values):
-                self.buffers.append(create_buffer(operation.buffer_types[buffer_i], buffer_value))
-                buffer_types.append(operation.buffer_types[buffer_i])
-                buffer_indices.append(index)
-                index += 1
-
-            # set instruction argument indices
-            for (argument_i, argument) in enumerate(operation.arguments):
-                if argument.type == ArgumentType.BUFFER:
-                    instruction.ins[argument_i] = buffer_indices[argument.index]
-                elif argument.type == ArgumentType.SOCKET:
-                    instruction.ins[argument_i] = indices[inputs[argument.index]]
+            for (argument_i, argument_type) in enumerate(operation.argument_types):
+                if argument_i < len(input_types) and input_types[argument_i].tag != types.NONE:
+                    instruction.ins[argument_i] = indices[inputs[argument_i]]
+                else:
+                    self.buffers.append(create_buffer(argument_type, node.get_default_value(argument_i, argument_type)))
+                    buffer_types.append(argument_type)
+                    buffer_indices.append(index)
+                    instruction.ins[argument_i] = index
+                    index += 1
 
             # create output buffers
             if instruction.op == CONST:
@@ -270,8 +262,10 @@ def create_buffer(buffer_type, value=None):
             max(buffer_type.channels, 1),
             max(buffer_type.x_size, 1), max(buffer_type.y_size, 1), max(buffer_type.z_size, 1),
             max(buffer_type.t_size, 1))
-        if value is not None:
+        if isinstance(value, np.ndarray):
             array.from_memoryview(arr, <np.ndarray[float, ndim=5, mode="fortran"]>value)
+        elif isinstance(value, bpy.types.Texture):
+            array.from_blender_texture(arr, value)
         else:
             array.clear(arr)
         return arr
@@ -279,7 +273,6 @@ def create_buffer(buffer_type, value=None):
         m = Mesh()
         if value is not None:
             blender_mesh = <BlenderMesh *><uintptr_t>value.as_pointer()
-            mesh.allocate(m, blender_mesh.totvert, blender_mesh.totloop, blender_mesh.totpoly)
             mesh.from_blender_mesh(m, blender_mesh)
         return m
 

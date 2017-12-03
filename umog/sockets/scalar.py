@@ -1,9 +1,9 @@
 import bpy
 from . import UMOGSocket
 
-class BooleanSocket(bpy.types.NodeSocket, UMOGSocket):
-    bl_idname = 'BooleanSocketType'
-    bl_label = 'Boolean Socket'
+class ScalarSocket(bpy.types.NodeSocket, UMOGSocket):
+    bl_idname = 'ScalarSocketType'
+    bl_label = 'Scalar Socket'
 
     def init(self, context):
         pass

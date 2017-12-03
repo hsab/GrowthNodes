@@ -3,7 +3,7 @@ import numpy as np
 import bpy
 from ...engine import types, engine
 
-class ConvolveNode(UMOGNode):
+class ConvolveNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_ConvolveNode"
     bl_label = "Convolve Node"
 
@@ -36,7 +36,6 @@ class ConvolveNode(UMOGNode):
 
         return engine.Operation(
             engine.CONVOLVE,
+            input_types,
             output_types,
-            [],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0), engine.Argument(engine.ArgumentType.SOCKET, 1)],
             [])

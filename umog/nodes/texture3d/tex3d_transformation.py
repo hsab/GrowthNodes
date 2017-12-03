@@ -7,7 +7,7 @@ import copy
 import numpy as np
 from ...packages import transformations
 
-class UMOGTexture3TransformNode(UMOGNode):
+class UMOGTexture3TransformNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Texture3TransformNode"
     bl_label = "Transform Node"
     
@@ -26,8 +26,8 @@ class UMOGTexture3TransformNode(UMOGNode):
     point = bpy.props.FloatVectorProperty(default=(0.5,0.5,0.5))
     
     def init(self, context):
-        self.inputs.new("TextureSocketType", "A")
-        self.outputs.new("TextureSocketType", "A'")
+        self.inputs.new("ArraySocketType", "A")
+        self.outputs.new("ArraySocketType", "A'")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "tr_op")
@@ -48,14 +48,11 @@ class UMOGTexture3TransformNode(UMOGNode):
 
         return engine.Operation(
             engine.TRANSFORM_GPU,
-            [input_types[0]],
-            [types.Array(4,4,0,0,0,0)],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0),
-                engine.Argument(engine.ArgumentType.BUFFER, 0)
-                ],
+            [input_types[0], types.Array(4,4,0,0,0,0)],
+            input_types,
             [])
 
-    def get_buffer_values(self):
+    def get_default_value(self, index, argument_type):
         if self.tr_op == "translation":
             transform = transformations.translation_matrix(self.direction)
         elif self.tr_op == "rotation":
@@ -65,4 +62,4 @@ class UMOGTexture3TransformNode(UMOGNode):
         else:
             print("no operation selected")
         
-        return [np.array(transform, dtype=np.float32, order="F").reshape((4,4,1,1,1))]
+        return np.array(transform, dtype=np.float32, order="F").reshape((4,4,1,1,1))

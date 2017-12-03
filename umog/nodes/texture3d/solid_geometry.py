@@ -7,7 +7,7 @@ import bpy
 import copy
 import numpy as np
 
-class UMOGTexture3SolidGeometryNode(UMOGNode):
+class UMOGTexture3SolidGeometryNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Texture3SolidGeometryNode"
     bl_label = "Solid Geometry Node"
     
@@ -21,9 +21,9 @@ class UMOGTexture3SolidGeometryNode(UMOGNode):
     threshold = bpy.props.FloatProperty(default=0.3, soft_min=0.0, soft_max=1.0, step=1, precision=2)
     
     def init(self, context):
-        self.inputs.new("TextureSocketType", "A")
-        self.inputs.new("TextureSocketType", "B")
-        self.outputs.new("TextureSocketType", "A'")
+        self.inputs.new("ArraySocketType", "A")
+        self.inputs.new("ArraySocketType", "B")
+        self.outputs.new("ArraySocketType", "A'")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "geo_op")
@@ -36,13 +36,9 @@ class UMOGTexture3SolidGeometryNode(UMOGNode):
 
         return engine.Operation(
             engine.SOLID_GEOMETRY_GPU,
+            [input_types[0], input_types[1], types.Array(1,0,0,0,0,0)],
             [input_types[0]],
-            [types.Array(1,0,0,0,0,0)],
-            [engine.Argument(engine.ArgumentType.SOCKET, 0),
-             engine.Argument(engine.ArgumentType.SOCKET, 1),
-             engine.Argument(engine.ArgumentType.BUFFER, 0)
-             ],
             [int(self.geo_op)])
 
-    def get_buffer_values(self):
-        return [np.array([ self.threshold], dtype=np.float32, order="F").reshape((1,1,1,1,1))]
+    def get_default_value(self, index, argument_type):
+        return np.array([ self.threshold], dtype=np.float32, order="F").reshape((1,1,1,1,1))

@@ -1,19 +1,12 @@
 import math
 import bpy
 from bpy.props import *
-from ..utils.debug import *
 import random
-from ..utils.events import propUpdate
+import numpy as np
 
 from ..engine import types, engine
 
-class UMOGNodeExecutionProperties(bpy.types.PropertyGroup):
-    bl_idname = "umog_NodeExecutionProperties"
-    visited = BoolProperty(name = "Visited in Topological Sort", default = False)
-    connectedComponent = IntProperty(name = "Connected Component Network of Node",
-                                     default = 0)
-
-class UMOGNode(bpy.types.Node):
+class UMOGNode:
     bl_width_min = 40
     bl_width_max = 5000
 
@@ -29,9 +22,6 @@ class UMOGNode(bpy.types.Node):
     @classmethod
     def poll(cls, nodeTree):
         return nodeTree.bl_idname == "umog_UMOGNodeTree"
-
-        self.width_hidden = 100
-        self.identifier = createIdentifier()
 
     def init(self, context):
         pass
@@ -98,38 +88,16 @@ class UMOGNode(bpy.types.Node):
 
         return False
 
-    def newInput(self, idName, name, identifier = None, **kwargs):
-        if identifier is None:
-            identifier = name
+    def newInput(self, idName, name):
         socket = self.inputs.new(idName, name, identifier + self.nodeTree.getNextUniqueID())
-        self._setSocketProperties(socket, kwargs)
         return socket
-
-    def newOutput(self, idName, name, identifier = None, **kwargs):
-        if identifier is None:
-            identifier = name
-        socket = self.outputs.new(idName, name, identifier + self.nodeTree.getNextUniqueID())
-        self._setSocketProperties(socket, kwargs)
-        return socket
-
-    def _setSocketProperties(self, socket, properties):
-        for key, value in properties.items():
-            setattr(socket, key, value)
 
     # engine
     def get_operation(self, input_types):
-        return engine.Operation(engine.NOP, [], [], [], [])
+        return engine.Operation(engine.NOP, [], [])
 
-    def get_buffer_values(self):
-        return []
-
-
-def createIdentifier():
-    identifierLength = 15
-    characters = "abcdefghijklmnopqrstuvwxyz" + "0123456789"
-    choice = random.SystemRandom().choice
-    return "_" + ''.join(choice(characters) for _ in range(identifierLength))
-
+    def get_default_value(self, index, argument_type):
+        return None
 
 class UMOGOutputNode(UMOGNode):
     _IsOutputNode = True
@@ -140,15 +108,52 @@ class UMOGOutputNode(UMOGNode):
     def output_value(self, value):
         pass
 
-    def write_keyframe(self, refholder, frame):
-        pass
-
 class UMOGInputNode(UMOGNode):
     _IsInputNode = True
 
     def init(self, context):
         super().init(context)
 
-def register():
-    # PointerProperties can only be added after the PropertyGroup is registered
-    bpy.types.Node.execution = PointerProperty(type = UMOGNodeExecutionProperties)
+class UMOGBinaryScalarNode(UMOGNode):
+    default_a = FloatProperty(default=0.0)
+    default_b = FloatProperty(default=0.0)
+
+    opcode = engine.NOP
+
+    def init(self, context):
+        a = self.inputs.new("ScalarSocketType", "a")
+        a.property_path = "default_a"
+        b = self.inputs.new("ScalarSocketType", "b")
+        b.property_path = "default_b"
+
+        self.outputs.new("ScalarSocketType", "out")
+
+        super().init(context)
+
+    def get_operation(self, input_types):
+        if input_types[0].tag == types.NONE:
+            a = types.Array(0,0,0,0,0,0)
+        else:
+            a = input_types[0]
+
+        if input_types[1].tag == types.NONE:
+            b = types.Array(0,0,0,0,0,0)
+        else:
+            b = input_types[1]
+
+        output_types = types.binary_scalar(a, b)
+        argument_types = [a, b]
+
+        return engine.Operation(
+            self.opcode,
+            argument_types,
+            output_types,
+            [])
+
+    def get_default_value(self, index, argument_type):
+        if index == 0:
+            value = self.default_a
+        else:
+            value = self.default_b
+
+        return np.array([value], dtype=np.float32, order="F").reshape((1,1,1,1,1))
