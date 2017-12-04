@@ -3,6 +3,7 @@ import cython
 from libc.stdint cimport uintptr_t
 from libc.string cimport memset, memcpy
 from libc.math cimport atan2, asin, M_PI
+from libc.stdlib cimport qsort
 
 from ..packages.cymem.cymem cimport Pool
 
@@ -29,6 +30,7 @@ cdef void allocate(Mesh mesh, int n_vertices, int n_triangles):
     mesh.normals = <Vec3 *>mesh.mem.alloc(n_vertices, sizeof(Vec3))
     mesh.uvs = <Vec2 *>mesh.mem.alloc(n_vertices, sizeof(Vec2))
     mesh.triangles = <int *>mesh.mem.alloc(n_triangles * 3, sizeof(int))
+    mesh.opposites = <int *>mesh.mem.alloc(n_triangles * 3, sizeof(int))
 
 @cython.boundscheck(False)
 cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh):
@@ -92,6 +94,44 @@ cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh):
                 mesh.uvs[i].x = 0.5 + atan2(-normalized.z, -normalized.x)
                 mesh.uvs[i].y = 0.5 - asin(-normalized.y / M_PI)
 
+    build_opposites(mesh)
+
+cdef struct HalfEdge:
+    int index, v1, v2
+
+@cython.boundscheck(False)
+cdef void build_opposites(Mesh mesh):
+    cdef HalfEdge *half_edges = <HalfEdge *>mesh.mem.alloc(mesh.n_triangles * 3, sizeof(HalfEdge))
+
+    cdef int i, tmp
+    for i in range(mesh.n_triangles * 3):
+        half_edges[i].index = i
+        half_edges[i].v1 = mesh.triangles[i]
+        half_edges[i].v2 = mesh.triangles[(i / 3) * 3 + (i + 1) % 3]
+        if half_edges[i].v2 < half_edges[i].v1:
+            tmp = half_edges[i].v1
+            half_edges[i].v1 = half_edges[i].v2
+            half_edges[i].v2 = tmp
+
+    qsort(<void *>half_edges, mesh.n_triangles * 3, sizeof(HalfEdge), half_edge_cmp)
+
+    cdef HalfEdge prev, curr
+    for i in range(1, mesh.n_triangles * 3):
+        prev = half_edges[i-1]
+        curr = half_edges[i]
+        if prev.v1 == curr.v1 and prev.v2 == curr.v2:
+            mesh.opposites[prev.index] = curr.index
+            mesh.opposites[curr.index] = prev.index
+
+    mesh.mem.free(half_edges)
+
+cdef int half_edge_cmp(const void *a_ptr, const void *b_ptr) nogil:
+    cdef HalfEdge a = (<HalfEdge *>a_ptr)[0], b = (<HalfEdge *>b_ptr)[0]
+    if a.v1 == b.v1:
+        return a.v2 - b.v2
+    else:
+        return a.v1 - b.v1
+
 @cython.boundscheck(False)
 cpdef void to_blender_mesh(Mesh mesh, object b_mesh):
     b_mesh.vertices.add(mesh.n_vertices)
@@ -135,6 +175,7 @@ cdef Mesh copy_mesh(Mesh old):
     memcpy(new.normals, old.normals, old.n_vertices * sizeof(Vec3))
     memcpy(new.uvs, old.uvs, old.n_vertices * sizeof(Vec2))
     memcpy(new.triangles, old.triangles, old.n_triangles * 3 * sizeof(int))
+    memcpy(new.opposites, old.opposites, old.n_triangles * 3 * sizeof(int))
     return new
 
 cdef void displace(Mesh mesh, Array texture):

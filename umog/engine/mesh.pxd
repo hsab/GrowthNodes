@@ -12,6 +12,7 @@ cdef class Mesh(Data):
     cdef Vec3 *vertices
     cdef Vec3 *normals
     cdef int *triangles
+    cdef int *opposites
     cdef Vec2 *uvs
 
 cdef void allocate(Mesh mesh, int n_vertices, int n_triangles)
