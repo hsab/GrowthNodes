@@ -10,6 +10,9 @@ class Array(Type):
 
 class Mesh(Type):
     tag = MESH
+    def __init__(self, t_start = 0, t_size = 0):
+        self.t_start = t_start
+        self.t_size = t_size
 
 class CompilationError(Exception):
     pass

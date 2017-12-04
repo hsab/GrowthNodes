@@ -9,6 +9,13 @@ from ..packages.cymem.cymem cimport Pool
 from data cimport *
 from array cimport *
 
+cdef class MeshSequence(Data):
+    def __init__(MeshSequence self, int n_frames):
+        self.tag = MESH_SEQUENCE
+        self.frames = []
+        for i in range(n_frames):
+            self.frames.append(Mesh())
+
 cdef class Mesh(Data):
     def __init__(Mesh self):
         self.tag = MESH
@@ -141,11 +148,15 @@ cdef void displace(Mesh mesh, Array texture):
 
     recalculate_normals(mesh)
 
-cdef void iterated_displace(Mesh mesh, Array texture, int iterations):
+cdef void iterated_displace(MeshSequence mesh_sequence, Array texture):
     cdef int i, t
+    cdef Mesh mesh
     cdef float value
     cdef Vec3 normal
-    for t in range(iterations):
+    for t in range(1, len(mesh_sequence.frames)):
+        mesh = copy_mesh(mesh_sequence.frames[t - 1])
+        mesh_sequence.frames[t] = mesh
+
         for i in range(mesh.n_vertices):
             value = sample_texture(texture, mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z)
             vec3_scale(&normal, value, &mesh.normals[i])

@@ -19,12 +19,14 @@ class IteratedDisplaceNode(bpy.types.Node, UMOGNode):
 
     def get_operation(self, input_types):
         types.assert_type(input_types[0], types.MESH)
+        if input_types[0].t_size > 0:
+            raise UMOGTypeError()
         types.assert_type(input_types[1], types.ARRAY)
 
         return engine.Operation(
             engine.ITERATED_DISPLACE,
             input_types,
-            [types.Mesh()],
+            [types.Mesh(0, self.iterations)],
             [self.iterations])
 
     def update(self):

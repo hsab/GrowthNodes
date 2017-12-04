@@ -19,10 +19,15 @@ class DisplaceNode(bpy.types.Node, UMOGNode):
         types.assert_type(input_types[0], types.MESH)
         types.assert_type(input_types[1], types.ARRAY)
 
+        if input_types[0].t_size > 0:
+            opcode = engine.DISPLACE_SEQUENCE
+        else:
+            opcode = engine.DISPLACE
+
         return engine.Operation(
             engine.DISPLACE,
             input_types,
-            [types.Mesh()],
+            [input_types[0]],
             [])
 
     def update(self):

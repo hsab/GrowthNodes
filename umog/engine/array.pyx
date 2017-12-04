@@ -41,9 +41,9 @@ cdef void from_blender_texture(Array array, object blender_texture):
                 array.array[3,x,y,z,0] = pixel[3]
 
 cdef float sample_texture(Array array, float x, float y, float z):
-    x *= array.array.shape[1] / 100.0
-    y *= array.array.shape[2] / 100.0
-    z *= array.array.shape[3] / 100.0
+    x *= array.array.shape[1] / 10.0
+    y *= array.array.shape[2] / 10.0
+    z *= array.array.shape[3] / 10.0
 
     cdef int x1 = <int>x % array.array.shape[1]
     cdef int x2 = (x1 + 1) % array.array.shape[1]

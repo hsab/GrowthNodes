@@ -49,6 +49,7 @@ cpdef enum Opcode:
 
     # mesh
     DISPLACE
+    DISPLACE_SEQUENCE
     ITERATED_DISPLACE
 
     # control
