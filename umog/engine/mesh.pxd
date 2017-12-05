@@ -3,19 +3,23 @@ from vector cimport *
 from data cimport *
 from array cimport Array
 
+cdef class MeshSequence(Data):
+    cdef public list frames
+
 cdef class Mesh(Data):
     cdef Pool mem
     cdef int n_vertices, n_triangles
     cdef Vec3 *vertices
     cdef Vec3 *normals
     cdef int *triangles
+    cdef int *opposites
     cdef Vec2 *uvs
 
 cdef void allocate(Mesh mesh, int n_vertices, int n_triangles)
 cdef void from_blender_mesh(Mesh mesh, BlenderMesh *blender_mesh)
 cdef Mesh copy_mesh(Mesh mesh)
 cdef void displace(Mesh mesh, Array texture)
-cdef void iterated_displace(Mesh mesh, Array texture, int iterations)
+cdef void iterated_displace(MeshSequence mesh, Array texture)
 
 cdef extern from "blender/makesdna/DNA_meshdata_types.h":
     cdef struct MVert:

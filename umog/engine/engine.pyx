@@ -15,7 +15,7 @@ import types
 cimport types
 from data cimport *
 cimport mesh
-from mesh cimport Mesh, BlenderMesh
+from mesh cimport Mesh, MeshSequence, BlenderMesh
 cimport array
 from array cimport Array
 
@@ -88,7 +88,7 @@ cdef class Engine:
             if node._IsOutputNode:
                 self.outputs.append((node, instruction.ins[0]))
 
-    def run(self):
+    cpdef run(self):
         self.debug()
 
         cdef Instruction instruction
@@ -148,10 +148,11 @@ cdef class Engine:
                 if instruction.outs[0] != instruction.ins[0]:
                     self.buffers[instruction.outs[0]] = mesh.copy_mesh((<Mesh>self.buffers[instruction.ins[0]]))
                 mesh.displace((<Mesh>self.buffers[instruction.outs[0]]), (<Array>self.buffers[instruction.ins[1]]))
+            elif instruction.op == DISPLACE_SEQUENCE:
+                pass
             elif instruction.op == ITERATED_DISPLACE:
-                if instruction.outs[0] != instruction.ins[0]:
-                    self.buffers[instruction.outs[0]] = mesh.copy_mesh((<Mesh>self.buffers[instruction.ins[0]]))
-                mesh.iterated_displace((<Mesh>self.buffers[instruction.outs[0]]), (<Array>self.buffers[instruction.ins[1]]), instruction.parameters[0])
+                self.buffers[instruction.outs[0]].frames[0] = mesh.copy_mesh((<Mesh>self.buffers[instruction.ins[0]]))
+                mesh.iterated_displace(<Mesh>self.buffers[instruction.outs[0]], <Array>self.buffers[instruction.ins[1]])
 
             elif instruction.op == LOOP:
                 pass
@@ -240,6 +241,8 @@ cdef class Engine:
                 output_node.output_value((<Array>self.buffers[buffer_i]))
             elif (<Data>self.buffers[buffer_i]).tag == MESH:
                 output_node.output_value((<Mesh>self.buffers[buffer_i]))
+            elif (<Data>self.buffers[buffer_i]).tag == MESH_SEQUENCE:
+                output_node.output_value((<MeshSequence>self.buffers[buffer_i]))
 
     def debug(self):
         print('instructions:')
@@ -256,6 +259,7 @@ cdef class Engine:
 def create_buffer(buffer_type, value=None):
     cdef Array arr
     cdef Mesh m
+    cdef MeshSequence ms
     cdef BlenderMesh *blender_mesh
     if buffer_type.tag == types.ARRAY:
         arr = Array(
@@ -274,7 +278,13 @@ def create_buffer(buffer_type, value=None):
         if value is not None:
             blender_mesh = <BlenderMesh *><uintptr_t>value.as_pointer()
             mesh.from_blender_mesh(m, blender_mesh)
-        return m
+
+        if buffer_type.t_size > 0:
+            ms = MeshSequence(buffer_type.t_size)
+            ms.frames[0] = m
+            return ms
+        else:
+            return m
 
 cpdef float[:,:,:,:,:] sequence(int start, int end):
     cdef int i
