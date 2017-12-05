@@ -3,7 +3,7 @@ import bpy
 
 class GetTextureNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_ObjectNode"
-    bl_label = "Object Node"
+    bl_label = "Object"
     assignedType = "Object"
 
     texture = bpy.props.StringProperty()

@@ -9,12 +9,8 @@ menus = OrderedDict([
         "bl_description": "Lorem Ipsum",
         "icon": "STICKY_UVS_LOC",
         "nodes": [
-            #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
-            ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion Node"),
-            ("umog_PyGLNode", "3d Reaction Diffusion"),
-            #("umog_ReactionDiffusionNode", "Reaction Diffusion Node"),
-            ("umog_ReactionDiffusionBGLNode", "Reaction Diffusion GPU"),
-            ("umog_ConvolveNode", "Convolve")
+            ("umog_ReactionDiffusionBGLNode", "2D Reaction Diffusion"),
+            ("umog_PyGLNode", "3D Reaction Diffusion")
         ]
     }),
     (" ", "separator"),
@@ -25,7 +21,6 @@ menus = OrderedDict([
         "bl_description": "Lorem Ipsum",
         "icon": "RECOVER_AUTO",
         "nodes": [
-            ("umog_MotherNode", "Mother Node"),
             ("umog_ScriptNode", "Script Node")
         ]
     }),
@@ -38,17 +33,6 @@ menus = OrderedDict([
         "nodes": [
             ("umog_ObjectNode", "Object"),
             ("umog_ObjectAlternatorNode", "Object Alternator")
-        ]
-    }),
-    ("bmesh_menu", {
-        "bl_idname": "umog_bmesh_menu",
-        "bl_label": "Bmesh Menu",
-        "text": "Bmesh",
-        "bl_description": "Lorem Ipsum",
-        "icon": "SURFACE_NSPHERE",
-        "nodes": [
-            ("umog_BMeshNode", "Bmesh Node"),
-            ("umog_BMeshCurlNode", "Bmesh Curl Node")
         ]
     }),
     ("geometry_menu", {
@@ -74,11 +58,10 @@ menus = OrderedDict([
         "bl_description": "Nodes that operate on integers",
         "icon": "LINENUMBERS_ON",
         "nodes": [
+            ("umog_IntegerFrameNode", "Frame"),
             ("umog_IntegerNode", "Integer"),
             ("umog_IntegerMathNode", "Integer Math"),
-            ("umog_IntegerCompareNode", "Integer Compare"),
-            ("umog_IntegerFrameNode", "Integer Frame"),
-            ("umog_IntegerSubframeNode", "Integer Subframe")
+            ("umog_IntegerCompareNode", "Integer Compare")
         ]
     }),
     ("float_menu", {
@@ -104,19 +87,6 @@ menus = OrderedDict([
             ("umog_BooleanOpshNode", "Boolean Operations")
         ]
     }),
-    ("matrix_menu", {
-        "bl_idname": "umog_matrix_menu",
-        "bl_label": "Matrix Menu",
-        "text": "Matrix",
-        "bl_description": "Lorem Ipsum",
-        "icon": "MESH_GRID",
-        "nodes": [
-            ("umog_Mat3Node", "Matrix 3x3 Node"),
-            ("umog_MatrixMathNode", "Matrix Math"),
-            ("umog_GaussNode", "Gaussian Blur"),
-            ("umog_LaplaceNode", "Laplacian Filter")
-        ]
-    }),
     ("  ", "separator"),
     ("texture_menu", {
         "bl_idname": "umog_texture_menu",
@@ -139,12 +109,12 @@ menus = OrderedDict([
         "bl_description": "",
         "icon": "IMGDISPLAY",
         "nodes": [
-            ("umog_Texture3ShapeNode", "Shapes"),
-            ("umog_Texture3LatheNode", "Lathe"),
-            ("umog_Texture3SolidGeometryNode", "Solid Geometry"),
-            ("umog_SaveTexture3dNode", "Save Texture Slices"),
-            ("umog_Texture3TransformNode", "Transform"),
-            ("umog_Texture3MeshNode", "Convert To Mesh"),
+            ("umog_SolidTextureNode", "Shape Texture"),
+            ("umog_SolidTextureOperationsNode", "Solid Texture Operations"),
+            ("umog_SolidTextureTransformationmNode", "Solid Texture Transformation"),
+            ("umog_SaveSolidTextureMeshNode", "Save Solid Texture (Mesh)"),
+            ("umog_SaveSolidTextureSlicesNode", "Save Solid Texture (Slices)"),
+            ("umog_LatheNode", "2D Texture to Solid Texture (Lathe)")
         ]
     })
 ])# yapf: disable

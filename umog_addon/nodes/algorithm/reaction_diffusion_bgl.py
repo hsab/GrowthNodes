@@ -16,7 +16,7 @@ class UMOGReactionDiffusionData(dict):
 
 class ReactionDiffusionBGLNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_ReactionDiffusionBGLNode"
-    bl_label = "Reaction Diffusion GPU"
+    bl_label = "2D Reaction Diffusion"
 
     assignedType = "Texture2"
     rdData = UMOGReactionDiffusionData()

@@ -94,6 +94,7 @@ class UMOGTexturePanel(Panel):
             row = layout.row()
             row.prop(scn.props, "TexturePreviewInPanel", toggle=True, icon="IMAGE_COL", text="Toggle Preview")
             row = layout.row()
+        
         if scn.props.TexturePreviewInPanel and len(scn.textures) > 0:
             row.template_preview(bpy.data.textures[scn.textures[scn.textures_index].name])
         elif len(scn.textures) > 0:

@@ -17,13 +17,8 @@ class SetTextureNode(bpy.types.Node, UMOGOutputNode):
     def draw_buttons(self, context, layout):
         # layout.operator("umog.select_texture", text = "Select Texture").pnode = self.name
         layout.prop_search(self, "texture", bpy.data, "textures", icon="TEXTURE_DATA", text="")
-        try:
-            # only one template_preview can exist per screen area https://developer.blender.org/T46733
-            # make sure that at most one preview can be opened at any time
-            if self.select and (len(bpy.context.selected_nodes) == 1):
-                layout.template_preview(bpy.data.textures[self.texture])
-        except:
-            pass
+        if self.texture != "":       
+            self.drawPreview(layout, bpy.data.textures[self.texture])
 
 
     def execute(self, refholder):

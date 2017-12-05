@@ -5,7 +5,7 @@ from ...utils.events import propUpdate
 
 class IntegerFrameNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_IntegerFrameNode"
-    bl_label = "UMOG Integer Frame"
+    bl_label = "Frame"
 
     assignedType = "Integer"
 

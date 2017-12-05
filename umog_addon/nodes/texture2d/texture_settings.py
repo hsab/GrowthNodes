@@ -12,24 +12,9 @@ class TextureSettingsNode(bpy.types.Node, UMOGNode):
         self.newInput(self.assignedType, "Texture")
         socket = self.newOutput(self.assignedType, "Texture")
 
-    def enablePreview(self):
-        self.nodeTree.props.TexturePreviewInPanel = False
-
-    def drawPreview(self, layout):
-        try:
-            if self.select and (len(bpy.context.selected_nodes) == 1):
-                if not self.nodeTree.props.TexturePreviewInPanel:
-                    layout.template_preview(self.outputs[0].getTexture())
-                else:
-                    self.invokeFunction(layout, "enablePreview",
-                        text = "Enable Preview",
-                        description = "Disables the preview instance in UMOG panel",
-                        icon = "IMAGE_COL")
-        except:
-            pass
-
     def draw(self, layout):
-        self.drawPreview(layout)
+        if self.outputs[0].value != "":  
+            self.drawPreview(layout, self.outputs[0].getTexture())
 
         if self.inputs[0].value is not "":
             texture = self.outputs[0].getTexture()

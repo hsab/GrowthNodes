@@ -7,7 +7,7 @@ import bmesh
 
 class SharpEdgesNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SharpEdgesNode"
-    bl_label = "Sharp Edges Node"
+    bl_label = "Sharp Edges"
 
     assignedType = "Object"
 
