@@ -42,8 +42,9 @@ class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
     
     ShowFrameSettings = BoolProperty(name="Toggle Frame Settings", default = True)
 
-
     UniqueIDTracker = IntProperty(default=0)
+
+    TexturePreviewInEditor = BoolProperty(name="Toggle Frame Settings", default = True)
 
 
 class UMOGNodeTree(NodeTree):
@@ -61,6 +62,11 @@ class UMOGNodeTree(NodeTree):
                                      default = False)
 
     properties = PointerProperty(type = UMOGNodeTreeProperties)
+
+
+    @property
+    def props(self):
+        return self.properties
 
     def update(self):
         self.refreshExecutionPolicy()
@@ -252,3 +258,23 @@ class UMOGNodeTree(NodeTree):
         else:
             self.raisePopup('ERROR', "Node-tree contains links with mismatched types. These are highlighted in red.")
 
+class UMOGUIListProperty(bpy.types.PropertyGroup):
+    '''name = StringProperty() '''
+    name = StringProperty()
+    id = IntProperty()
+
+# -------------------------------------------------------------------
+# register
+# -------------------------------------------------------------------
+
+def register():
+    bpy.types.NodeTree.textures = CollectionProperty(type=UMOGUIListProperty)
+    bpy.types.NodeTree.textures_index = IntProperty()
+    bpy.types.NodeTree.objects = CollectionProperty(type=UMOGUIListProperty)
+    bpy.types.NodeTree.objects_index = IntProperty()
+
+def unregister():
+    del bpy.types.NodeTree.textures
+    del bpy.types.NodeTree.textures_index
+    del bpy.types.NodeTree.objects
+    del bpy.types.NodeTree.objects_index
