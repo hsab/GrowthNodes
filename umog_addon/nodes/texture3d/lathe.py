@@ -6,8 +6,8 @@ import sys
 import bpy
 import copy
 import numpy as np
-#import pyximport
-#pyximport.install()
+import pyximport
+pyximport.install()
 
 
 class UMOGTexture3LatheNode(bpy.types.Node, UMOGNode):

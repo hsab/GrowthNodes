@@ -6,9 +6,9 @@ import sys
 import bpy
 import copy
 import numpy as np
-#import pyximport
+import pyximport
 
-#pyximport.install()
+pyximport.install()
 
 class UMOGTexture3SolidGeometryNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_Texture3SolidGeometryNode"

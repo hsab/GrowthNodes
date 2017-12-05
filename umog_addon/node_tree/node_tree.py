@@ -62,6 +62,7 @@ class UMOGNodeTree(NodeTree):
     def update(self):
         self.refreshExecutionPolicy()
         self.updateFrom()
+        print(self.links)
 
     def updateOnFrameChange(self):
         for node in self.nodes:
@@ -94,6 +95,20 @@ class UMOGNodeTree(NodeTree):
                     node.refreshNode()
 
             self.updateInProgress = False
+
+    def areLinksValid(self):
+        returnVal = True
+        for link in self.links:
+            fromSocket = link.from_socket
+            toSocket = link.to_socket
+            allAllowed = "All" in toSocket.allowedInputTypes
+            typeAllowed = fromSocket.dataType in toSocket.allowedInputTypes
+            if allAllowed or typeAllowed:
+                link.is_valid = True
+            else:
+                link.is_valid = False
+                returnVal = False
+        return returnVal
 
     def updateUnlinkedNodesSocketNames(self):
         for node in self.unlinkedNodes:
@@ -166,33 +181,34 @@ class UMOGNodeTree(NodeTree):
             node.disableUnlinkedHighlight()
 
     def execute(self, refholder, animate = False):
-        self.update()
-
-        for node in self.linearizedNodes:
-            node.packSockets()
-
-        for node in self.linearizedNodes:
-            node.preExecute(refholder)
-
-        self.executeInProgress = True
-
-        for frame in range(self.properties.StartFrame, self.properties.EndFrame):
-            # Update the frame
-            scene = bpy.context.scene
-            scene.frame_set(frame)
-
-            for sub_frame in range(0, self.properties.SubFrames):
-                for node in self.linearizedNodes:
-                    node.refreshNode()
-                    node.execute(refholder)
+        if self.areLinksValid():
+            self.update()
 
             for node in self.linearizedNodes:
-                node.postFrame(refholder)
+                node.packSockets()
 
-        self.executeInProgress = False
+            for node in self.linearizedNodes:
+                node.preExecute(refholder)
 
-        for node in self.linearizedNodes:
-            node.postBake(refholder)
+            self.executeInProgress = True
 
-        self.properties.bakeCount = self.properties.bakeCount + 1
+            for frame in range(self.properties.StartFrame, self.properties.EndFrame):
+                # Update the frame
+                scene = bpy.context.scene
+                scene.frame_set(frame)
+
+                for sub_frame in range(0, self.properties.SubFrames):
+                    for node in self.linearizedNodes:
+                        node.refreshNode()
+                        node.execute(refholder)
+
+                for node in self.linearizedNodes:
+                    node.postFrame(refholder)
+
+            self.executeInProgress = False
+
+            for node in self.linearizedNodes:
+                node.postBake(refholder)
+
+            self.properties.bakeCount = self.properties.bakeCount + 1
 

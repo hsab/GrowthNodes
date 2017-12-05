@@ -90,11 +90,17 @@ class UMOGSocket:
     def refreshSocket(self):
         if self.isRefreshable and not (self.isPacked and self.nodeTree.executeInProgress):
             if self.isInput and self.isLinked:
-                self.socketRecentlyRefreshed = True
-                beforeValue = self.getProperty()
-                afterValue = self.getFromSocket.getProperty()
-                self.setProperty(self.getFromSocket.getProperty())
-                self.refresh()
+                fromSocket = self.getFromSocket
+                fromSocketAllowed = fromSocket.dataType in self.allowedInputTypes
+                allSocketsAllowed = "All" in self.allowedInputTypes
+                if allSocketsAllowed or fromSocketAllowed:
+                    self.socketRecentlyRefreshed = True
+                    beforeValue = self.getProperty()
+                    afterValue = self.getFromSocket.getProperty()
+                    self.setProperty(self.getFromSocket.getProperty())
+                    self.refresh()
+                else:
+                    self.reverseName()
 
                 # DBG("SOCKET SUCCESSFULLY REFRESHED:",
                 #     "Type:   " + self.dataType,
