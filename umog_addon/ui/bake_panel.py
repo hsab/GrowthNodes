@@ -3,7 +3,7 @@ import math
 
 class UMOGBakePanel(bpy.types.Panel):
     bl_idname = "umog_NodePanel"
-    bl_label = "Bake"
+    bl_label = "Bake Properties"
     bl_space_type = "NODE_EDITOR"
     bl_region_type = "TOOLS"
     bl_category = "UMOG"
@@ -33,7 +33,7 @@ class UMOGBakePanel(bpy.types.Panel):
                 row.template_ID(snode, "node_tree", new="node.new_node_tree")
                 row = layout.row()
                 row.separator()
-                layout.prop(props, "ShowFrameSettings", toggle=True, icon="MOD_WIREFRAME", text="Bake Settings:")
+                layout.prop(props, "ShowFrameSettings", toggle=True, icon="MOD_WIREFRAME", text="Bake Settings")
                 if props.ShowFrameSettings:
                     box = layout.box()
                     col = box.column(align=True)

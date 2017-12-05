@@ -61,7 +61,7 @@ class TextureListItem(UIList):
 class UMOGTexturePanel(Panel):
     """Creates a Panel in the Object properties window"""
     bl_idname = "umog_TexturePanel"
-    bl_label = "Textures"
+    bl_label = "Texture Data"
     bl_space_type = "NODE_EDITOR"
     bl_region_type = "TOOLS"
     bl_category = "UMOG"
@@ -70,7 +70,7 @@ class UMOGTexturePanel(Panel):
         layout = self.layout
         scn = context.getActiveUMOGNodeTree()
         
-        rows = 4
+        rows = 2
         row = layout.row()
         row.prop(scn.props, "ToggleTextureList", toggle=True, icon="COLLAPSEMENU", text="Show List")
         row = layout.row()
@@ -333,24 +333,3 @@ class UMOGTexturePanel(Panel):
         col.prop(tex, "noise_scale", text="Size")
 
         split.prop(tex, "nabla")
-
-# Create custom property group
-class CustomProp(bpy.types.PropertyGroup):
-    name = StringProperty()
-    id = IntProperty()
-    texture = StringProperty()
-
-# -------------------------------------------------------------------
-# register
-# -------------------------------------------------------------------
-
-def register():
-    bpy.types.NodeTree.textures = CollectionProperty(type=CustomProp)
-    bpy.types.NodeTree.textures_index = IntProperty()
-
-def unregister():
-    del bpy.types.NodeTree.textures
-    del bpy.types.NodeTree.textures_index
-
-if __name__ == "__main__":
-    register()

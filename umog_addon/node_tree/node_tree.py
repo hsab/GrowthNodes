@@ -44,11 +44,22 @@ class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
     UniqueIDTracker = IntProperty(default=0)
 
     TexturePreviewInPanel = BoolProperty(name="Toggle Frame Settings", default = False, description="Disables the preview instance in UMOG panel")
+    
+    ToggleTextureSettings = BoolProperty(name="Toggle Texture", default = False, description="Toggle Texture Settings")
+
+    ToggleTextureList = BoolProperty(name="Toggle Texture List", default = True, description="Toggle Texture List")
     ToggleColorSettings = BoolProperty(name="Toggle Color", default = False, description="Toggle Color Settings")
     ToggleRampSettings = BoolProperty(name="Toggle Ramp", default = False, description="Toggle Ramp Settings")
-    ToggleTextureSettings = BoolProperty(name="Toggle Texture", default = False, description="Toggle Texture Settings")
-    ToggleTextureList = BoolProperty(name="Toggle Texture List", default = True, description="Toggle Texture List")
 
+    ToggleObjectList = BoolProperty(name="Toggle Object List", default = True, description="Toggle Object List")
+    ToggleVertexGroupList = BoolProperty(name="Toggle Vertex Group List", default = False, description="Toggle Vertex Group List")
+    ToggleShapeKeyList = BoolProperty(name="Toggle Shapekey List", default = False, description="Toggle Shapekey List")
+
+
+class CustomProp(bpy.types.PropertyGroup):
+    name = StringProperty()
+    id = IntProperty()
+    texture = StringProperty()
 
 class UMOGNodeTree(NodeTree):
     bl_idname = "umog_UMOGNodeTree"
@@ -111,16 +122,26 @@ class UMOGNodeTree(NodeTree):
 
     def populateReferences(self):
         self.textures.clear()
+        self.objects.clear()
         referencedTextures = set()
+        referencedObjects = set()
         for node in self.linearizedNodes:
             for socket in node.sockets:
                 if socket.dataType == "Texture2" and socket.value != "":
                     referencedTextures.add(socket.value)
+                if socket.dataType == "Object" and socket.value != "":
+                    referencedObjects.add(socket.value)
         for texture in referencedTextures:
             item = self.textures.add()
             item.id = len(self.textures)
             item.name = texture
             self.textures_index = (len(self.textures)-1)
+        
+        for object in referencedObjects:
+            item = self.objects.add()
+            item.id = len(self.objects)
+            item.name = object
+            self.object_index = (len(self.objects)-1)
 
     def areLinksValid(self):
         returnVal = True
