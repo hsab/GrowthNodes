@@ -13,11 +13,9 @@ class TextureSettingsNode(bpy.types.Node, UMOGNode):
         socket = self.newOutput(self.assignedType, "Texture")
 
     def draw(self, layout):
-        try:
-            if self.select and (len(bpy.context.selected_nodes) == 1):
-                layout.template_preview(self.outputs[0].getTexture())
-        except:
-            pass
+        if self.outputs[0].value != "":  
+            self.drawPreview(layout, self.outputs[0].getTexture())
+
         if self.inputs[0].value is not "":
             texture = self.outputs[0].getTexture()
             type = self.outputs[0].getTexture().type

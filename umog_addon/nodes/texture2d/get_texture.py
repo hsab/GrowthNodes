@@ -4,7 +4,7 @@ import bpy
 
 class GetTextureNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_TextureNode"
-    bl_label = "Texture Node"
+    bl_label = "Texture"
     assignedType = "Texture2"
 
     texture = bpy.props.StringProperty()
@@ -16,13 +16,8 @@ class GetTextureNode(bpy.types.Node, UMOGNode):
         socket.display.packedIcon = False
 
     def draw(self, layout):
-        # only one template_preview can exist per screen area https://developer.blender.org/T46733
-        # make sure that at most one preview can be opened at any time
-        try:
-            if self.select and (len(bpy.context.selected_nodes) == 1):
-                layout.template_preview(self.outputs[0].getTexture())
-        except:
-            pass
+        if self.outputs[0].value != "":
+            self.drawPreview(layout, self.outputs[0].getTexture())
 
     def execute(self, refholder):
         # print("get texture node execution, texture: " + self.texture)

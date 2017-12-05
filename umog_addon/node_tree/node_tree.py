@@ -5,7 +5,6 @@ from ..utils.debug import *
 from ..utils.handlers import eventUMOGHandler
 from collections import defaultdict
 
-
 class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_NodeTreeProperties"
     unique = BoolProperty(default = False)
@@ -24,29 +23,48 @@ class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
         if not isResPowerOfTwo:
             self.TextureResolution = 2**(self.TextureResolution - 1).bit_length()
 
-    bakeCount = IntProperty(name = "BakeCount", description = "BakeCount", default = 1,
+    bakeCount = IntProperty(name = "Bake ID", description = "Bake count", default = 1,
                             min = 1, update = updateTimeInfo)
 
-    StartFrame = IntProperty(name = "StartFrame", description = "StartFrame", default = 1,
+    StartFrame = IntProperty(name = "Start", description = "Frame on which the simulation starts", default = 1,
                              min = 1, update = updateTimeInfo)
 
-    EndFrame = IntProperty(name = "EndFrame", description = "EndFrame", default = 2,
+    EndFrame = IntProperty(name = "End", description = "Frame on which the simulation stops", default = 2,
                            min = 2, update = updateTimeInfo)
 
-    SubFrames = IntProperty(name = "SubFrames", description = "SubFrames", default = 1,
+    Substeps = IntProperty(name = "Substeps", description = "Substeps", default = 1,
                             min = 1)
 
-    TextureResolution = IntProperty(name = "TextureResolution",
-                                    description = "TextureResolution", default = 256,
+    TextureResolution = IntProperty(name = "Texture Resolution",
+                                    description = "Base resolution for saving and creating new textures", default = 256,
                                     min = 64, update = updateTimeInfo)
     
+    ShowFrameSettings = BoolProperty(name="Toggle Frame Settings", default = True)
+
     UniqueIDTracker = IntProperty(default=0)
 
+    TexturePreviewInPanel = BoolProperty(name="Toggle Frame Settings", default = False, description="Disables the preview instance in UMOG panel")
+    
+    ToggleTextureSettings = BoolProperty(name="Toggle Texture", default = False, description="Toggle Texture Settings")
+
+    ToggleTextureList = BoolProperty(name="Toggle Texture List", default = True, description="Toggle Texture List")
+    ToggleColorSettings = BoolProperty(name="Toggle Color", default = False, description="Toggle Color Settings")
+    ToggleRampSettings = BoolProperty(name="Toggle Ramp", default = False, description="Toggle Ramp Settings")
+
+    ToggleObjectList = BoolProperty(name="Toggle Object List", default = True, description="Toggle Object List")
+    ToggleVertexGroupList = BoolProperty(name="Toggle Vertex Group List", default = False, description="Toggle Vertex Group List")
+    ToggleShapeKeyList = BoolProperty(name="Toggle Shapekey List", default = False, description="Toggle Shapekey List")
+
+
+class CustomProp(bpy.types.PropertyGroup):
+    name = StringProperty()
+    id = IntProperty()
+    texture = StringProperty()
 
 class UMOGNodeTree(NodeTree):
     bl_idname = "umog_UMOGNodeTree"
     bl_label = "UMOG"
-    bl_icon = "SCULPTMODE_HLT"
+    bl_icon = "FORCE_TURBULENCE"
 
     linearizedNodes = []
     unlinkedNodes = []
@@ -58,6 +76,11 @@ class UMOGNodeTree(NodeTree):
                                      default = False)
 
     properties = PointerProperty(type = UMOGNodeTreeProperties)
+
+
+    @property
+    def props(self):
+        return self.properties
 
     def update(self):
         self.refreshExecutionPolicy()
@@ -94,6 +117,45 @@ class UMOGNodeTree(NodeTree):
                     node.refreshNode()
 
             self.updateInProgress = False
+
+            self.populateReferences()
+
+    def populateReferences(self):
+        self.textures.clear()
+        self.objects.clear()
+        referencedTextures = set()
+        referencedObjects = set()
+        for node in self.linearizedNodes:
+            for socket in node.sockets:
+                if socket.dataType == "Texture2" and socket.value != "":
+                    referencedTextures.add(socket.value)
+                if socket.dataType == "Object" and socket.value != "":
+                    referencedObjects.add(socket.value)
+        for texture in referencedTextures:
+            item = self.textures.add()
+            item.id = len(self.textures)
+            item.name = texture
+            self.textures_index = (len(self.textures)-1)
+        
+        for object in referencedObjects:
+            item = self.objects.add()
+            item.id = len(self.objects)
+            item.name = object
+            self.object_index = (len(self.objects)-1)
+
+    def areLinksValid(self):
+        returnVal = True
+        for link in self.links:
+            fromSocket = link.from_socket
+            toSocket = link.to_socket
+            allAllowed = "All" in toSocket.allowedInputTypes
+            typeAllowed = fromSocket.dataType in toSocket.allowedInputTypes
+            if allAllowed or typeAllowed:
+                link.is_valid = True
+            else:
+                link.is_valid = False
+                returnVal = False
+        return returnVal
 
     def updateUnlinkedNodesSocketNames(self):
         for node in self.unlinkedNodes:
@@ -165,34 +227,92 @@ class UMOGNodeTree(NodeTree):
         for node in self.linearizedNodes:
             node.disableUnlinkedHighlight()
 
+    def deselectAll(self):
+        for n in self.nodes:
+            n.select = False
+
+    def viewNode(self, node):
+        self.deselectAll()
+        node.select = True
+        node.enableUnlinkedHighlight()
+        bpy.ops.node.view_selected()
+
+    def raisePopup(self, type, msg):
+        bpy.ops.umog.popup('INVOKE_DEFAULT', errType = type, errMsg=msg)
+
+    def raiseAndView(self, node, msg):
+        self.raisePopup('ERROR', msg + " " + node.name)
+        self.viewNode(node)
+
     def execute(self, refholder, animate = False):
-        self.update()
-
-        for node in self.linearizedNodes:
-            node.packSockets()
-
-        for node in self.linearizedNodes:
-            node.preExecute(refholder)
-
-        self.executeInProgress = True
-
-        for frame in range(self.properties.StartFrame, self.properties.EndFrame):
-            # Update the frame
-            scene = bpy.context.scene
-            scene.frame_set(frame)
-
-            for sub_frame in range(0, self.properties.SubFrames):
-                for node in self.linearizedNodes:
-                    node.refreshNode()
-                    node.execute(refholder)
+        if self.areLinksValid():
+            self.update()
 
             for node in self.linearizedNodes:
-                node.postFrame(refholder)
+                try: node.packSockets()
+                except Exception as e:
+                    self.raiseAndView(node, 'Failed to pack data for node')
+                    return
 
-        self.executeInProgress = False
+            for node in self.linearizedNodes:
+                try: node.preExecute(refholder)
+                except Exception as e:
+                    self.raiseAndView(node, 'Pre-execution failed for node')
+                    return
 
-        for node in self.linearizedNodes:
-            node.postBake(refholder)
+            self.executeInProgress = True
 
-        self.properties.bakeCount = self.properties.bakeCount + 1
+            for frame in range(self.properties.StartFrame, self.properties.EndFrame):
+                # Update the frame
+                scene = bpy.context.scene
+                scene.frame_set(frame)
 
+                for sub_frame in range(0, self.properties.Substeps):
+                    for node in self.linearizedNodes:
+                        try: node.refreshNode()
+                        except Exception as e:
+                            self.raiseAndView(node, 'Unable to refresh node')
+                            return
+                        
+                        try: node.execute(refholder)
+                        except Exception as e:
+                            self.raiseAndView(node, 'Unable to execute node')
+                            return
+
+                for node in self.linearizedNodes:
+                    try: node.postFrame(refholder)
+                    except Exception as e:
+                        self.raiseAndView(node, 'Post-execution failed for node')
+                        return
+
+            self.executeInProgress = False
+
+            for node in self.linearizedNodes:
+                try: node.postBake(refholder)
+                except Exception as e:
+                    self.raiseAndView(node, 'Post-bake failed for node')
+                    return
+
+            self.properties.bakeCount = self.properties.bakeCount + 1
+        else:
+            self.raisePopup('ERROR', "Node-tree contains links with mismatched types. These are highlighted in red.")
+
+class UMOGUIListProperty(bpy.types.PropertyGroup):
+    name = StringProperty()
+    id = IntProperty()
+
+# -------------------------------------------------------------------
+# register
+# -------------------------------------------------------------------
+
+def register():
+    bpy.types.NodeTree.textures = CollectionProperty(type=UMOGUIListProperty)
+    bpy.types.NodeTree.textures_index = IntProperty()
+    bpy.types.NodeTree.objects = CollectionProperty(type=UMOGUIListProperty)
+    bpy.types.NodeTree.objects_index = IntProperty()
+
+def unregister():
+    del bpy.types.NodeTree.textures
+    del bpy.types.NodeTree.textures_index
+    del bpy.types.NodeTree.objects
+    del bpy.types.NodeTree.objects_index

@@ -282,6 +282,22 @@ class UMOGNode:
         props.data = str(data)
         props.passEvent = passEvent
 
+    def enablePreview(self):
+        self.nodeTree.props.TexturePreviewInPanel = False
+
+    def drawPreview(self, layout, texture):
+        try:
+            if self.select and (len(bpy.context.selected_nodes) == 1):
+                if not self.nodeTree.props.TexturePreviewInPanel:
+                    layout.template_preview(texture)
+                else:
+                    self.invokeFunction(layout, "enablePreview",
+                        text = "Enable Preview",
+                        description = "Disables the preview instance in UMOG panel",
+                        icon = "IMAGE_COL")
+        except:
+            pass
+
 
 def createIdentifier():
     identifierLength = 15

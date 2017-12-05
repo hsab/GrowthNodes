@@ -7,12 +7,12 @@ import sys
 import bpy
 import copy
 import numpy as np
-#import pyximport
-#pyximport.install()
+import pyximport
+pyximport.install()
 
 class UMOGTexture3MeshNode(bpy.types.Node, UMOGNode):
-    bl_idname = "umog_Texture3MeshNode"
-    bl_label = "Mesh 3d Texture Node"
+    bl_idname = "umog_SaveSolidTextureMeshNode"
+    bl_label = "Save Solid Texture (Mesh)"
     
     mesh_name = bpy.props.StringProperty()
     
