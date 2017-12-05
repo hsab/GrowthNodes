@@ -11,8 +11,8 @@ import pyximport
 pyximport.install()
 
 class UMOGTexture3TransformNode(bpy.types.Node, UMOGNode):
-    bl_idname = "umog_Texture3TransformNode"
-    bl_label = "Transform Node"
+    bl_idname = "umog_SolidTextureTransformationmNode"
+    bl_label = "Solid Texture Transformation"
     
     tr_op = bpy.props.EnumProperty(items=
             (('translation', 'Translation', ''),

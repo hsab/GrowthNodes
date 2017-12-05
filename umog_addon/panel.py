@@ -20,6 +20,7 @@ class UMOGNodeEditorPanel(bpy.types.Panel):
         try:
             tree = context.area.spaces.active.node_tree
             scene = context.scene
+            screen = context.screen
             snode = context.space_data
             layout = self.layout
             if getattr(tree, "bl_idname", "") == "umog_UMOGNodeTree":
@@ -27,18 +28,47 @@ class UMOGNodeEditorPanel(bpy.types.Panel):
                 totalFrames = props.EndFrame - props.StartFrame
 
                 box = layout.box()
+                box.template_header()
                 row = box.row()
                 row.scale_y = 1.5
                 row.operator("umog.bake", icon='FORCE_LENNARDJONES', text="Bake Nodetree")
-                row = box.row()
+                row = layout.box()
                 row.template_ID(snode, "node_tree", new="node.new_node_tree")
 
                 box = layout.box()
-                # box.prop(props, "ShowFrameSettings", toggle=True)
+                box.prop(props, "ShowFrameSettings", toggle=True, icon="MOD_WIREFRAME")
                 if props.ShowFrameSettings:
                     col = box.column(align=True)
-                    col.prop(props, 'StartFrame', text="Start Frame")
-                    col.prop(props, 'EndFrame', text="End Frame")
+                    row = col.row(align=True).split(percentage=1/6, align=True)
+                    scol = row.column(align=True)
+                    scol.scale_y = 2
+                    scol.operator("umog.frame_range", text="", icon='KEYTYPE_MOVING_HOLD_VEC').position = 'start'
+                    row = row.split(percentage=5/6, align=True)
+                    scol = row.column(align=True)
+                    scol.scale_y = 1
+                    scol.prop(props, 'StartFrame', text="Start")
+                    scol.prop(props, 'EndFrame', text="End")
+                    row = row.split(align=True)
+                    scol = row.column(align=True)
+                    scol.scale_y = 2
+                    scol.operator("umog.frame_range", text="", icon='KEYTYPE_MOVING_HOLD_VEC').position = 'end'
+                    #===================
+                    #Play Buttons
+                    row = col.row(align=True).split(align=True)
+                    row.operator("screen.frame_jump", text="", icon='REW').end = False
+                    row.operator("umog.frame_jump", text="", icon='PREV_KEYFRAME').position = 'start'
+                    if not screen.is_animation_playing:
+                        # if using JACK and A/V sync hide the play-reversed button since JACK transport doesn't support reversed playback
+                        if scene.sync_mode == 'AUDIO_SYNC' and context.user_preferences.system.audio_device == 'JACK':
+                            row.operator("screen.animation_play", text="", icon='PLAY')
+                        else:
+                            row.operator("screen.animation_play", text="", icon='PLAY_REVERSE').reverse = True
+                            row.operator("screen.animation_play", text="", icon='PLAY')
+                    else:
+                        row.operator("screen.animation_play", text="", icon='PAUSE')
+                    row.operator("umog.frame_jump", text="", icon='NEXT_KEYFRAME').position = 'end'
+                    row.operator("screen.frame_jump", text="", icon='FF').end = True
+                    col.prop(scene, "frame_current", text="Current Frame")
                     #===================
                     #Total Frames
                     row = box.row(align=True)

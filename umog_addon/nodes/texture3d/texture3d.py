@@ -11,8 +11,8 @@ pyximport.install()
 
 
 class UMOGTexture3ShapeNode(bpy.types.Node, UMOGNode):
-    bl_idname = "umog_Texture3ShapeNode"
-    bl_label = "Texture Node"
+    bl_idname = "umog_SolidTextureNode"
+    bl_label = "Solid Texture"
 
     shapes = bpy.props.EnumProperty(items=
             (('0', 'Sphere', ''),

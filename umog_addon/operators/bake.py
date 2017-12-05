@@ -4,6 +4,7 @@ import time
 
 
 class UMOGBakeOp(bpy.types.Operator):
+    """Bakes the simulation for the frame range below."""
     bl_idname = 'umog.bake'
     bl_label = 'Bake Mesh(es)'
     bl_options = {"REGISTER", "UNDO"}

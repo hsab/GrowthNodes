@@ -11,8 +11,8 @@ import pyximport
 pyximport.install()
 
 class UMOGTexture3SolidGeometryNode(bpy.types.Node, UMOGNode):
-    bl_idname = "umog_Texture3SolidGeometryNode"
-    bl_label = "Solid Geometry Node"
+    bl_idname = "umog_SolidTextureOperationsNode"
+    bl_label = "Solid Texture Operations"
     
     geo_op = bpy.props.EnumProperty(items=
             (('difference', 'Difference', ''),

@@ -27,17 +27,17 @@ class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
     bakeCount = IntProperty(name = "Bake ID", description = "Bake count", default = 1,
                             min = 1, update = updateTimeInfo)
 
-    StartFrame = IntProperty(name = "Start", description = "Start frame", default = 1,
+    StartFrame = IntProperty(name = "Start", description = "Frame on which the simulation starts", default = 1,
                              min = 1, update = updateTimeInfo)
 
-    EndFrame = IntProperty(name = "End", description = "End frame", default = 2,
+    EndFrame = IntProperty(name = "End", description = "Frame on which the simulation stops", default = 2,
                            min = 2, update = updateTimeInfo)
 
     Substeps = IntProperty(name = "Substeps", description = "Substeps", default = 1,
                             min = 1)
 
-    TextureResolution = IntProperty(name = "TextureResolution",
-                                    description = "TextureResolution", default = 256,
+    TextureResolution = IntProperty(name = "Texture Resolution",
+                                    description = "Base resolution for saving and creating new textures", default = 256,
                                     min = 64, update = updateTimeInfo)
     
     ShowFrameSettings = BoolProperty(name="Toggle Frame Settings", default = True)

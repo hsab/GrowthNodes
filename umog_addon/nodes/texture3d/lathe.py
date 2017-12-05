@@ -11,8 +11,8 @@ pyximport.install()
 
 
 class UMOGTexture3LatheNode(bpy.types.Node, UMOGNode):
-    bl_idname = "umog_Texture3LatheNode"
-    bl_label = "Lathe Node"
+    bl_idname = "umog_LatheNode"
+    bl_label = "2D Texture to Solid Texture (Lathe)"
     
     def create(self):
         socket = self.newOutput(
