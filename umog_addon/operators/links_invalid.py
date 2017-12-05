@@ -1,13 +1,16 @@
 from ..node_tree import UMOGReferenceHolder
 import bpy
 
-class invalidLinksPopop(bpy.types.Operator):
-    bl_idname = 'umog.invalid_links'
-    bl_label = 'UMOG has found invalid links.'
+class UMOGPopup(bpy.types.Operator):
+    bl_idname = 'umog.popup'
+    bl_label = 'UMOG: There was an issue with the nodetree!'
     bl_options = {'REGISTER', 'UNDO'}
 
+    errType = bpy.props.StringProperty(default="ERROR")
+    errMsg = bpy.props.StringProperty(default="An error occurred.")
+
     def execute(self, context):
-        self.report({'ERROR'}, "Node-tree contains links with mismatched types. These are highlighted in red.")
+        self.report({self.errType}, self.errMsg)
         return {'FINISHED'}
 
     def invoke(self, context, event):

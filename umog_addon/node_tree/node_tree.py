@@ -62,7 +62,6 @@ class UMOGNodeTree(NodeTree):
     def update(self):
         self.refreshExecutionPolicy()
         self.updateFrom()
-        print(self.links)
 
     def updateOnFrameChange(self):
         for node in self.nodes:
@@ -180,15 +179,35 @@ class UMOGNodeTree(NodeTree):
         for node in self.linearizedNodes:
             node.disableUnlinkedHighlight()
 
+    def viewNode(self, node):
+        for n in self.nodes:
+            n.select = False
+        node.select = True
+        node.enableUnlinkedHighlight()
+        bpy.ops.node.view_selected()
+
+    def raisePopup(self, type, msg):
+        bpy.ops.umog.popup('INVOKE_DEFAULT', errType = type, errMsg=msg)
+
+    def raiseAndView(self, node, msg):
+        self.raisePopup('ERROR', msg + " " + node.name)
+        self.viewNode(node)
+
     def execute(self, refholder, animate = False):
         if self.areLinksValid():
             self.update()
 
             for node in self.linearizedNodes:
-                node.packSockets()
+                try: node.packSockets()
+                except Exception as e:
+                    self.raiseAndView(node, 'Failed to pack data for node')
+                    return
 
             for node in self.linearizedNodes:
-                node.preExecute(refholder)
+                try: node.preExecute(refholder)
+                except Exception as e:
+                    self.raiseAndView(node, 'Pre-execution failed for node')
+                    return
 
             self.executeInProgress = True
 
@@ -199,18 +218,31 @@ class UMOGNodeTree(NodeTree):
 
                 for sub_frame in range(0, self.properties.SubFrames):
                     for node in self.linearizedNodes:
-                        node.refreshNode()
-                        node.execute(refholder)
+                        try: node.refreshNode()
+                        except Exception as e:
+                            self.raiseAndView(node, 'Unable to refresh node')
+                            return
+                        
+                        try: node.execute(refholder)
+                        except Exception as e:
+                            self.raiseAndView(node, 'Unable to execute node')
+                            return
 
                 for node in self.linearizedNodes:
-                    node.postFrame(refholder)
+                    try: node.postFrame(refholder)
+                    except Exception as e:
+                        self.raiseAndView(node, 'Post-execution failed for node')
+                        return
 
             self.executeInProgress = False
 
             for node in self.linearizedNodes:
-                node.postBake(refholder)
+                try: node.postBake(refholder)
+                except Exception as e:
+                    self.raiseAndView(node, 'Post-bake failed for node')
+                    return
 
             self.properties.bakeCount = self.properties.bakeCount + 1
         else:
-            bpy.ops.umog.invalid_links('INVOKE_DEFAULT')
+            self.raisePopup('ERROR', "Node-tree contains links with mismatched types. These are highlighted in red.")
 
