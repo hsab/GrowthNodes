@@ -7,7 +7,7 @@ import bmesh
 
 class SharpFacesNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_SharpFacesNode"
-    bl_label = "Sharp Faces Node"
+    bl_label = "Sharp Faces"
 
     assignedType = "Object"
 

@@ -12,7 +12,7 @@ pyximport.install()
 
 class PyGLNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_PyGLNode"
-    bl_label = "3d Reaction Diffusion Node"
+    bl_label = "3D Reaction Diffusion"
     
     def create(self):
         print("pyglet create")

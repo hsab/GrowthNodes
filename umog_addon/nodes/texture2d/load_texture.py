@@ -7,7 +7,7 @@ import re
 
 class LoadTextureNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_LoadTextureNode"
-    bl_label = "Load Texture Node"
+    bl_label = "Load Texture"
 
     temp_texture_prefix = "__umog_texture_loader_"
     texture_name_temp = bpy.props.StringProperty()

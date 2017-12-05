@@ -3,9 +3,10 @@ import bpy
 import time
 
 
-class animateShapeKeys(bpy.types.Operator):
-    bl_idname = 'umog.animate_shapekeys'
-    bl_label = 'Animate Shapekeys'
+class UMOGBakeOp(bpy.types.Operator):
+    """Bakes the simulation for the frame range below."""
+    bl_idname = 'umog.bake'
+    bl_label = 'Bake Mesh(es)'
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
@@ -17,6 +18,6 @@ class animateShapeKeys(bpy.types.Operator):
         node_tree.execute(refholder)
                 
         diff_time = time.time() - start_time
-        print("the bake took " + str(diff_time))
+        print("[UMOG] Baking process took " + str(diff_time) + " seconds.")
         
         return {"FINISHED"}

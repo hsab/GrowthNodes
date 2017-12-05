@@ -4,7 +4,7 @@ from ... utils.events import propUpdate
 
 class FloatCompareNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_FloatCompareNode"
-    bl_label = "Float Math"
+    bl_label = "Float Compare"
 
     assignedType = "Float"
 

@@ -4,8 +4,8 @@ import copy
 import numpy as np
 from ... base_types import UMOGNode
 from ... events import bgl_helper
-#import pyximport
-#pyximport.install()
+import pyximport
+pyximport.install()
 from ...events import events
 
 class UMOGReactionDiffusionData(dict):
@@ -16,7 +16,7 @@ class UMOGReactionDiffusionData(dict):
 
 class ReactionDiffusionBGLNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_ReactionDiffusionBGLNode"
-    bl_label = "Reaction Diffusion GPU"
+    bl_label = "2D Reaction Diffusion"
 
     assignedType = "Texture2"
     rdData = UMOGReactionDiffusionData()

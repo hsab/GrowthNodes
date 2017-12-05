@@ -17,13 +17,8 @@ class TextureAlternatorNode(bpy.types.Node, UMOGNode):
         socket = self.newOutput(self.assignedType, "Texture")
 
     def draw(self, layout):
-        try:
-            # only one template_preview can exist per screen area https://developer.blender.org/T46733
-            # make sure that at most one preview can be opened at any time
-            if self.select and (len(bpy.context.selected_nodes) == 1):
-                layout.template_preview(self.outputs[0].getTexture())
-        except:
-            pass
+        if self.outputs[0].value != "":
+            self.drawPreview(layout, self.outputs[0].getTexture())
 
     def refresh(self):
         if self.inputs[2].value == True:

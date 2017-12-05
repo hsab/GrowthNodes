@@ -6,7 +6,7 @@ from mathutils import Vector
 
 class DissolveDegenerateNode(bpy.types.Node, UMOGOutputNode):
     bl_idname = "umog_DissolveDegenerateNode"
-    bl_label = "Dissolve Degenerate Node"
+    bl_label = "Dissolve Degenerate"
 
     assignedType = "Object"
 
