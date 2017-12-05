@@ -5,7 +5,6 @@ from ..utils.debug import *
 from ..utils.handlers import eventUMOGHandler
 from collections import defaultdict
 
-
 class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_NodeTreeProperties"
     unique = BoolProperty(default = False)
@@ -44,7 +43,11 @@ class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
 
     UniqueIDTracker = IntProperty(default=0)
 
-    TexturePreviewInEditor = BoolProperty(name="Toggle Frame Settings", default = True)
+    TexturePreviewInPanel = BoolProperty(name="Toggle Frame Settings", default = False, description="Disables the preview instance in UMOG panel")
+    ToggleColorSettings = BoolProperty(name="Toggle Color", default = False, description="Toggle Color Settings")
+    ToggleRampSettings = BoolProperty(name="Toggle Ramp", default = False, description="Toggle Ramp Settings")
+    ToggleTextureSettings = BoolProperty(name="Toggle Texture", default = False, description="Toggle Texture Settings")
+    ToggleTextureList = BoolProperty(name="Toggle Texture List", default = True, description="Toggle Texture List")
 
 
 class UMOGNodeTree(NodeTree):
@@ -103,6 +106,21 @@ class UMOGNodeTree(NodeTree):
                     node.refreshNode()
 
             self.updateInProgress = False
+
+            self.populateReferences()
+
+    def populateReferences(self):
+        self.textures.clear()
+        referencedTextures = set()
+        for node in self.linearizedNodes:
+            for socket in node.sockets:
+                if socket.dataType == "Texture2" and socket.value != "":
+                    referencedTextures.add(socket.value)
+        for texture in referencedTextures:
+            item = self.textures.add()
+            item.id = len(self.textures)
+            item.name = texture
+            self.textures_index = (len(self.textures)-1)
 
     def areLinksValid(self):
         returnVal = True
@@ -259,7 +277,6 @@ class UMOGNodeTree(NodeTree):
             self.raisePopup('ERROR', "Node-tree contains links with mismatched types. These are highlighted in red.")
 
 class UMOGUIListProperty(bpy.types.PropertyGroup):
-    '''name = StringProperty() '''
     name = StringProperty()
     id = IntProperty()
 

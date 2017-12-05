@@ -26,16 +26,16 @@ class UMOGBakePanel(bpy.types.Panel):
                 props = tree.properties
                 totalFrames = props.EndFrame - props.StartFrame
 
-                box = layout.box()
-                row = box.row()
+                row = layout.row()
                 row.scale_y = 1.5
                 row.operator("umog.bake", icon='FORCE_LENNARDJONES', text="Bake Nodetree")
-                row = layout.box()
+                row = layout.row()
                 row.template_ID(snode, "node_tree", new="node.new_node_tree")
-
-                box = layout.box()
-                box.prop(props, "ShowFrameSettings", toggle=True, icon="MOD_WIREFRAME", text="Bake Settings")
+                row = layout.row()
+                row.separator()
+                layout.prop(props, "ShowFrameSettings", toggle=True, icon="MOD_WIREFRAME", text="Bake Settings:")
                 if props.ShowFrameSettings:
+                    box = layout.box()
                     col = box.column(align=True)
                     row = col.row(align=True).split(percentage=1/6, align=True)
                     scol = row.column(align=True)
@@ -94,8 +94,15 @@ class UMOGBakePanel(bpy.types.Panel):
                     right_side = split.column()
                     right_side.alignment = 'RIGHT'
                     right_side.label(str(totalFrames / scene.render.fps))
-                #self.layout.prop(props, 'Substeps')
-                self.layout.prop(props, 'TextureResolution')
+                    #===================
+                    #Texture Resolution
+                    row = box.row(align=True)
+                    # row = col.row(align=True).split(align=True)
+                    # split = row.split(percentage=0.7)
+                    # left_side = split.column(align=True)
+                    row.label("Texture Resolution:", icon='RENDER_REGION')
+                    row = box.row(align=True)
+                    row.prop(props, 'TextureResolution', text="")
                 
         except:
             pass

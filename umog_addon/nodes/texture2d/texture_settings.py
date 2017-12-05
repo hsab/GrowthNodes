@@ -13,12 +13,12 @@ class TextureSettingsNode(bpy.types.Node, UMOGNode):
         socket = self.newOutput(self.assignedType, "Texture")
 
     def enablePreview(self):
-        self.nodeTree.props.TexturePreviewInEditor = True
+        self.nodeTree.props.TexturePreviewInPanel = False
 
     def drawPreview(self, layout):
         try:
             if self.select and (len(bpy.context.selected_nodes) == 1):
-                if self.nodeTree.props.TexturePreviewInEditor:
+                if not self.nodeTree.props.TexturePreviewInPanel:
                     layout.template_preview(self.outputs[0].getTexture())
                 else:
                     self.invokeFunction(layout, "enablePreview",
