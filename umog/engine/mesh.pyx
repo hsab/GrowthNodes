@@ -4,6 +4,7 @@ from libc.stdint cimport uintptr_t
 from libc.string cimport memset, memcpy
 from libc.math cimport atan2, asin, M_PI
 from libc.stdlib cimport qsort
+from libc.stdlib cimport malloc, free
 
 from ..packages.cymem.cymem cimport Pool
 
@@ -101,7 +102,7 @@ cdef struct HalfEdge:
 
 @cython.boundscheck(False)
 cdef void build_opposites(Mesh mesh):
-    cdef HalfEdge *half_edges = <HalfEdge *>mesh.mem.alloc(mesh.n_triangles * 3, sizeof(HalfEdge))
+    cdef HalfEdge *half_edges = <HalfEdge *>malloc(mesh.n_triangles * 3 * sizeof(HalfEdge))
 
     cdef int i, tmp
     for i in range(mesh.n_triangles * 3):
@@ -123,7 +124,7 @@ cdef void build_opposites(Mesh mesh):
             mesh.opposites[prev.index] = curr.index
             mesh.opposites[curr.index] = prev.index
 
-    mesh.mem.free(half_edges)
+    free(half_edges)
 
 cdef int half_edge_cmp(const void *a_ptr, const void *b_ptr) nogil:
     cdef HalfEdge a = (<HalfEdge *>a_ptr)[0], b = (<HalfEdge *>b_ptr)[0]
@@ -194,6 +195,7 @@ cdef void iterated_displace(MeshSequence mesh_sequence, Array texture):
     cdef Mesh mesh
     cdef float value
     cdef Vec3 normal
+    cdef int *triangles
     for t in range(1, len(mesh_sequence.frames)):
         mesh = copy_mesh(mesh_sequence.frames[t - 1])
         mesh_sequence.frames[t] = mesh
@@ -203,7 +205,11 @@ cdef void iterated_displace(MeshSequence mesh_sequence, Array texture):
             vec3_scale(&normal, value, &mesh.normals[i])
             vec3_add(&mesh.vertices[i], &mesh.vertices[i], &normal)
 
-        recalculate_normals(mesh)
+        triangles = <int *>malloc(mesh.n_triangles * sizeof(int))
+        for i in range(mesh.n_triangles):
+            triangles[i] = i
+        subdivide_triangles(mesh, triangles, mesh.n_triangles)
+        free(triangles)
 
 @cython.cdivision(True)
 cdef void recalculate_normals(Mesh mesh):
@@ -231,3 +237,75 @@ cdef void recalculate_normals(Mesh mesh):
 
     for i in range(mesh.n_vertices):
         vec3_normalize(&mesh.normals[i], &mesh.normals[i])
+
+cdef void subdivide_triangles(Mesh mesh, int *triangles, int n_triangles):
+    cdef int *half_edges_split = <int *>malloc(mesh.n_triangles * 3 * sizeof(int))
+    memset(half_edges_split, 0, mesh.n_triangles * 3 * sizeof(int))
+    cdef int split_edges = 0
+
+    cdef int i, edge
+    for i in range(n_triangles):
+        for edge in range(triangles[i] * 3, triangles[i] * 3 + 3):
+            if not half_edges_split[edge]:
+                half_edges_split[edge] = 1
+                half_edges_split[mesh.opposites[edge]] = 1
+                split_edges += 1
+
+    cdef int vertices_i = mesh.n_vertices
+    cdef int triangles_i = mesh.n_triangles
+    cdef int n_triangles_old = mesh.n_triangles
+    mesh.n_vertices += split_edges
+    mesh.n_triangles += 2 * split_edges
+
+    mesh.vertices = <Vec3 *>mesh.mem.realloc(mesh.vertices, mesh.n_vertices * sizeof(Vec3))
+    mesh.normals = <Vec3 *>mesh.mem.realloc(mesh.normals, mesh.n_vertices * sizeof(Vec3))
+    mesh.uvs = <Vec2 *>mesh.mem.realloc(mesh.uvs, mesh.n_vertices * sizeof(Vec2))
+    mesh.triangles = <int *>mesh.mem.realloc(mesh.triangles, mesh.n_triangles * 3 * sizeof(int))
+    mesh.opposites = <int *>mesh.mem.realloc(mesh.opposites, mesh.n_triangles * 3 * sizeof(int))
+
+    cdef int *half_edges_verts = <int *>malloc(n_triangles_old * 3 * sizeof(int))
+
+    for i in range(n_triangles_old * 3):
+        half_edges_verts[i] = -1
+
+    cdef Vec3 v1, v2
+    for i in range(n_triangles_old):
+        for edge in range(i * 3, i * 3 + 3):
+            if half_edges_split[edge] and half_edges_verts[edge] == -1:
+                half_edges_verts[edge] = vertices_i
+                half_edges_verts[mesh.opposites[edge]] = vertices_i
+
+                v1 = mesh.vertices[mesh.triangles[edge]]
+                v2 = mesh.vertices[mesh.triangles[i * 3 + (edge + 1) % 3]]
+                mesh.vertices[vertices_i] = vec3((v1.x + v2.x) / 2, (v1.y + v2.y) / 2, (v1.z + v2.z) / 2)
+
+                vertices_i += 1
+
+    for i in range(n_triangles_old):
+        if half_edges_split[i * 3] and half_edges_split[i * 3 + 1] and half_edges_split[i * 3 + 2]:
+            for edge in range(i * 3, i * 3 + 3):
+                mesh.triangles[triangles_i * 3] = mesh.triangles[edge]
+                mesh.triangles[triangles_i * 3 + 1] = half_edges_verts[edge]
+                mesh.triangles[triangles_i * 3 + 2] = half_edges_verts[i * 3 + (edge + 2) % 3]
+
+                triangles_i += 1
+
+            mesh.triangles[i * 3] = half_edges_verts[i * 3]
+            mesh.triangles[i * 3 + 1] = half_edges_verts[i * 3 + 1]
+            mesh.triangles[i * 3 + 2] = half_edges_verts[i * 3 + 2]
+        else:
+            for edge in range(i * 3, i * 3 + 3):
+                if half_edges_split[edge]:
+                    mesh.triangles[triangles_i * 3] = half_edges_verts[edge]
+                    mesh.triangles[triangles_i * 3 + 1] = mesh.triangles[i * 3 + (edge + 1) % 3]
+                    mesh.triangles[triangles_i * 3 + 2] = mesh.triangles[i * 3 + (edge + 2) % 3]
+
+                    triangles_i += 1
+
+                    mesh.triangles[i * 3 + (edge + 1) % 3] = half_edges_verts[edge]
+
+    free(half_edges_split)
+    free(half_edges_verts)
+
+    build_opposites(mesh)
+    recalculate_normals(mesh)

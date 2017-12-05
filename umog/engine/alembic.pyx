@@ -101,45 +101,49 @@ cdef export_mesh_sequence_(MeshSequence mesh_sequence, string filename):
         mesh_schema = poly_mesh.getSchema()
 
         for mesh in mesh_sequence.frames:
-            vertices = <V3f *>malloc(mesh.n_vertices * sizeof(V3f))
-            for i in range(mesh.n_vertices):
-                # store as y-up
-                vertices[i].x = mesh.vertices[i].x
-                vertices[i].y = mesh.vertices[i].z
-                vertices[i].z = -mesh.vertices[i].y
+            if mesh.n_vertices > 0 and mesh.n_triangles > 0:
+                try:
+                    vertices = <V3f *>malloc(mesh.n_vertices * sizeof(V3f))
+                    for i in range(mesh.n_vertices):
+                        # store as y-up
+                        vertices[i].x = mesh.vertices[i].x
+                        vertices[i].y = mesh.vertices[i].z
+                        vertices[i].z = -mesh.vertices[i].y
 
-            poly_verts = <int32_t *>malloc(mesh.n_triangles * 3 * sizeof(int32_t))
-            loop_counts = <int32_t *>malloc(mesh.n_triangles * sizeof(int32_t))
-            for i in range(mesh.n_triangles):
-                # wind clockwise
-                poly_verts[i * 3] = mesh.triangles[i * 3]
-                poly_verts[i * 3 + 1] = mesh.triangles[i * 3 + 2]
-                poly_verts[i * 3 + 2] = mesh.triangles[i * 3 + 1]
-                loop_counts[i] = 3
+                    poly_verts = <int32_t *>malloc(mesh.n_triangles * 3 * sizeof(int32_t))
+                    loop_counts = <int32_t *>malloc(mesh.n_triangles * sizeof(int32_t))
+                    for i in range(mesh.n_triangles):
+                        # wind clockwise
+                        poly_verts[i * 3] = mesh.triangles[i * 3]
+                        poly_verts[i * 3 + 1] = mesh.triangles[i * 3 + 2]
+                        poly_verts[i * 3 + 2] = mesh.triangles[i * 3 + 1]
+                        loop_counts[i] = 3
 
-            mesh_sample = new OPolyMeshSchemaSample(
-                V3fArraySample(vertices, mesh.n_vertices),
-                Int32ArraySample(poly_verts, mesh.n_triangles * 3),
-                Int32ArraySample(loop_counts, mesh.n_triangles))
+                    mesh_sample = new OPolyMeshSchemaSample(
+                        V3fArraySample(vertices, mesh.n_vertices),
+                        Int32ArraySample(poly_verts, mesh.n_triangles * 3),
+                        Int32ArraySample(loop_counts, mesh.n_triangles))
 
-            normals = <V3f *>malloc(mesh.n_vertices * sizeof(V3f))
-            for i in range(mesh.n_vertices):
-                # store as y-up
-                normals[i].x = mesh.normals[i].x
-                normals[i].y = mesh.normals[i].z
-                normals[i].z = -mesh.normals[i].y
+                    normals = <V3f *>malloc(mesh.n_vertices * sizeof(V3f))
+                    for i in range(mesh.n_vertices):
+                        # store as y-up
+                        normals[i].x = mesh.normals[i].x
+                        normals[i].y = mesh.normals[i].z
+                        normals[i].z = -mesh.normals[i].y
 
-            normals_sample.setScope(kVertexScope)
-            normals_sample.setVals(V3fArraySample(normals, mesh.n_vertices))
+                    normals_sample.setScope(kVertexScope)
+                    normals_sample.setVals(V3fArraySample(normals, mesh.n_vertices))
 
-            mesh_sample.setNormals(normals_sample)
+                    mesh_sample.setNormals(normals_sample)
 
-            mesh_schema.set(mesh_sample[0])
+                    mesh_schema.set(mesh_sample[0])
+                finally:
+                    pass
+                    # free(vertices)
+                    # free(poly_verts)
+                    # free(loop_counts)
+                    # free(normals)
     finally:
-        free(vertices)
-        free(poly_verts)
-        free(loop_counts)
-        free(normals)
         del archive
         del obj
         del poly_mesh
