@@ -28,7 +28,6 @@ class UMOGNodeEditorPanel(bpy.types.Panel):
                 totalFrames = props.EndFrame - props.StartFrame
 
                 box = layout.box()
-                box.template_header()
                 row = box.row()
                 row.scale_y = 1.5
                 row.operator("umog.bake", icon='FORCE_LENNARDJONES', text="Bake Nodetree")
@@ -36,7 +35,7 @@ class UMOGNodeEditorPanel(bpy.types.Panel):
                 row.template_ID(snode, "node_tree", new="node.new_node_tree")
 
                 box = layout.box()
-                box.prop(props, "ShowFrameSettings", toggle=True, icon="MOD_WIREFRAME")
+                box.prop(props, "ShowFrameSettings", toggle=True, icon="MOD_WIREFRAME", text="Bake Settings")
                 if props.ShowFrameSettings:
                     col = box.column(align=True)
                     row = col.row(align=True).split(percentage=1/6, align=True)
@@ -46,8 +45,8 @@ class UMOGNodeEditorPanel(bpy.types.Panel):
                     row = row.split(percentage=5/6, align=True)
                     scol = row.column(align=True)
                     scol.scale_y = 1
-                    scol.prop(props, 'StartFrame', text="Start")
-                    scol.prop(props, 'EndFrame', text="End")
+                    scol.prop(props, 'StartFrame', text="Bake Start")
+                    scol.prop(props, 'EndFrame', text="Bake End")
                     row = row.split(align=True)
                     scol = row.column(align=True)
                     scol.scale_y = 2
