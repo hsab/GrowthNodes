@@ -48,6 +48,7 @@ class SetMeshNode(bpy.types.Node, UMOGOutputNode):
                 print(c.filepath)
                 if c.filepath == filename:
                     cachefile = c
+            cachefile.is_sequence = True
             for obj in users:
                 mod = obj.modifiers.new("MeshSequenceCache", "MESH_SEQUENCE_CACHE")
                 mod.cache_file = cachefile
