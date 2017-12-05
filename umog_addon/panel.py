@@ -19,17 +19,54 @@ class UMOGNodeEditorPanel(bpy.types.Panel):
     def draw(self, context):
         try:
             tree = context.area.spaces.active.node_tree
+            scene = context.scene
+            snode = context.space_data
+            layout = self.layout
             if getattr(tree, "bl_idname", "") == "umog_UMOGNodeTree":
                 props = tree.properties
-                self.layout.operator(
-                    "umog.bake_meshes", icon='RENDER_RESULT', text="Bake Mesh(es)")
-                self.layout.operator(
-                    "umog.render_animation", icon='RENDER_ANIMATION', text="Render Animation")
-                self.layout.prop(props, 'StartFrame')
-                self.layout.label(
-                    "Length: " + str(props.EndFrame - props.StartFrame))
-                self.layout.prop(props, 'EndFrame')
-                #self.layout.prop(props, 'SubFrames')
+                totalFrames = props.EndFrame - props.StartFrame
+
+                box = layout.box()
+                row = box.row()
+                row.scale_y = 1.5
+                row.operator("umog.bake", icon='FORCE_LENNARDJONES', text="Bake Nodetree")
+                row = box.row()
+                row.template_ID(snode, "node_tree", new="node.new_node_tree")
+
+                box = layout.box()
+                # box.prop(props, "ShowFrameSettings", toggle=True)
+                if props.ShowFrameSettings:
+                    col = box.column(align=True)
+                    col.prop(props, 'StartFrame', text="Start Frame")
+                    col.prop(props, 'EndFrame', text="End Frame")
+                    #===================
+                    #Total Frames
+                    row = box.row(align=True)
+                    split = row.split(percentage=0.7)
+                    left_side = split.column(align=True)
+                    left_side.label("Total Frames:", icon='PHYSICS')
+                    right_side = split.column()
+                    right_side.alignment = 'RIGHT'
+                    right_side.label(str(totalFrames))
+                    #===================
+                    #FPS
+                    row = box.row(align=True)
+                    split = row.split(percentage=0.7)
+                    left_side = split.column(align=True)
+                    left_side.label("FPS:", icon='SEQUENCE')
+                    right_side = split.column()
+                    right_side.alignment = 'RIGHT'
+                    right_side.label(str(scene.render.fps))
+                    #===================
+                    #Total Time
+                    row = box.row(align=True)
+                    split = row.split(percentage=0.7)
+                    left_side = split.column(align=True)
+                    left_side.label("Total Seconds:", icon='TIME')
+                    right_side = split.column()
+                    right_side.alignment = 'RIGHT'
+                    right_side.label(str(totalFrames / scene.render.fps))
+                #self.layout.prop(props, 'Substeps')
                 self.layout.prop(props, 'TextureResolution')
         except:
             pass

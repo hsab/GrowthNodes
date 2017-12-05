@@ -1,7 +1,7 @@
 from ..node_tree import UMOGReferenceHolder
 import bpy
 
-class UMOGPopup(bpy.types.Operator):
+class UMOGPopupOp(bpy.types.Operator):
     bl_idname = 'umog.popup'
     bl_label = 'UMOG: There was an issue with the nodetree!'
     bl_options = {'REGISTER', 'UNDO'}

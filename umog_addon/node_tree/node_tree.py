@@ -24,29 +24,32 @@ class UMOGNodeTreeProperties(bpy.types.PropertyGroup):
         if not isResPowerOfTwo:
             self.TextureResolution = 2**(self.TextureResolution - 1).bit_length()
 
-    bakeCount = IntProperty(name = "BakeCount", description = "BakeCount", default = 1,
+    bakeCount = IntProperty(name = "Bake ID", description = "Bake count", default = 1,
                             min = 1, update = updateTimeInfo)
 
-    StartFrame = IntProperty(name = "StartFrame", description = "StartFrame", default = 1,
+    StartFrame = IntProperty(name = "Start", description = "Start frame", default = 1,
                              min = 1, update = updateTimeInfo)
 
-    EndFrame = IntProperty(name = "EndFrame", description = "EndFrame", default = 2,
+    EndFrame = IntProperty(name = "End", description = "End frame", default = 2,
                            min = 2, update = updateTimeInfo)
 
-    SubFrames = IntProperty(name = "SubFrames", description = "SubFrames", default = 1,
+    Substeps = IntProperty(name = "Substeps", description = "Substeps", default = 1,
                             min = 1)
 
     TextureResolution = IntProperty(name = "TextureResolution",
                                     description = "TextureResolution", default = 256,
                                     min = 64, update = updateTimeInfo)
     
+    ShowFrameSettings = BoolProperty(name="Toggle Frame Settings", default = True)
+
+
     UniqueIDTracker = IntProperty(default=0)
 
 
 class UMOGNodeTree(NodeTree):
     bl_idname = "umog_UMOGNodeTree"
     bl_label = "UMOG"
-    bl_icon = "SCULPTMODE_HLT"
+    bl_icon = "FORCE_TURBULENCE"
 
     linearizedNodes = []
     unlinkedNodes = []
@@ -219,7 +222,7 @@ class UMOGNodeTree(NodeTree):
                 scene = bpy.context.scene
                 scene.frame_set(frame)
 
-                for sub_frame in range(0, self.properties.SubFrames):
+                for sub_frame in range(0, self.properties.Substeps):
                     for node in self.linearizedNodes:
                         try: node.refreshNode()
                         except Exception as e:
