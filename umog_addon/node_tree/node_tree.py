@@ -211,4 +211,6 @@ class UMOGNodeTree(NodeTree):
                 node.postBake(refholder)
 
             self.properties.bakeCount = self.properties.bakeCount + 1
+        else:
+            bpy.ops.umog.invalid_links('INVOKE_DEFAULT')
 
