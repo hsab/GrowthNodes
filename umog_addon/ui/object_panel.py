@@ -123,56 +123,57 @@ class UMOGObjectPanel(Panel):
                 sub.operator("object.shape_key_move", icon='TRIA_DOWN', text="").type = 'DOWN'
                 sub.menu("MESH_MT_shape_key_specials", icon='DOWNARROW_HLT', text="")
 
+                if kb:
+                    box = layout.box()
+                    split = box.split(percentage=0.4)
+                    row = split.row()
+                    row.enabled = enable_edit
+                    row.prop(key, "use_relative")
 
-                box = layout.box()
-                split = box.split(percentage=0.4)
-                row = split.row()
-                row.enabled = enable_edit
-                row.prop(key, "use_relative")
+                    row = split.row()
+                    row.alignment = 'RIGHT'
 
-                row = split.row()
-                row.alignment = 'RIGHT'
+                    sub = row.row(align=True)
+                    sub.label()  # XXX, for alignment only
+                    subsub = sub.row(align=True)
+                    subsub.active = enable_edit_value
+                    subsub.prop(obj, "show_only_shape_key", text="")
+                    sub.prop(obj, "use_shape_key_edit_mode", text="")
 
-                sub = row.row(align=True)
-                sub.label()  # XXX, for alignment only
-                subsub = sub.row(align=True)
-                subsub.active = enable_edit_value
-                subsub.prop(obj, "show_only_shape_key", text="")
-                sub.prop(obj, "use_shape_key_edit_mode", text="")
+                    sub = row.row()
+                    if key.use_relative:
+                        sub.operator("object.shape_key_clear", icon='X', text="")
+                    else:
+                        sub.operator("object.shape_key_retime", icon='RECOVER_LAST', text="")
 
-                sub = row.row()
-                if key.use_relative:
-                    sub.operator("object.shape_key_clear", icon='X', text="")
-                else:
-                    sub.operator("object.shape_key_retime", icon='RECOVER_LAST', text="")
+                    if key.use_relative:
+                        if obj.active_shape_key_index != 0:
+                            row = box.row()
+                            row.active = enable_edit_value
+                            row.prop(kb, "value")
 
-                if key.use_relative:
-                    if obj.active_shape_key_index != 0:
+                            split = box.split()
+
+                            col = split.column(align=True)
+                            col.active = enable_edit_value
+                            col.label(text="Range:")
+                            col.prop(kb, "slider_min", text="Min")
+                            col.prop(kb, "slider_max", text="Max")
+
+                            col = split.column(align=True)
+                            col.active = enable_edit_value
+                            col.label(text="Blend:")
+                            col.prop_search(kb, "vertex_group", obj, "vertex_groups", text="")
+                            col.prop_search(kb, "relative_key", key, "key_blocks", text="")
+
+                    else:
                         row = box.row()
+                        row.prop(kb, "interpolation", expand=True)
+                        row = box.column()
                         row.active = enable_edit_value
-                        row.prop(kb, "value")
-
-                        split = box.split()
-
-                        col = split.column(align=True)
-                        col.active = enable_edit_value
-                        col.label(text="Range:")
-                        col.prop(kb, "slider_min", text="Min")
-                        col.prop(kb, "slider_max", text="Max")
-
-                        col = split.column(align=True)
-                        col.active = enable_edit_value
-                        col.label(text="Blend:")
-                        col.prop_search(kb, "vertex_group", obj, "vertex_groups", text="")
-                        col.prop_search(kb, "relative_key", key, "key_blocks", text="")
-
-                else:
-                    row = box.row()
-                    row.prop(kb, "interpolation", expand=True)
-                    row = box.column()
-                    row.active = enable_edit_value
-                    row.prop(key, "eval_time")
-                    row = layout.row()
+                        row.prop(key, "eval_time")
+                        
+                row = layout.row()
             
 
             group = obj.vertex_groups.active
