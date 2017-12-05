@@ -67,9 +67,18 @@ class UMOGObjectPanel(Panel):
     bl_category = "UMOG"
 
     def draw(self, context):
-        layout = self.layout
-        scn = context.getActiveUMOGNodeTree()
-        
+        try:
+            scn = context.getActiveUMOGNodeTree()
+            test = scn.props
+        except:
+            return 
+
+        if getattr(scn, "bl_idname", "") == "umog_UMOGNodeTree":
+            layout = self.layout
+        else:
+            return
+
+
         rows = 2
         row = layout.row()
         row.prop(scn.props, "ToggleObjectList", toggle=True, icon="COLLAPSEMENU", text="Show List")
@@ -85,15 +94,16 @@ class UMOGObjectPanel(Panel):
             row = layout.row()
 
             row = layout.row()
-            row.prop(scn.props, "ToggleShapeKeyList", toggle=True, icon="SHAPEKEY_DATA", text="Toggle Shapekeys")
+            row.prop(scn.props, "ToggleShapeKeyList", toggle=True, icon="SHAPEKEY_DATA", text="Shapekeys")
             row = layout.row()
+
+            obj = bpy.data.objects[scn.objects[scn.objects_index].name]
+            objData = obj.data
+            key = objData.shape_keys
+            kb = obj.active_shape_key
 
             if scn.props.ToggleShapeKeyList:
                 rows = 4
-                obj = bpy.data.objects[scn.objects[scn.objects_index].name]
-                objData = obj.data
-                key = objData.shape_keys
-                kb = obj.active_shape_key
                 
                 enable_edit = obj.mode != 'EDIT'
                 enable_edit_value = False
@@ -108,13 +118,14 @@ class UMOGObjectPanel(Panel):
                 sub = col.column(align=True)
                 sub.operator("object.shape_key_add", icon='ZOOMIN', text="").from_mix = False
                 sub.operator("object.shape_key_remove", icon='ZOOMOUT', text="").all = False
-                sub.menu("MESH_MT_shape_key_specials", icon='DOWNARROW_HLT', text="")
 
-                sub = col.column(align=True)
                 sub.operator("object.shape_key_move", icon='TRIA_UP', text="").type = 'UP'
                 sub.operator("object.shape_key_move", icon='TRIA_DOWN', text="").type = 'DOWN'
+                sub.menu("MESH_MT_shape_key_specials", icon='DOWNARROW_HLT', text="")
 
-                split = layout.split(percentage=0.4)
+
+                box = layout.box()
+                split = box.split(percentage=0.4)
                 row = split.row()
                 row.enabled = enable_edit
                 row.prop(key, "use_relative")
@@ -137,11 +148,11 @@ class UMOGObjectPanel(Panel):
 
                 if key.use_relative:
                     if obj.active_shape_key_index != 0:
-                        row = layout.row()
+                        row = box.row()
                         row.active = enable_edit_value
                         row.prop(kb, "value")
 
-                        split = layout.split()
+                        split = box.split()
 
                         col = split.column(align=True)
                         col.active = enable_edit_value
@@ -156,72 +167,39 @@ class UMOGObjectPanel(Panel):
                         col.prop_search(kb, "relative_key", key, "key_blocks", text="")
 
                 else:
-                    layout.prop(kb, "interpolation", expand=True)
-                    row = layout.column()
+                    row = box.row()
+                    row.prop(kb, "interpolation", expand=True)
+                    row = box.column()
                     row.active = enable_edit_value
                     row.prop(key, "eval_time")
-        # if len(scn.textures) > 0:
-        #     texture = bpy.data.textures[scn.textures[scn.textures_index].name]
-        #     type = texture.type
-
-        #     layoutMain = layout
-        #     layout.prop(scn.props, "ToggleTextureSettings", toggle=True, icon="FORCE_TEXTURE", text="Texture Settings")
-        #     if scn.props.ToggleTextureSettings:
-        #         layout = layoutMain.box()
-        #         layout.prop(texture, "type", text="")
-        #         if type == "CLOUDS":
-        #             self.drawClouds(texture, layout)
-        #         elif type == "WOOD":
-        #             self.drawWood(texture, layout)
-        #         elif type == "MARBLE":
-        #             self.drawMarble(texture, layout)
-        #         elif type == "MAGIC":
-        #             self.drawMagic(texture, layout)            
-        #         elif type == "BLEND":
-        #             self.drawBlend(texture, layout)
-        #         elif type == "STUCCI":
-        #             self.drawStucci(texture, layout)
-        #         elif type == "IMAGE":
-        #             self.drawImage(texture, layout)
-        #         elif type == "ENVIRONMENT_MAP":
-        #             self.drawEnvironmentMap(texture, layout)
-        #         elif type == "MUSGRAVE":
-        #             self.drawMusgrave(texture, layout)
-        #         elif type == "VORONOI":
-        #             self.drawVoronoi(texture, layout)
-        #         elif type == "DISTORTED_NOISE":
-        #             self.drawDistortedNoise(texture, layout)
-        #         elif type == "OCEAN":
-        #             self.drawOcean(texture, layout)
+                    row = layout.row()
             
-        #     row = layoutMain.row()
-        #     row.separator()
-        #     layoutMain.prop(scn.props, "ToggleRampSettings", toggle=True, icon="IPO", text="Ramp Settings")
-        #     if scn.props.ToggleRampSettings:
-        #         layout = layoutMain.box()
-        #         layout.prop(texture, "use_color_ramp", text="Ramp")
-        #         if texture.use_color_ramp:
-        #             layout.template_color_ramp(texture, "color_ramp", expand=True)
 
-        #     row = layoutMain.row()
-        #     row.separator()
-        #     layoutMain.prop(scn.props, "ToggleColorSettings", toggle=True, icon="COLOR", text="Color Settings")
-        #     if scn.props.ToggleColorSettings:
-        #         layout = layoutMain.box()
-        #         split = layout.split()
+            group = obj.vertex_groups.active
 
-        #         col = split.column()
-        #         col.label(text="RGB Multiply:")
-        #         sub = col.column(align=True)
-        #         sub.prop(texture, "factor_red", text="R")
-        #         sub.prop(texture, "factor_green", text="G")
-        #         sub.prop(texture, "factor_blue", text="B")
+            row.separator()
+            row = layout.row()
+            row.prop(scn.props, "ToggleVertexGroupList", toggle=True, icon="GROUP_VERTEX", text="Vertex Groups")
+            row = layout.row()
+            if scn.props.ToggleVertexGroupList:
+                    row.template_list("MESH_UL_vgroups", "", obj, "vertex_groups", obj.vertex_groups, "active_index", rows=rows)
+                    col = row.column(align=True)
+                    col.operator("object.vertex_group_add", icon='ZOOMIN', text="")
+                    col.operator("object.vertex_group_remove", icon='ZOOMOUT', text="").all = False
+                    if group:
+                        col.operator("object.vertex_group_move", icon='TRIA_UP', text="").direction = 'UP'
+                        col.operator("object.vertex_group_move", icon='TRIA_DOWN', text="").direction = 'DOWN'
+                    col.menu("MESH_MT_vertex_group_specials", icon='DOWNARROW_HLT', text="")
 
-        #         col = split.column()
-        #         col.label(text="Adjust:")
-        #         col.prop(texture, "intensity")
-        #         col.prop(texture, "contrast")
-        #         col.prop(texture, "saturation")
+                    if obj.vertex_groups and (obj.mode == 'EDIT' or (obj.mode == 'WEIGHT_PAINT' and obj.type == 'MESH' and obj.data.use_paint_mask_vertex)):
+                        row = layout.row()
 
-        #         col = layout.column()
-        #         col.prop(texture, "use_clamp", text="Clamp")
+                        sub = row.row(align=True)
+                        sub.operator("object.vertex_group_assign", text="Assign")
+                        sub.operator("object.vertex_group_remove_from", text="Remove")
+
+                        sub = row.row(align=True)
+                        sub.operator("object.vertex_group_select", text="Select")
+                        sub.operator("object.vertex_group_deselect", text="Deselect")
+
+                        layout.prop(context.tool_settings, "vertex_group_weight", text="Weight")

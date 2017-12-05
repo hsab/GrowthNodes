@@ -67,9 +67,17 @@ class UMOGTexturePanel(Panel):
     bl_category = "UMOG"
 
     def draw(self, context):
-        layout = self.layout
-        scn = context.getActiveUMOGNodeTree()
-        
+        try:
+            scn = context.getActiveUMOGNodeTree()
+            test = scn.props
+        except:
+            return 
+
+        if getattr(scn, "bl_idname", "") == "umog_UMOGNodeTree":
+            layout = self.layout
+        else:
+            return
+
         rows = 2
         row = layout.row()
         row.prop(scn.props, "ToggleTextureList", toggle=True, icon="COLLAPSEMENU", text="Show List")
