@@ -179,9 +179,12 @@ class UMOGNodeTree(NodeTree):
         for node in self.linearizedNodes:
             node.disableUnlinkedHighlight()
 
-    def viewNode(self, node):
+    def deselectAll(self):
         for n in self.nodes:
             n.select = False
+
+    def viewNode(self, node):
+        self.deselectAll()
         node.select = True
         node.enableUnlinkedHighlight()
         bpy.ops.node.view_selected()
