@@ -281,13 +281,14 @@ cdef void subdivide_triangles(Mesh mesh, int *triangles, int n_triangles):
 
                 vertices_i += 1
 
+    cdef edge1, edge2
     for i in range(n_triangles_old):
         if half_edges_split[i * 3] and half_edges_split[i * 3 + 1] and half_edges_split[i * 3 + 2]:
             for edge in range(i * 3, i * 3 + 3):
+                edge2 = i * 3 + (edge + 2) % 3
                 mesh.triangles[triangles_i * 3] = mesh.triangles[edge]
                 mesh.triangles[triangles_i * 3 + 1] = half_edges_verts[edge]
-                mesh.triangles[triangles_i * 3 + 2] = half_edges_verts[i * 3 + (edge + 2) % 3]
-
+                mesh.triangles[triangles_i * 3 + 2] = half_edges_verts[edge2]
                 triangles_i += 1
 
             mesh.triangles[i * 3] = half_edges_verts[i * 3]
@@ -295,14 +296,32 @@ cdef void subdivide_triangles(Mesh mesh, int *triangles, int n_triangles):
             mesh.triangles[i * 3 + 2] = half_edges_verts[i * 3 + 2]
         else:
             for edge in range(i * 3, i * 3 + 3):
+                edge1 = i * 3 + (edge + 1) % 3
+                edge2 = i * 3 + (edge + 2) % 3
                 if half_edges_split[edge]:
                     mesh.triangles[triangles_i * 3] = half_edges_verts[edge]
-                    mesh.triangles[triangles_i * 3 + 1] = mesh.triangles[i * 3 + (edge + 1) % 3]
-                    mesh.triangles[triangles_i * 3 + 2] = mesh.triangles[i * 3 + (edge + 2) % 3]
-
+                    mesh.triangles[triangles_i * 3 + 1] = mesh.triangles[edge1]
+                    mesh.triangles[triangles_i * 3 + 2] = mesh.triangles[edge2]
                     triangles_i += 1
 
-                    mesh.triangles[i * 3 + (edge + 1) % 3] = half_edges_verts[edge]
+                    mesh.triangles[edge1] = half_edges_verts[edge]
+
+                    if half_edges_split[edge1]:
+                        mesh.triangles[triangles_i * 3] = half_edges_verts[edge]
+                        mesh.triangles[triangles_i * 3 + 1] = mesh.triangles[edge1]
+                        mesh.triangles[triangles_i * 3 + 2] = half_edges_verts[edge1]
+                        triangles_i += 1
+
+                        mesh.triangles[(triangles_i - 2) * 3 + 1] = half_edges_verts[edge1]
+                    elif half_edges_split[edge2]:
+                        mesh.triangles[triangles_i * 3] = half_edges_verts[edge2]
+                        mesh.triangles[triangles_i * 3 + 1] = half_edges_verts[edge]
+                        mesh.triangles[triangles_i * 3 + 2] = mesh.triangles[edge2]
+                        triangles_i += 1
+
+                        mesh.triangles[edge2] = half_edges_verts[edge2]
+
+                    break
 
     free(half_edges_split)
     free(half_edges_verts)
