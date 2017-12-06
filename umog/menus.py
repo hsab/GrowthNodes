@@ -44,7 +44,7 @@ menus = OrderedDict([
             ("umog_Texture_Muxer_Node", "Mux Channels"),
         ]
     }),
-    (" ", "separator"),
+    ("  ", "separator"),
     ("math_menu", {
         "bl_idname": "umog_math_menu",
         "bl_label": "Math Menu",
@@ -123,7 +123,7 @@ menus = OrderedDict([
         ]
     }),
         
-    ("  ", "separator"),
+    ("   ", "separator"),
     ("debug_menu", {
         "bl_idname": "umog_debug_menu",
         "bl_label": "Debug Menu",
