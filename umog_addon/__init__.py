@@ -105,6 +105,9 @@ else:
 from . import import_modules
 modules = import_modules.importAllSubmodules(__path__[0], 'umog_addon')
 
+from .umog.sockets.info import updateSocketInfo
+updateSocketInfo()
+
 def register():
     bpy.utils.register_module(__name__)
     for module in modules:
