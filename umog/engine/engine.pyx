@@ -22,7 +22,7 @@ from array cimport Array
 from collections import namedtuple
 from enum import Enum
 
-import reaction_diffusion_gpu
+from . import reaction_diffusion_gpu
 
 # operation
 
