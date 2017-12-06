@@ -2,7 +2,7 @@ import cython
 
 from libc.stdint cimport uintptr_t
 from libc.string cimport memset, memcpy
-from libc.math cimport atan2, asin, M_PI
+from libc.math cimport atan2, asin, acos, fmin, fmax, M_PI
 from libc.stdlib cimport qsort
 from libc.stdlib cimport malloc, free
 
@@ -191,11 +191,12 @@ cdef void displace(Mesh mesh, Array texture):
     recalculate_normals(mesh)
 
 cdef void iterated_displace(MeshSequence mesh_sequence, Array texture):
-    cdef int i, t
+    cdef int i, j, t
     cdef Mesh mesh
     cdef float value
     cdef Vec3 normal
-    cdef int *triangles
+    cdef int n_to_subdivide
+    cdef int *to_subdivide
     for t in range(1, len(mesh_sequence.frames)):
         mesh = copy_mesh(mesh_sequence.frames[t - 1])
         mesh_sequence.frames[t] = mesh
@@ -205,11 +206,33 @@ cdef void iterated_displace(MeshSequence mesh_sequence, Array texture):
             vec3_scale(&normal, value, &mesh.normals[i])
             vec3_add(&mesh.vertices[i], &mesh.vertices[i], &normal)
 
-        triangles = <int *>malloc(mesh.n_triangles * sizeof(int))
+        # subdivide triangles with too high of angle
+        n_to_subdivide = 0
+        to_subdivide = <int *>malloc(mesh.n_triangles * sizeof(int))
+        memset(to_subdivide, 0, mesh.n_triangles * sizeof(int))
         for i in range(mesh.n_triangles):
-            triangles[i] = i
-        subdivide_triangles(mesh, triangles, mesh.n_triangles)
-        free(triangles)
+            if triangle_max_angle(mesh, i) > M_PI / 3:
+                to_subdivide[i] = 1
+                n_to_subdivide += 1
+
+        # subdivide_triangles(mesh, to_subdivide)
+
+        # print(str(mesh.n_vertices) + " vertices")
+
+        recalculate_normals(mesh)
+
+        free(to_subdivide)
+
+cdef float triangle_max_angle(Mesh mesh, int triangle):
+    cdef Vec3 a, b, c
+    cdef float angle1, angle2, angle3
+    a = mesh.normals[mesh.triangles[triangle * 3]]
+    b = mesh.normals[mesh.triangles[triangle * 3 + 1]]
+    c = mesh.normals[mesh.triangles[triangle * 3 + 2]]
+    angle1 = acos(vec3_dot(&a, &b))
+    angle2 = acos(vec3_dot(&b, &c))
+    angle3 = acos(vec3_dot(&c, &a))
+    return fmax(fmax(angle1, angle2), angle2)
 
 @cython.cdivision(True)
 cdef void recalculate_normals(Mesh mesh):
@@ -238,18 +261,19 @@ cdef void recalculate_normals(Mesh mesh):
     for i in range(mesh.n_vertices):
         vec3_normalize(&mesh.normals[i], &mesh.normals[i])
 
-cdef void subdivide_triangles(Mesh mesh, int *triangles, int n_triangles):
+cdef void subdivide_triangles(Mesh mesh, int *triangles):
     cdef int *half_edges_split = <int *>malloc(mesh.n_triangles * 3 * sizeof(int))
     memset(half_edges_split, 0, mesh.n_triangles * 3 * sizeof(int))
     cdef int split_edges = 0
 
     cdef int i, edge
-    for i in range(n_triangles):
-        for edge in range(triangles[i] * 3, triangles[i] * 3 + 3):
-            if not half_edges_split[edge]:
-                half_edges_split[edge] = 1
-                half_edges_split[mesh.opposites[edge]] = 1
-                split_edges += 1
+    for i in range(mesh.n_triangles):
+        if triangles[i]:
+            for edge in range(i * 3, i * 3 + 3):
+                if not half_edges_split[edge]:
+                    half_edges_split[edge] = 1
+                    half_edges_split[mesh.opposites[edge]] = 1
+                    split_edges += 1
 
     cdef int vertices_i = mesh.n_vertices
     cdef int triangles_i = mesh.n_triangles
@@ -284,6 +308,7 @@ cdef void subdivide_triangles(Mesh mesh, int *triangles, int n_triangles):
     cdef edge1, edge2
     for i in range(n_triangles_old):
         if half_edges_split[i * 3] and half_edges_split[i * 3 + 1] and half_edges_split[i * 3 + 2]:
+            # print("splitting entire triangle " + str(i))
             for edge in range(i * 3, i * 3 + 3):
                 edge2 = i * 3 + (edge + 2) % 3
                 mesh.triangles[triangles_i * 3] = mesh.triangles[edge]
@@ -302,6 +327,7 @@ cdef void subdivide_triangles(Mesh mesh, int *triangles, int n_triangles):
                     mesh.triangles[triangles_i * 3] = half_edges_verts[edge]
                     mesh.triangles[triangles_i * 3 + 1] = mesh.triangles[edge1]
                     mesh.triangles[triangles_i * 3 + 2] = mesh.triangles[edge2]
+                    # print("splitting triangle " + str(i) + " once: " + str(mesh.triangles[triangles_i * 3]) + "," + str(mesh.triangles[triangles_i * 3 + 1]) + "," + str(mesh.triangles[triangles_i * 3 + 2]))
                     triangles_i += 1
 
                     mesh.triangles[edge1] = half_edges_verts[edge]
@@ -310,16 +336,20 @@ cdef void subdivide_triangles(Mesh mesh, int *triangles, int n_triangles):
                         mesh.triangles[triangles_i * 3] = half_edges_verts[edge]
                         mesh.triangles[triangles_i * 3 + 1] = mesh.triangles[edge1]
                         mesh.triangles[triangles_i * 3 + 2] = half_edges_verts[edge1]
+                        print("splitting triangle " + str(i) + " twice: " + str(mesh.triangles[triangles_i * 3]) + "," + str(mesh.triangles[triangles_i * 3 + 1]) + "," + str(mesh.triangles[triangles_i * 3 + 2]))
                         triangles_i += 1
 
-                        mesh.triangles[(triangles_i - 2) * 3 + 1] = half_edges_verts[edge1]
+                        mesh.triangles[(triangles_i - 1) * 3 + 1] = half_edges_verts[edge1]
+                        print(str(half_edges_verts[edge1]))
                     elif half_edges_split[edge2]:
                         mesh.triangles[triangles_i * 3] = half_edges_verts[edge2]
                         mesh.triangles[triangles_i * 3 + 1] = half_edges_verts[edge]
                         mesh.triangles[triangles_i * 3 + 2] = mesh.triangles[edge2]
+                        print("splitting triangle " + str(i) + " twice: " + str(mesh.triangles[triangles_i * 3]) + "," + str(mesh.triangles[triangles_i * 3 + 1]) + "," + str(mesh.triangles[triangles_i * 3 + 2]))
                         triangles_i += 1
 
                         mesh.triangles[edge2] = half_edges_verts[edge2]
+                        print(str(half_edges_verts[edge2]))
 
                     break
 

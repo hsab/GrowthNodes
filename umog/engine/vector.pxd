@@ -25,8 +25,11 @@ cdef inline void vec3_scale(Vec3 *out, float s, Vec3 *a) nogil:
     out.y = s * a.y
     out.z = s * a.z
 
+cdef inline float vec3_magnitude(Vec3 *a) nogil:
+    return sqrt(a.x * a.x + a.y * a.y + a.z * a.z)
+
 cdef inline void vec3_normalize(Vec3 *out, Vec3 *a) nogil:
-    cdef float length = sqrt(a.x * a.x + a.y * a.y + a.z * a.z)
+    cdef float length = vec3_magnitude(a)
     out.x = a.x / length
     out.y = a.y / length
     out.z = a.z / length
