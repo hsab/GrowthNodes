@@ -8,20 +8,49 @@ class LaplaceNode(bpy.types.Node, UMOGNode):
     bl_label = "Laplace Kernel"
 
     bl_width_default = 150
+    radius = bpy.props.IntProperty(default = 3, step = 2, min = 3)
+    dimension = bpy.props.EnumProperty(items=
+                                            (('0', '1D', '1D'),
+                                            ('1', '2D', '2D'),
+                                            ('2', '3D', '3D'),
+                                            ),
+                                            name="Dimensions")
 
     def init(self, context):
         self.outputs.new("ArraySocketType", "Output")
         super().init(context)
 
     def draw_buttons(self, context, layout):
-        pass
+        layout.prop(self, "radius", text="Radius")
 
     def get_operation(self, input_types):
-        return engine.Operation(
-            engine.CONST,
-            [types.Array(0,3,3,0,0,0)],
-            [types.Array(0,3,3,0,0,0)],
-            [])
+        size = self.radius
+        
+        if self.dimension == '0':
+            return engine.Operation(
+                engine.CONST,
+                [types.Array(0,size,0,0,0,0)],
+                [types.Array(0,size,0,0,0,0)],
+                [])
+        elif self.dimension == '1':
+            return engine.Operation(
+                engine.CONST,
+                [types.Array(0,size,size,0,0,0)],
+                [types.Array(0,size,size,0,0,0)],
+                [])
+        elif self.dimension == '2':
+            return engine.Operation(
+                engine.CONST,
+                [types.Array(0,size,size,size,0,0)],
+                [types.Array(0,size,size,size,0,0)],
+                [])
 
     def get_default_value(self, index, argument_type):
-        return np.array([[0.25, 0.5, 0.25], [0.5, -3, 0.5], [0.25, 0.5, 0.25]], dtype=np.float32, order="F").reshape((1,3,3,1,1))
+    
+        size = self.radius
+        laplace_matrix = np.ones((size, size), dtype=np.float32, order="F")
+        
+        center = size // 2
+        laplace_matrix[center][center] = 1 - (size * size)
+        
+        return laplace_matrix.reshape((1,size,size,1,1))
