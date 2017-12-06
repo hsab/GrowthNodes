@@ -29,7 +29,7 @@ class GaussNode(bpy.types.Node, UMOGNode):
     
         # generate matrix
         size = self.radius
-        gauss_matrix = np.zeros((size, size), dtype=np.float)
+        gauss_matrix = np.zeros((size, size), dtype=np.float32)
         total = 0
         for i in range (-(size - 1)//2, (size - 1)//2 + 1):
             for j in range (-(size - 1)//2, (size - 1)//2 + 1):
