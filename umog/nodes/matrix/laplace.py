@@ -22,6 +22,7 @@ class LaplaceNode(bpy.types.Node, UMOGNode):
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "radius", text="Radius")
+        layout.prop(self, "dimension", text="Dimension")
 
     def get_operation(self, input_types):
         size = self.radius
