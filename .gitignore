@@ -1,7 +1,7 @@
 __pycache__/
 .idea/
-umog/compilation_info.json
-umog/packages/*/
+umog_addon/compilation_info.json
+umog_addon/packages/*/
 *.trace
 *.kate-swp
 .vscode/
