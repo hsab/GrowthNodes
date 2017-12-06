@@ -34,7 +34,7 @@ import traceback
 import numpy
 from os.path import abspath, dirname, join, relpath
 
-addonName = "umog"
+addonName = "umog_addon"
 currentDirectory = dirname(abspath(__file__))
 sourceDirectory = join(currentDirectory, addonName)
 configPath = join(currentDirectory, "config.py")
@@ -150,11 +150,11 @@ def compileCythonFiles():
     sys.argv = [sys.argv[0], "build_ext", "--inplace"]
 
     extensions = cythonize(getPathsToCythonFiles(), compiler_directives={'cdivision': True, 'cdivision_warnings': False})
-    setup(name = 'umog', ext_modules = extensions, include_dirs=[numpy.get_include()])
+    setup(name = 'umog_addon', ext_modules = extensions, include_dirs=[numpy.get_include()])
     print("Compilation Successful.")
 
     sys.argv = [sys.argv[0], "clean"]
-    setup(name = 'umog', ext_modules = extensions)
+    setup(name = 'umog_addon', ext_modules = extensions)
 
 def getPathsToCythonFiles():
     return list(iterPathsWithSuffix(".pyx"))

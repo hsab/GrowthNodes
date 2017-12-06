@@ -1,0 +1,28 @@
+import bpy
+
+bpy.types.Object.bakeCount = bpy.props.IntProperty(
+    name="BakeCount",
+    description="BakeCount",
+    default=1,
+    min=1)
+
+bpy.types.Mesh.bakedKeys = {}
+
+<<<<<<< HEAD
+bpy.types.Object.hasUMOGBaked = bpy.props.BoolProperty(
+    name = "hasUMOGBaked", 
+    description = "hasUMOGBaked",
+    default = False)
+=======
+bpy.types.Scene.SubFrames = bpy.props.IntProperty(
+    name = "SubFrames", 
+    description = "SubFrames",
+    default = 1,
+    min = 1)
+        
+bpy.types.Scene.TextureResolution = bpy.props.IntProperty(
+    name = "TextureResolution", 
+    description = "TextureResolution",
+    default = 512,
+    min = 64)
+>>>>>>> master

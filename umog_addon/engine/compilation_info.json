@@ -1,0 +1,14 @@
+{
+    "os.name": "posix",
+    "Cython.__version__": "0.26.1",
+    "sys.version": "3.5.3 (default, Sep  8 2017, 12:37:37) \n[GCC 4.2.1 Compatible Apple LLVM 6.0 (clang-600.0.57)]",
+    "sys.api_version": 1013,
+    "sys.version_info": [
+        3,
+        5,
+        3,
+        "final",
+        0
+    ],
+    "sys.platform": "darwin"
+}
