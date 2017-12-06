@@ -94,7 +94,7 @@ class EngineNode:
 
     # engine
     def get_operation(self, input_types):
-        return engine.Operation(engine.NOP, [], [])
+        return engine.Operation(engine.NOP, [], [], [])
 
     def get_default_value(self, index, argument_type):
         return None

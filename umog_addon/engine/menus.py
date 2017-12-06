@@ -29,6 +29,18 @@ menus = OrderedDict([
             ("engine_IteratedDisplaceNode", "Iterated Displace"),
         ]
     }),
+    ("sound_menu", {
+        "bl_idname": "engine_sound_menu",
+        "bl_label": "Sound Menu",
+        "text": "Sound",
+        "bl_description": "Nodes that operate on Sounds",
+        "icon": "SOUND",
+        "nodes": [
+            ("engine_LoadAudioNode", "Load Audio"),
+            ("engine_SaveAudioNode", "Save Audio"),
+            ("engine_STFTNode", "Short-Time Fourier Transform")
+        ]
+    }),
     ("texture_menu", {
         "bl_idname": "engine_texture_menu",
         "bl_label": "Texture Menu",
@@ -44,7 +56,7 @@ menus = OrderedDict([
             ("engine_Texture_Muxer_Node", "Mux Channels"),
         ]
     }),
-    ("  ", "separator"),
+    (" ", "separator"),
     ("math_menu", {
         "bl_idname": "engine_math_menu",
         "bl_label": "Math Menu",
@@ -102,6 +114,10 @@ menus = OrderedDict([
             ("engine_Matrix3x3Node", "3x3 Matrix"),
             ("engine_MultiplyMatrixMatrixNode", "Matrix * Matrix"),
             ("engine_MultiplyMatrixVectorNode", "Matrix * Vector"),
+            ("engine_MatrixInverseNode", "Inverse"),
+            ("engine_MatrixTransposeNode", "Transpose"),
+            ("engine_MatrixDeterminantNode", "Determinant"),
+            ("engine_MatrixNormNode", "Norm"),
             ("engine_GaussNode", "Gaussian Blur"),
             ("engine_LaplaceNode", "Laplacian Filter"),
             ("engine_ConvolveNode", "Convolve"),
@@ -122,7 +138,6 @@ menus = OrderedDict([
             ("engine_Texture3MeshNode", "Convert To Mesh"),
         ]
     }),
-        
     ("   ", "separator"),
     ("debug_menu", {
         "bl_idname": "engine_debug_menu",
