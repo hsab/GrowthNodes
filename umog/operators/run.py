@@ -1,9 +1,8 @@
-from ..node_tree import UMOGReferenceHolder
 import bpy
 import time
 
 class runNodeTree(bpy.types.Operator):
-    bl_idname = 'umog.run_node_tree'
+    bl_idname = 'engine.run_node_tree'
     bl_label = 'Run Node Tree'
     bl_options = {"REGISTER", "UNDO"}
 

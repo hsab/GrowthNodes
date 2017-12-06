@@ -20,7 +20,7 @@ class CompilationError(Exception):
 class CyclicNodeGraphError(CompilationError):
     pass
 
-class UMOGTypeError(CompilationError):
+class EngineTypeError(CompilationError):
     pass
 
 def binary_scalar(a, b):
@@ -35,7 +35,7 @@ def binary_scalar(a, b):
 
 def assert_type(type, tag):
     if type.tag != tag:
-        raise UMOGTypeError()
+        raise EngineTypeError()
 
 def broadcast_channels(a, b):
     if a.channels == b.channels:
@@ -45,7 +45,7 @@ def broadcast_channels(a, b):
     elif b.channels == 0:
         channels = a.channels
     else:
-        raise UMOGTypeError()
+        raise EngineTypeError()
 
     return channels
 
@@ -63,7 +63,7 @@ def broadcast_dimensions(a, b):
         y_size = a.y_size
         z_size = a.z_size
     else:
-        raise UMOGTypeError()
+        raise EngineTypeError()
 
     return x_size, y_size, z_size
 
@@ -78,6 +78,6 @@ def broadcast_time(a, b):
         t_start = a.t_start
         t_size = a.t_size
     else:
-        raise UMOGTypeError()
+        raise EngineTypeError()
 
     return t_start, t_size
