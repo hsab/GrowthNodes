@@ -19,33 +19,35 @@ class SaveAudioNode(bpy.types.Node, EngineOutputNode):
     
     def init(self, context):
         self.inputs.new("ArraySocketType", "Array")
-        self.inputs.new("ArraySocketType", "Parameters")
+        # self.inputs.new("ArraySocketType", "Parameters")
         super().init(context)
         
     def draw_buttons(self, context, layout):
         layout.prop(self, "file_path", text="Path")
         layout.prop(self, "file_name", text="File Name")
 
-    def execute(self, refholder):
-    
-        print("Begin Save Audio")
+    def get_operation(self, input_types):
+        types.assert_type(input_types[0], types.ARRAY)
+
+        return engine.Operation(
+            engine.OUT,
+            input_types,
+            [],
+            [])
+
+    def output_value(self, value):
+        audio_array = value.array
+        data = array.array('i')
         
-        audio_array = refholder.matrices[self.inputs[0].links[0].from_socket.matrix_ref]
-        audio_properties = refholder.matrices[self.inputs[1].links[0].from_socket.matrix_ref]        
-        data = array.array('B')
-        
-        for elem in audio_array:
-            data.append(elem)
+        for i in range(audio_array.shape[4]):
+            sample = audio_array[0,0,0,0,i]
+            data.append(int(sample * 127))
         
         path = self.file_path + self.file_name + str(self.file_name_diff) + ".wav"
         
-        output = wave.open(path, 'w')
-        output.setparams((audio_properties[0], audio_properties[1], audio_properties[2], audio_properties[3], 'NONE', 'not compressed'))
-        output.writeframes(data.tostring())
+        output = wave.open(bpy.path.abspath(path), 'w')
+        output.setparams((1, 2, 44100, audio_array.shape[4], 'NONE', 'not compressed'))
+        output.writeframes(data.tobytes())
+        output.close()
 
         self.file_name_diff = self.file_name_diff + 1
-        pass
-
-    def preExecute(self, refholder):
-        self.file_name_diff = 0
-        pass
