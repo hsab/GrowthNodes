@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import traceback
 
 def trace(frame, event, arg):
     print("%s, %s:%d" % (event, frame.f_code.co_filename, frame.f_lineno))
@@ -19,10 +20,11 @@ def OffScreenRender(args, test=False):
             import pyglet_helper
             import numpy as np
         else:
-            from ... packages import pyglet_helper
-            from ... packages import osr_runner
-            from ... packages import pyglet
-            from ....packages.pyglet import gl
+            from .... packages import osr_runner
+            osr_runner.path_changer()
+            from .... packages import pyglet_helper
+            from .... packages import pyglet
+            from .... packages.pyglet import gl
             import ctypes
             import numpy as np
     except:

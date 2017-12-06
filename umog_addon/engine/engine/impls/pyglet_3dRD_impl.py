@@ -12,14 +12,6 @@ def Dummy(steps, in_buffer, out_buffer):
     return True
 
 def OffScreenRender(steps, args, test=False):
-    cpath = os.path.dirname(os.path.realpath(__file__))
-    print(cpath)
-    cpath = os.path.split(cpath)[0]
-    cpath = os.path.split(cpath)[0]
-    cpath = os.path.join(cpath, "packages")
-    print(cpath)
-    if cpath not in sys.path:
-        sys.path.append(cpath)
     try:
         if test:
             import pyglet
@@ -28,8 +20,9 @@ def OffScreenRender(steps, args, test=False):
             import pyglet_helper
             import numpy as np
         else:
-            from .... packages import pyglet_helper
             from .... packages import osr_runner
+            osr_runner.path_changer()
+            from .... packages import pyglet_helper
             from .... packages import pyglet
             from ....packages.pyglet import gl
             import ctypes
