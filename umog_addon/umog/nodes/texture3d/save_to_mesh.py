@@ -1,6 +1,6 @@
 from ... base_types import UMOGNode
 from . import pyglet_tr_impl
-from ...packages import mcubes
+from ....packages import mcubes
 
 import threading
 import sys

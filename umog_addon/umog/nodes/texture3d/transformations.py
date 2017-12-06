@@ -1,6 +1,6 @@
 from ... base_types import UMOGNode
 from . import pyglet_tr_impl
-from ...packages import transformations
+from ....packages import transformations
 
 import threading
 import sys

@@ -1,8 +1,27 @@
+import numpy as np
+import sys
+import os
+import importlib
+import traceback
+
+def trace(frame, event, arg):
+    print("%s, %s:%d" % (event, frame.f_code.co_filename, frame.f_lineno))
+    return trace
+
+
 def Dummy(steps, in_buffer, out_buffer):
     print("dummy")
     return True
 
 def OffScreenRender(steps, args, test=False):
+    cpath = os.path.dirname(os.path.realpath(__file__))
+    print(cpath)
+    cpath = os.path.split(cpath)[0]
+    cpath = os.path.split(cpath)[0]
+    cpath = os.path.join(cpath, "packages")
+    print(cpath)
+    sys.path.append(cpath)
+    print("path mod on 3d rd")
     try:
         if test:
             import pyglet
@@ -11,13 +30,15 @@ def OffScreenRender(steps, args, test=False):
             import pyglet_helper
             import numpy as np
         else:
-            from ... events import pyglet_helper
+            from ... packages import pyglet_helper
+            from ... packages import osr_runner
             from ... packages import pyglet
-            from ...packages.pyglet import gl
+            from ....packages.pyglet import gl
             import ctypes
             import numpy as np
     except:
-        print("imports failed")
+        print("imports failed 3d rd")
+        traceback.print_exc()
         return
             
     print("start of osr, for " + str(steps))
@@ -25,9 +46,11 @@ def OffScreenRender(steps, args, test=False):
         vertex_source = b"""
         #version 330
         attribute vec2 a_position;
-        varying vec2 vTexCoord;
+        varying vec3 vTexCoord;
+        uniform int slice;
+        uniform float step;
         void main() {
-        vTexCoord = 0.5*(a_position.xy + vec2(1,1));
+        vTexCoord = vec3(0.5*(a_position.xy + vec2(1,1)), step * slice);
         gl_Position = vec4(a_position, 0.0, 1.0);
         }
         """
@@ -35,9 +58,9 @@ def OffScreenRender(steps, args, test=False):
         fragment_source_a = b"""
         #version 330
         out vec4 color;
-        varying vec2 vTexCoord;
-        uniform sampler2D A;
-        uniform sampler2D B;
+        varying vec3 vTexCoord;
+        uniform sampler3D A;
+        uniform sampler3D B;
         
         uniform float step;
 
@@ -50,24 +73,29 @@ def OffScreenRender(steps, args, test=False):
         uniform float k;
         uniform float f;
         
+        
         void main() {
         
-        vec4 oldA = texture2D(A, vTexCoord);				
-        vec4 oldB = texture2D(B, vTexCoord);	
+        vec4 oldA = texture3D(A, vTexCoord);				
+        vec4 oldB = texture3D(B, vTexCoord);	
 
         // [rad] Compute approximation of Laplacian for both V and U.
-        vec4 otherA = -4.0 * oldA;
-        vec4 otherB = -4.0 * oldB;
+        vec4 otherA = -6.0 * oldA;
+        vec4 otherB = -6.0 * oldB;
 
-        otherA += texture2D(A, vTexCoord + vec2(-step, 0));
-        otherA += texture2D(A, vTexCoord + vec2(step, 0));
-        otherA += texture2D(A, vTexCoord + vec2(0, -step));
-        otherA += texture2D(A, vTexCoord + vec2(0, step));
+        otherA += texture3D(A, vTexCoord + vec3(-step, 0,0));
+        otherA += texture3D(A, vTexCoord + vec3(step, 0,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, -step,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, step,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, 0, -step));
+        otherA += texture3D(A, vTexCoord + vec3(0, 0,  step));
 
-        otherB += texture2D(B, vTexCoord + vec2(-step, 0));
-        otherB += texture2D(B, vTexCoord + vec2(step, 0));
-        otherB += texture2D(B, vTexCoord + vec2(0, -step));
-        otherB += texture2D(B, vTexCoord + vec2(0, step));
+        otherB += texture3D(B, vTexCoord + vec3(-step, 0,0));
+        otherB += texture3D(B, vTexCoord + vec3(step, 0,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, -step,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, step,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, 0, -step));
+        otherB += texture3D(B, vTexCoord + vec3(0, 0,  step));
 
         float distance_squared = distance * distance;
         
@@ -88,9 +116,9 @@ def OffScreenRender(steps, args, test=False):
         fragment_source_b = b"""
         #version 330
         out vec4 color;
-        varying vec2 vTexCoord;
-        uniform sampler2D A;
-        uniform sampler2D B;
+        varying vec3 vTexCoord;
+        uniform sampler3D A;
+        uniform sampler3D B;
         
         uniform float step;
 
@@ -102,25 +130,30 @@ def OffScreenRender(steps, args, test=False):
 
         uniform float k;
         uniform float f;
+        uniform int slice;
         
         void main() {
         
-        vec4 oldA = texture2D(A, vTexCoord);				
-        vec4 oldB = texture2D(B, vTexCoord);	
+        vec4 oldA = texture3D(A, vTexCoord);				
+        vec4 oldB = texture3D(B, vTexCoord);	
 
         // [rad] Compute approximation of Laplacian for both V and U.
-        vec4 otherA = -4.0 * oldA;
-        vec4 otherB = -4.0 * oldB;
+        vec4 otherA = -6.0 * oldA;
+        vec4 otherB = -6.0 * oldB;
 
-        otherA += texture2D(A, vTexCoord + vec2(-step, 0));
-        otherA += texture2D(A, vTexCoord + vec2(step, 0));
-        otherA += texture2D(A, vTexCoord + vec2(0, -step));
-        otherA += texture2D(A, vTexCoord + vec2(0, step));
+        otherA += texture3D(A, vTexCoord + vec3(-step, 0,0));
+        otherA += texture3D(A, vTexCoord + vec3(step, 0,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, -step,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, step,0));
+        otherA += texture3D(A, vTexCoord + vec3(0, 0, -step));
+        otherA += texture3D(A, vTexCoord + vec3(0, 0,  step));
 
-        otherB += texture2D(B, vTexCoord + vec2(-step, 0));
-        otherB += texture2D(B, vTexCoord + vec2(step, 0));
-        otherB += texture2D(B, vTexCoord + vec2(0, -step));
-        otherB += texture2D(B, vTexCoord + vec2(0, step));
+        otherB += texture3D(B, vTexCoord + vec3(-step, 0,0));
+        otherB += texture3D(B, vTexCoord + vec3(step, 0,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, -step,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, step,0));
+        otherB += texture3D(B, vTexCoord + vec3(0, 0, -step));
+        otherB += texture3D(B, vTexCoord + vec3(0, 0,  step));
 
         float distance_squared = distance * distance;
         
@@ -150,83 +183,83 @@ def OffScreenRender(steps, args, test=False):
             pyglet_helper.link_program(self.programB)
             
         def setupFBOandTextures(self):
-            self.framebufferA0 = gl.GLuint(0)
-            self.framebufferA1 = gl.GLuint(0)
-            self.framebufferB0 = gl.GLuint(0)
-            self.framebufferB1 = gl.GLuint(0)
+            self.framebufferA0 = (gl.GLuint * self.dimz)()
+            self.framebufferA1 = (gl.GLuint * self.dimz)()
+            self.framebufferB0 = (gl.GLuint * self.dimz)()
+            self.framebufferB1 = (gl.GLuint * self.dimz)()
             
             self.A0_tex = gl.GLuint(0)
             self.A1_tex = gl.GLuint(0)
             self.B0_tex = gl.GLuint(0)
             self.B1_tex = gl.GLuint(0)
             
-            self.draw_buffersA0 = (gl.GLenum * 1)(gl.GL_COLOR_ATTACHMENT0)
-            self.draw_buffersA1 = (gl.GLenum * 1)(gl.GL_COLOR_ATTACHMENT0)
-            self.draw_buffersB0 = (gl.GLenum * 1)(gl.GL_COLOR_ATTACHMENT0)
-            self.draw_buffersB1 = (gl.GLenum * 1)(gl.GL_COLOR_ATTACHMENT0)
+            self.draw_buffersA0 = (gl.GLenum * self.dimz)(gl.GL_COLOR_ATTACHMENT0)
+            self.draw_buffersA1 = (gl.GLenum * self.dimz)(gl.GL_COLOR_ATTACHMENT0)
+            self.draw_buffersB0 = (gl.GLenum * self.dimz)(gl.GL_COLOR_ATTACHMENT0)
+            self.draw_buffersB1 = (gl.GLenum * self.dimz)(gl.GL_COLOR_ATTACHMENT0)
             
-            gl.glGenFramebuffers(1, ctypes.byref(self.framebufferA0))
-            gl.glGenFramebuffers(1, ctypes.byref(self.framebufferA1))
-            gl.glGenFramebuffers(1, ctypes.byref(self.framebufferB0))
-            gl.glGenFramebuffers(1, ctypes.byref(self.framebufferB1))
+            #gl.glGenFramebuffers(self.dimz, ctypes.byref(self.framebufferA0))
+            #gl.glGenFramebuffers(self.dimz, ctypes.byref(self.framebufferA1))
+            #gl.glGenFramebuffers(self.dimz, ctypes.byref(self.framebufferB0))
+            #gl.glGenFramebuffers(self.dimz, ctypes.byref(self.framebufferB1))
+            gl.glGenFramebuffers(self.dimz, self.framebufferA0)
+            gl.glGenFramebuffers(self.dimz, self.framebufferA1)
+            gl.glGenFramebuffers(self.dimz, self.framebufferB0)
+            gl.glGenFramebuffers(self.dimz, self.framebufferB1)
             
             gl.glGenTextures(1, ctypes.byref(self.A0_tex))
             gl.glGenTextures(1, ctypes.byref(self.A1_tex))
             gl.glGenTextures(1, ctypes.byref(self.B0_tex))
             gl.glGenTextures(1, ctypes.byref(self.B1_tex))
             
+            
+            #create textures
             #A
             gl.glActiveTexture(gl.GL_TEXTURE0)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, self.A0_tex)
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.Ap)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-            gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.A0_tex, 0)
-            gl.glDrawBuffers(1, self.draw_buffersA0)
-
-            assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
-            
+            gl.glBindTexture(gl.GL_TEXTURE_3D, self.A0_tex)
+            gl.glTexImage3D(gl.GL_TEXTURE_3D, 0, gl.GL_RED, self.dimx, self.dimy, self.dimz, 0, gl.GL_RED, gl.GL_FLOAT, self.Ap)
+            gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
             
             gl.glActiveTexture(gl.GL_TEXTURE1)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1)
-            # Set up the texture as the target for color output
-            gl.glBindTexture(gl.GL_TEXTURE_2D, self.A1_tex)
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.Ap)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-            gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.A1_tex, 0)
-
-            gl.glDrawBuffers(1, self.draw_buffersA1)
-
-            assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
+            gl.glBindTexture(gl.GL_TEXTURE_3D, self.A1_tex)
+            gl.glTexImage3D(gl.GL_TEXTURE_3D, 0, gl.GL_RED, self.dimx, self.dimy, self.dimz, 0, gl.GL_RED, gl.GL_FLOAT, self.Ap)
+            gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
             
             #B
-            
             gl.glActiveTexture(gl.GL_TEXTURE2)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB0)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, self.B0_tex)
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.Bp)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-            gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.B0_tex, 0)
-            gl.glDrawBuffers(1, self.draw_buffersB0)
-
-            assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
-            
+            gl.glBindTexture(gl.GL_TEXTURE_3D, self.B0_tex)
+            gl.glTexImage3D(gl.GL_TEXTURE_3D, 0, gl.GL_RED, self.dimx, self.dimy, self.dimz, 0, gl.GL_RED, gl.GL_FLOAT, self.Bp)
+            gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
             
             gl.glActiveTexture(gl.GL_TEXTURE3)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB1)
-            # Set up the texture as the target for color output
-            gl.glBindTexture(gl.GL_TEXTURE_2D, self.B1_tex)
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.Bp)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-            gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.B1_tex, 0)
-
-            gl.glDrawBuffers(1, self.draw_buffersB1)
-
-            assert gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE
+            gl.glBindTexture(gl.GL_TEXTURE_3D, self.B1_tex)
+            gl.glTexImage3D(gl.GL_TEXTURE_3D, 0, gl.GL_RED, self.dimx, self.dimy, self.dimz, 0, gl.GL_RED, gl.GL_FLOAT, self.Bp)
+            gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            
+            #A
+            for i in range(self.dimz):
+                gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0[i])
+                gl.glFramebufferTexture3D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_3D, self.A0_tex, 0, i)
+                assert(gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE)
+                
+                gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1[i])
+                gl.glFramebufferTexture3D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_3D, self.A1_tex, 0, i)
+                assert(gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE)
+                
+                gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB0[i])
+                gl.glFramebufferTexture3D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_3D, self.B0_tex, 0, i)
+                assert(gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE)
+                
+                gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB1[i])
+                gl.glFramebufferTexture3D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_3D, self.B1_tex, 0, i)
+                assert(gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE)
+                
+            #gl.glDrawBuffers(1, self.draw_buffersA0[i])
+            #gl.glDrawBuffers(1, self.draw_buffersA0)
         
         def __init__(self, frames):
             #consider bumping opengl version if apple supports it
@@ -242,6 +275,7 @@ def OffScreenRender(steps, args, test=False):
             
             self.dimx = args["A"].shape[0]
             self.dimy = args["A"].shape[1]
+            self.dimz = args["A"].shape[2]
             
             
             
@@ -295,6 +329,15 @@ def OffScreenRender(steps, args, test=False):
             self.dB_pos_A    = gl.glGetUniformLocation(self.programA, b"dB")
             self.dt_pos_A    = gl.glGetUniformLocation(self.programA, b"timestep")
             self.step_pos_A  = gl.glGetUniformLocation(self.programA, b"step")
+            self.slice_pos_A  = gl.glGetUniformLocation(self.programA, b"slice")
+            self.checkUniformLocation(self.tex_pos_A_A)
+            self.checkUniformLocation(self.tex_pos_A_B)
+            self.checkUniformLocation(self.feed_pos_A)
+            self.checkUniformLocation(self.kill_pos_A)
+            self.checkUniformLocation(self.dA_pos_A)
+            self.checkUniformLocation(self.dB_pos_A)
+            self.checkUniformLocation(self.step_pos_A)
+            self.checkUniformLocation(self.slice_pos_A)
             gl.glUniform1f(self.feed_pos_A, args["feed"])
             gl.glUniform1f(self.kill_pos_A, args["kill"])
             gl.glUniform1f(self.dA_pos_A, args["dA"])
@@ -319,6 +362,15 @@ def OffScreenRender(steps, args, test=False):
             self.dB_pos_B    = gl.glGetUniformLocation(self.programB, b"dB")
             self.dt_pos_B    = gl.glGetUniformLocation(self.programB, b"timestep")
             self.step_pos_B  = gl.glGetUniformLocation(self.programB, b"step")
+            self.slice_pos_B  = gl.glGetUniformLocation(self.programB, b"slice")
+            self.checkUniformLocation(self.tex_pos_B_A)
+            self.checkUniformLocation(self.tex_pos_B_B)
+            self.checkUniformLocation(self.feed_pos_B)
+            self.checkUniformLocation(self.kill_pos_B)
+            self.checkUniformLocation(self.dA_pos_B)
+            self.checkUniformLocation(self.dB_pos_B)
+            self.checkUniformLocation(self.step_pos_B)
+            self.checkUniformLocation(self.slice_pos_B)
             gl.glUniform1f(self.feed_pos_B, args["feed"])
             gl.glUniform1f(self.kill_pos_B, args["kill"])
             gl.glUniform1f(self.dA_pos_B, args["dA"])
@@ -331,16 +383,22 @@ def OffScreenRender(steps, args, test=False):
             #self.clear()
             
         def cleanUP(self):
-            a = (gl.GLint * (self.dimx*self.dimy*4))()
-            b = (gl.GLint * (self.dimx*self.dimy*4))()
-            gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, b)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1);
-            gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, a)
+            a = (gl.GLint * (self.dimx*self.dimy*self.dimz))()
+            b = (gl.GLint * (self.dimx*self.dimy*self.dimz))()
+            #need a new way to read out pixels
+            #gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, b)
+            #gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1);
+            #gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, a)
+            gl.glBindTexture(gl.GL_TEXTURE_3D, self.A1_tex)
+            gl.glGetTexImage(gl.GL_TEXTURE_3D, 0, gl.GL_RED, gl.GL_FLOAT, a)
+            gl.glBindTexture(gl.GL_TEXTURE_3D, self.B1_tex)
+            gl.glGetTexImage(gl.GL_TEXTURE_3D, 0, gl.GL_RED, gl.GL_FLOAT, b)
+            
             
             #self.flip() # This updates the screen, very much important.
             gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
             
-            bufA = np.frombuffer(b, dtype=np.float32)
+            bufA = np.frombuffer(a, dtype=np.float32)
             bufB = np.frombuffer(b, dtype=np.float32)
             
             bufA = bufA.reshape(args["A"].shape)
@@ -349,6 +407,10 @@ def OffScreenRender(steps, args, test=False):
             #consider casting to float64
             args["Bout"] = bufB
             args["Aout"] = bufA
+        
+        def checkUniformLocation(self,val):
+            assert(val != gl.GL_INVALID_VALUE)
+            assert(val != gl.GL_INVALID_OPERATION)
         
         def on_draw(self):
             self.render()
@@ -360,41 +422,38 @@ def OffScreenRender(steps, args, test=False):
             gl.glUseProgram(self.programA)
             gl.glUniform1i(self.tex_pos_A_A, 1)
             gl.glUniform1i(self.tex_pos_A_B, 3)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0);
+            for i in range(self.dimz):
+                gl.glUniform1i(self.slice_pos_A, i)
+                gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0[i])
+                gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+                gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
             
-            gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-            
-            gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
             gl.glUseProgram(self.programB)
-            
             gl.glUniform1i(self.tex_pos_B_A, 1)
             gl.glUniform1i(self.tex_pos_B_B, 3)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB0);
-            
-            gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-            
-            gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
-            
-            
+            for i in range(self.dimz):
+                gl.glUniform1i(self.slice_pos_B, i)
+                gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB0[i])
+                gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+                gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
             
             gl.glUseProgram(self.programA)
             gl.glUniform1i(self.tex_pos_A_A, 0)
             gl.glUniform1i(self.tex_pos_A_B, 2)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1);
-            
-            
-            gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-            
-            gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
+            for i in range(self.dimz):
+                gl.glUniform1i(self.slice_pos_A, i)
+                gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1[i])
+                gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+                gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
             
             gl.glUseProgram(self.programB)
             gl.glUniform1i(self.tex_pos_B_A, 0)
             gl.glUniform1i(self.tex_pos_B_B, 2)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB1);
-            
-            gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-            
-            gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
+            for i in range(self.dimz):
+                gl.glUniform1i(self.slice_pos_B, i)
+                gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferB1[i])
+                gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+                gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
 
             
         
@@ -411,14 +470,26 @@ def OffScreenRender(steps, args, test=False):
                 event = self.dispatch_events()
                 
     cr = ControledRender(steps)
-    cr.run()
-    cr.cleanUP()
-    cr.close()
+    osr_runner.runner(cr)
     #del cr
     #cr = None
     print("end of osr")
     
 if __name__ == "__main__":
-    curr = {}
-    curr["buffer"] = {}
-    OffScreenRender(4,curr, test=True)
+    #sys.settrace(trace)
+    import time
+    start = time.time()
+    
+    temps = {}
+    temps["A"] = np.random.rand(256, 256, 256)
+    temps["B"] = np.random.rand(256, 256, 256)
+    temps["feed"] = 0.05
+    temps["kill"] = 0.05
+    temps["dA"] = 1.0
+    temps["dB"] = 0.5
+    temps["dt"] = 0.2
+    OffScreenRender(6000,temps, test=True)
+    
+    end = time.time()
+    print("the 3d reaction diffusion took " + str(end-start))
+    

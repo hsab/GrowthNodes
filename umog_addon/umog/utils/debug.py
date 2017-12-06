@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import sys
 import os
 
-from ..preferences import getDeveloperSettings
+from ...preferences import getDeveloperSettings
 
 def DBG(*messages, **options):
     try:

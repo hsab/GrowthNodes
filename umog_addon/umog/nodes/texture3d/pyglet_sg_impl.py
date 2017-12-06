@@ -22,7 +22,7 @@ def OffScreenRender(args, test=False):
             from ... packages import pyglet_helper
             from ... packages import osr_runner
             from ... packages import pyglet
-            from ...packages.pyglet import gl
+            from ....packages.pyglet import gl
             import ctypes
             import numpy as np
     except:

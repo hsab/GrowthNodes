@@ -1,8 +1,5 @@
 import numpy as np
 import sys
-import os
-import importlib
-import traceback
 
 def trace(frame, event, arg):
     print("%s, %s:%d" % (event, frame.f_code.co_filename, frame.f_lineno))
@@ -13,15 +10,7 @@ def Dummy(steps, in_buffer, out_buffer):
     print("dummy")
     return True
 
-def OffScreenRender( args, test=False):
-    #add packages to the path
-    cpath = os.path.dirname(os.path.realpath(__file__))
-    print(cpath)
-    cpath = os.path.split(cpath)[0]
-    cpath = os.path.split(cpath)[0]
-    cpath = os.path.join(cpath, "packages")
-    print(cpath)
-    sys.path.append(cpath)
+def OffScreenRender(args, test=False):
     try:
         if test:
             import pyglet
@@ -33,7 +22,7 @@ def OffScreenRender( args, test=False):
             from ... packages import pyglet_helper
             from ... packages import osr_runner
             from ... packages import pyglet
-            from ...packages.pyglet import gl
+            from ....packages.pyglet import gl
             import ctypes
             import numpy as np
     except:
@@ -41,10 +30,10 @@ def OffScreenRender( args, test=False):
         traceback.print_exc()
         return
             
-    print("start of osr, for generation")
+    #print("start of osr, for " + str(steps))
     class ControledRender(pyglet.window.Window):
         vertex_source = b"""
-        #version 330
+        #version 400
         attribute vec2 a_position;
         varying vec3 vTexCoord;
         uniform int slice;
@@ -56,84 +45,65 @@ def OffScreenRender( args, test=False):
         """
         
         fragment_source_a = b"""
-        #version 330
+        #version 400
         out float color;
         varying vec3 vTexCoord;
-
-        uniform float radius;
-        uniform vec3 center;
+        uniform sampler2D A;
         
+        vec3 p1 = vec3(0.5, 1.0, 0.5);
+        vec3 p2 = vec3(0.5, 0.0, 0.5);
         
         void main() {
+        vec3 n = cross((p2-p1), (p1-vTexCoord));
+        float dist = length(n);
         
-        if(distance(vTexCoord, center) < radius)
-        {
-            color = 1.0;
-        }
-        else
-        {
-            color = 0.0;
-        }
+        color = texture2D(A, vec2(vTexCoord.y,dist)).r;
+        
         }
         """
         
-        fragment_source_cylinder = b"""
-        #version 330
-        out float color;
-        varying vec3 vTexCoord;
-
-        uniform float radius;
-        uniform float height;
-        
-        
-        void main() {
-        
-        if((distance(vTexCoord.xy, vec2(0.5, 0.5)) < radius) && (vTexCoord.z < height))
-        {
-            color = 1.0;
-        }
-        else
-        {
-            color = 0.0;
-        }
-        }
-        """
         
         def setupShaders(self):
             self.programA = gl.glCreateProgram()
             gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_VERTEX_SHADER, self.vertex_source))
-            if args["shape"] == "sphere":
-                gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_a))
-            elif args["shape"] == "cylinder":
-                gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_cylinder))
+
+            gl.glAttachShader(self.programA, pyglet_helper.compile_shader(gl.GL_FRAGMENT_SHADER, self.fragment_source_a))
             pyglet_helper.link_program(self.programA)
             
         def setupFBOandTextures(self):
-            self.framebufferA0 = (gl.GLuint * args["resolution"])()
+            self.framebufferA0 = (gl.GLuint * args["outResolution"])()
             
             self.A0_tex = gl.GLuint(0)
+            self.A1_tex = gl.GLuint(0)
             
-            self.draw_buffersA0 = (gl.GLenum * args["resolution"])(gl.GL_COLOR_ATTACHMENT0)
+            self.draw_buffersA0 = (gl.GLenum * args["outResolution"])(gl.GL_COLOR_ATTACHMENT0)
             
-            gl.glGenFramebuffers(args["resolution"], self.framebufferA0)
+            gl.glGenFramebuffers(args["outResolution"], self.framebufferA0)
             
             gl.glGenTextures(1, ctypes.byref(self.A0_tex))
+            gl.glGenTextures(1, ctypes.byref(self.A1_tex))
+            
             
             #create textures
             #A
             gl.glActiveTexture(gl.GL_TEXTURE0)
-            gl.glBindTexture(gl.GL_TEXTURE_3D, self.A0_tex)
-            gl.glTexImage3D(gl.GL_TEXTURE_3D, 0, gl.GL_RED, args["resolution"], args["resolution"], args["resolution"], 0, gl.GL_RED, gl.GL_FLOAT, 0)
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.A0_tex)
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.Ap)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            
+            gl.glActiveTexture(gl.GL_TEXTURE1)
+            gl.glBindTexture(gl.GL_TEXTURE_3D, self.A1_tex)
+            gl.glTexImage3D(gl.GL_TEXTURE_3D, 0, gl.GL_RED, args["outResolution"], args["outResolution"], args["outResolution"], 0, gl.GL_RED, gl.GL_FLOAT, 0)
             gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
             gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
             
             
             #A
-            for i in range(args["resolution"]):
+            for i in range(args["outResolution"]):
                 gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0[i])
-                gl.glFramebufferTexture3D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_3D, self.A0_tex, 0, i)
+                gl.glFramebufferTexture3D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_3D, self.A1_tex, 0, i)
                 assert(gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE)
-                
                 
             #gl.glDrawBuffers(1, self.draw_buffersA0[i])
             #gl.glDrawBuffers(1, self.draw_buffersA0)
@@ -147,6 +117,22 @@ def OffScreenRender( args, test=False):
             self.vertex_buffer = gl.GLuint(0)
             self.vao = gl.GLuint(0)
             #self.prev_program = (gl.GLint * 1)()
+            
+            
+            self.dimx = args["A"].shape[0]
+            self.dimy = args["A"].shape[1]
+            self.dimz = args["A"].shape[2]
+            
+            
+            
+            A = args["A"].astype(np.float32)
+            #print("A shape " + str(A.shape))
+            #print(str(A.dtype))
+            #print(A)
+            
+            
+            #self.dp = self.tdata.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
+            self.Ap = A.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
             
             
             self.setupFBOandTextures()
@@ -180,37 +166,27 @@ def OffScreenRender( args, test=False):
             gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertex_buffer)
             gl.glVertexAttribPointer(self.pos_posA, 2, gl.GL_FLOAT, False, 0, 0)
             
-            if args["shape"] == "sphere":
-                self.radius_pos = gl.glGetUniformLocation(self.programA, b"radius")
-                self.center_pos = gl.glGetUniformLocation(self.programA, b"center")
-                self.checkUniformLocation(self.radius_pos)
-                self.checkUniformLocation(self.center_pos)
-                gl.glUniform1f(self.radius_pos, args["radius"])
-                gl.glUniform3f(self.center_pos, args["center"][0], args["center"][1], args["center"][2])
-            elif args["shape"] == "cylinder":
-                self.radius_pos = gl.glGetUniformLocation(self.programA, b"radius")
-                self.height_pos = gl.glGetUniformLocation(self.programA, b"height")
-                self.checkUniformLocation(self.radius_pos)
-                self.checkUniformLocation(self.height_pos)
-                gl.glUniform1f(self.radius_pos, args["radius"])
-                gl.glUniform1f(self.height_pos, args["height"])
-                
-            self.slice_pos  = gl.glGetUniformLocation(self.programA, b"slice")
-            self.step_pos  = gl.glGetUniformLocation(self.programA, b"step")
-            
-            self.checkUniformLocation(self.slice_pos)
-            
-            gl.glUniform1f(self.step_pos, 1/args["resolution"])
+            self.tex_pos_A = gl.glGetUniformLocation(self.programA, b"A")
+            self.step_pos_A  = gl.glGetUniformLocation(self.programA, b"step")
+            self.slice_pos_A  = gl.glGetUniformLocation(self.programA, b"slice")
+            self.checkUniformLocation(self.tex_pos_A)
+            self.checkUniformLocation(self.step_pos_A)
+            self.checkUniformLocation(self.slice_pos_A)
+
             #may need changed for nonsquare textures
+            gl.glUniform1f(self.step_pos_A, 1/args["outResolution"])
             
-            gl.glViewport(0,0,args["resolution"],args["resolution"])
+            gl.glViewport(0,0,args["outResolution"],args["outResolution"])
             #self.clear()
             
         def cleanUP(self):
-            a = (gl.GLfloat * (args["resolution"] ** 3))()
-            gl.glBindTexture(gl.GL_TEXTURE_3D, self.A0_tex)
+            a = (gl.GLint * (args["outResolution"]* args["outResolution"] *args["outResolution"]))()
+            #need a new way to read out pixels
+            #gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, b)
+            #gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1);
+            #gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, a)
+            gl.glBindTexture(gl.GL_TEXTURE_3D, self.A1_tex)
             gl.glGetTexImage(gl.GL_TEXTURE_3D, 0, gl.GL_RED, gl.GL_FLOAT, a)
-
             
             
             #self.flip() # This updates the screen, very much important.
@@ -218,8 +194,8 @@ def OffScreenRender( args, test=False):
             
             bufA = np.frombuffer(a, dtype=np.float32)
             
-            bufA = bufA.reshape((args["resolution"], args["resolution"], args["resolution"]))
-            
+            bufA = bufA.reshape((args["outResolution"], args["outResolution"], args["outResolution"]))
+
             #consider casting to float64
             args["Aout"] = bufA
         
@@ -235,8 +211,9 @@ def OffScreenRender( args, test=False):
 
         def render(self):
             gl.glUseProgram(self.programA)
-            for i in range(args["resolution"]):
-                gl.glUniform1i(self.slice_pos, i)
+            gl.glUniform1i(self.tex_pos_A, 0)
+            for i in range(args["outResolution"]):
+                gl.glUniform1i(self.slice_pos_A, i)
                 gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0[i])
                 gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
                 gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
@@ -252,7 +229,8 @@ def OffScreenRender( args, test=False):
             # Basically it flushes the event pool that otherwise
             # fill up and block the buffers and hangs stuff.
             event = self.dispatch_events()
-    cr = ControledRender()       
+                
+    cr = ControledRender()
     osr_runner.runner(cr)
     #del cr
     #cr = None
@@ -264,18 +242,10 @@ if __name__ == "__main__":
     start = time.time()
     
     temps = {}
-    temps["shape"] = "sphere"
-    #temps["radius"] = 0.2
-    ##just needs to be indexable not necissarily a tuple
-    temps["center"] = (0.5,0.5, 0.5)
-    #OffScreenRender(temps, test=True)
-    
-    #temps["shape"] = "cylinder"
-    temps["radius"] = 0.3
-    temps["height"] = 1.0
-    temps["resolution"] = 256
+    temps["A"] = np.random.rand(256, 256, 4)
+    temps["outResolution"] = 256
     OffScreenRender(temps, test=True)
-    print(temps["Aout"])
+    
     end = time.time()
     print("the 3d reaction diffusion took " + str(end-start))
     

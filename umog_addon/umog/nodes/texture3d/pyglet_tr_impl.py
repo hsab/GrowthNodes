@@ -22,18 +22,17 @@ def OffScreenRender(args, test=False):
             from ... packages import pyglet_helper
             from ... packages import osr_runner
             from ... packages import pyglet
-            from ...packages.pyglet import gl
+            from ....packages.pyglet import gl
             import ctypes
             import numpy as np
     except:
         print("imports failed")
-        traceback.print_exc()
         return
             
     #print("start of osr, for " + str(steps))
     class ControledRender(pyglet.window.Window):
         vertex_source = b"""
-        #version 400
+        #version 330
         attribute vec2 a_position;
         varying vec3 vTexCoord;
         uniform int slice;
@@ -45,20 +44,16 @@ def OffScreenRender(args, test=False):
         """
         
         fragment_source_a = b"""
-        #version 400
+        #version 330
         out float color;
         varying vec3 vTexCoord;
-        uniform sampler2D A;
+        uniform sampler3D A;
         
-        vec3 p1 = vec3(0.5, 1.0, 0.5);
-        vec3 p2 = vec3(0.5, 0.0, 0.5);
+        uniform mat4 transform;
+        
         
         void main() {
-        vec3 n = cross((p2-p1), (p1-vTexCoord));
-        float dist = length(n);
-        
-        color = texture2D(A, vec2(vTexCoord.y,dist)).r;
-        
+        color = texture3D(A, (transform*vec4(vTexCoord, 1.0)).xyz).r;				
         }
         """
         
@@ -71,14 +66,14 @@ def OffScreenRender(args, test=False):
             pyglet_helper.link_program(self.programA)
             
         def setupFBOandTextures(self):
-            self.framebufferA0 = (gl.GLuint * args["outResolution"])()
+            self.framebufferA0 = (gl.GLuint * self.dimz)()
             
             self.A0_tex = gl.GLuint(0)
             self.A1_tex = gl.GLuint(0)
             
-            self.draw_buffersA0 = (gl.GLenum * args["outResolution"])(gl.GL_COLOR_ATTACHMENT0)
+            self.draw_buffersA0 = (gl.GLenum * self.dimz)(gl.GL_COLOR_ATTACHMENT0)
             
-            gl.glGenFramebuffers(args["outResolution"], self.framebufferA0)
+            gl.glGenFramebuffers(self.dimz, self.framebufferA0)
             
             gl.glGenTextures(1, ctypes.byref(self.A0_tex))
             gl.glGenTextures(1, ctypes.byref(self.A1_tex))
@@ -87,20 +82,20 @@ def OffScreenRender(args, test=False):
             #create textures
             #A
             gl.glActiveTexture(gl.GL_TEXTURE0)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, self.A0_tex)
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.dimx, self.dimy, 0, gl.GL_RGBA, gl.GL_FLOAT, self.Ap)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            gl.glBindTexture(gl.GL_TEXTURE_3D, self.A0_tex)
+            gl.glTexImage3D(gl.GL_TEXTURE_3D, 0, gl.GL_RED, self.dimx, self.dimy, self.dimz, 0, gl.GL_RED, gl.GL_FLOAT, self.Ap)
+            gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
             
             gl.glActiveTexture(gl.GL_TEXTURE1)
             gl.glBindTexture(gl.GL_TEXTURE_3D, self.A1_tex)
-            gl.glTexImage3D(gl.GL_TEXTURE_3D, 0, gl.GL_RED, args["outResolution"], args["outResolution"], args["outResolution"], 0, gl.GL_RED, gl.GL_FLOAT, 0)
+            gl.glTexImage3D(gl.GL_TEXTURE_3D, 0, gl.GL_RED, self.dimx, self.dimy, self.dimz, 0, gl.GL_RED, gl.GL_FLOAT, 0)
             gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
             gl.glTexParameteri(gl.GL_TEXTURE_3D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
             
             
             #A
-            for i in range(args["outResolution"]):
+            for i in range(self.dimz):
                 gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0[i])
                 gl.glFramebufferTexture3D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_3D, self.A1_tex, 0, i)
                 assert(gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) == gl.GL_FRAMEBUFFER_COMPLETE)
@@ -133,6 +128,10 @@ def OffScreenRender(args, test=False):
             
             #self.dp = self.tdata.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
             self.Ap = A.ctypes.data_as(ctypes.POINTER(ctypes.c_void_p))
+            
+            T = args["transform"].astype(np.float32)
+            
+            self.Tp = T.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
             
             
             self.setupFBOandTextures()
@@ -167,20 +166,24 @@ def OffScreenRender(args, test=False):
             gl.glVertexAttribPointer(self.pos_posA, 2, gl.GL_FLOAT, False, 0, 0)
             
             self.tex_pos_A = gl.glGetUniformLocation(self.programA, b"A")
+            self.transform_pos = gl.glGetUniformLocation(self.programA, b"transform")
             self.step_pos_A  = gl.glGetUniformLocation(self.programA, b"step")
             self.slice_pos_A  = gl.glGetUniformLocation(self.programA, b"slice")
             self.checkUniformLocation(self.tex_pos_A)
+            self.checkUniformLocation(self.transform_pos)
             self.checkUniformLocation(self.step_pos_A)
             self.checkUniformLocation(self.slice_pos_A)
 
+            gl.glUniformMatrix4fv(self.transform_pos, 1, True, self.Tp)
+            #gl.glUniformMatrix4fv(self.transform_pos, 1, False, self.Tp)
             #may need changed for nonsquare textures
-            gl.glUniform1f(self.step_pos_A, 1/args["outResolution"])
+            gl.glUniform1f(self.step_pos_A, 1/self.dimx)
             
-            gl.glViewport(0,0,args["outResolution"],args["outResolution"])
+            gl.glViewport(0,0,self.dimx,self.dimy)
             #self.clear()
             
         def cleanUP(self):
-            a = (gl.GLint * (args["outResolution"]* args["outResolution"] *args["outResolution"]))()
+            a = (gl.GLfloat * (self.dimx*self.dimy*self.dimz))()
             #need a new way to read out pixels
             #gl.glReadPixels(0, 0, self.dimx, self.dimy , gl.GL_RGBA, gl.GL_FLOAT, b)
             #gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA1);
@@ -194,7 +197,7 @@ def OffScreenRender(args, test=False):
             
             bufA = np.frombuffer(a, dtype=np.float32)
             
-            bufA = bufA.reshape((args["outResolution"], args["outResolution"], args["outResolution"]))
+            bufA = bufA.reshape(args["A"].shape)
 
             #consider casting to float64
             args["Aout"] = bufA
@@ -212,7 +215,7 @@ def OffScreenRender(args, test=False):
         def render(self):
             gl.glUseProgram(self.programA)
             gl.glUniform1i(self.tex_pos_A, 0)
-            for i in range(args["outResolution"]):
+            for i in range(self.dimz):
                 gl.glUniform1i(self.slice_pos_A, i)
                 gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebufferA0[i])
                 gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
@@ -242,8 +245,13 @@ if __name__ == "__main__":
     start = time.time()
     
     temps = {}
-    temps["A"] = np.random.rand(256, 256, 4)
-    temps["outResolution"] = 256
+    temps["A"] = np.random.rand(256, 256, 256)
+    #temps["transform"] = np.identity(4)
+    temps["transform"] = np.array([[ 1, 0,   0,   0 ],
+                                    [ 0.,   1.,   0.,   0.2],
+                                    [ 0.,   0.,   1.,   0. ],
+                                    [ 0.,   0.,   0.,   1. ]]
+                                    )
     OffScreenRender(temps, test=True)
     
     end = time.time()
