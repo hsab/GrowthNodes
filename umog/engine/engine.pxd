@@ -8,7 +8,6 @@ from array cimport *
 
 import numpy as np
 cimport numpy as np
-from numpy import linalg as la
 
 # instructions
 
@@ -311,59 +310,7 @@ cdef inline void matrix_transpose(Array out, Array a) nogil:
         for y in prange(out.array.shape[2]):
             for x in prange(out.array.shape[1]):
                 out.array[0,x,y,0,t] = a.array[0,y,x,0,t]
- 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef inline void matrix_determinant(Array out, Array a):
-    cdef np.ndarray[float, ndim=2, mode="fortran"] input
-    for t in range(out.array.shape[4]):
-        input = <np.ndarray[float, ndim=2, mode="fortran"]>a.array[0, : , :, 0, t]
-        out.array[0, 0, 0, 0, t] = la.det(input)
-        
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef inline void matrix_inverse(Array out, Array a):
-    cdef np.ndarray[float, ndim=2, mode="fortran"] input
-    for t in range(out.array.shape[4]):
-        input = <np.ndarray[float, ndim=2, mode="fortran"]>a.array[0, : , :, 0, t]
-        if la.det(input) != 0:
-            out.array[0, :, :, 0, t] = la.inv(input)
-        else:
-            out.array = a.array
-        
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef inline void matrix_norm_fro(Array out, Array a):
-    cdef np.ndarray[float, ndim=2, mode="fortran"] input
-    for t in range(out.array.shape[4]):
-        input = <np.ndarray[float, ndim=2, mode="fortran"]>a.array[0, : , :, 0, t]
-        out.array[0, 0, 0, 0, t] = la.norm(input, 'fro')
-        
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef inline void matrix_norm_1(Array out, Array a):
-    cdef np.ndarray[float, ndim=2, mode="fortran"] input
-    for t in range(out.array.shape[4]):
-        input = <np.ndarray[float, ndim=2, mode="fortran"]>a.array[0, : , :, 0, t]
-        out.array[0, 0, 0, 0, t] = la.norm(input,1)
-        
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef inline void matrix_norm_2(Array out, Array a):
-    cdef np.ndarray[float, ndim=2, mode="fortran"] input
-    for t in range(out.array.shape[4]):
-        input = <np.ndarray[float, ndim=2, mode="fortran"]>a.array[0, : , :, 0, t]
-        out.array[0, 0, 0, 0, t] = la.norm(input, 2)
 
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef inline void matrix_norm_inf(Array out, Array a):
-    cdef np.ndarray[float, ndim=2, mode="fortran"] input
-    for t in range(out.array.shape[4]):
-        input = <np.ndarray[float, ndim=2, mode="fortran"]>a.array[0, : , :, 0, t]
-        out.array[0, 0, 0, 0, t] = la.norm(input, np.inf)
-                
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef inline void multiply_matrix_matrix(Array out, Array a, Array b) nogil:

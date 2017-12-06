@@ -7,7 +7,7 @@ from numpy import linalg as la
 class MatrixInverseNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_MatrixInverseNode"
     bl_label = "UMOG Matrix Inverse"
-    bl_width_min = 200
+    bl_width_min = 150
     
     def init(self, context):
         self.outputs.new("ArraySocketType", "out")

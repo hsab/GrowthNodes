@@ -29,28 +29,29 @@ class MatrixNormNode(bpy.types.Node, UMOGNode):
             
         output_types = [types.Array(0, 0, 0, 0, input_types[0].t_start, input_types[0].t_size)]
         
-        if self.norms == 0:
+        print(self.norms)
+        if self.norms == '0':
             return engine.Operation(
                 engine.MATRIX_NORM_FRO,
                 input_types,
                 output_types,
                 [])
                 
-        elif self.norms == 1:
+        elif self.norms == '1':
             return engine.Operation(
                 engine.MATRIX_NORM_1,
                 input_types,
                 output_types,
                 []) 
                 
-        elif self.norms == 2:
+        elif self.norms == '2':
             return engine.Operation(
                 engine.MATRIX_NORM_2,
                 input_types,
                 output_types,
                 [])
                 
-        elif self.norms == 3:
+        elif self.norms == '3':
             return engine.Operation(
                 engine.MATRIX_NORM_INF,
                 input_types,

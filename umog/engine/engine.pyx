@@ -1,5 +1,6 @@
 import numpy as np
 cimport numpy as np
+from numpy import linalg as la
 
 import bpy
 
@@ -306,3 +307,57 @@ cpdef float[:,:,:,:,:] sequence(int start, int end):
     for i in range(start, end):
         result[0,0,0,0,i] = <float>i
     return result
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef inline void matrix_determinant(Array out, Array a):
+    cdef np.ndarray[float, ndim=2, mode="fortran"] input
+    for t in range(out.array.shape[4]):
+        input = np.asarray(a.array[0, : , :, 0, t])
+        out.array[0, 0, 0, 0, t] = la.det(input)
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef inline void matrix_inverse(Array out, Array a):
+    cdef float[:,:] input
+    cdef float[:,:] output
+    for t in range(out.array.shape[4]):
+        input = np.asarray(a.array[0, : , :, 0, t])
+        if la.det(input) != 0:
+            output = la.inv(input)
+            out.array[0, :, :, 0, t] = output
+        else:
+            out.array = a.array
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef inline void matrix_norm_fro(Array out, Array a):
+    cdef np.ndarray[float, ndim=2, mode="fortran"] input
+    for t in range(out.array.shape[4]):
+        input = np.asarray(a.array[0, : , :, 0, t])
+        out.array[0, 0, 0, 0, t] = la.norm(input, 'fro')
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef inline void matrix_norm_1(Array out, Array a):
+    cdef np.ndarray[float, ndim=2, mode="fortran"] input
+    for t in range(out.array.shape[4]):
+        input = np.asarray(a.array[0, : , :, 0, t])
+        out.array[0, 0, 0, 0, t] = la.norm(input,1)
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef inline void matrix_norm_2(Array out, Array a):
+    cdef np.ndarray[float, ndim=2, mode="fortran"] input
+    for t in range(out.array.shape[4]):
+        input = np.asarray(a.array[0, : , :, 0, t])
+        out.array[0, 0, 0, 0, t] = la.norm(input, 2)
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef inline void matrix_norm_inf(Array out, Array a):
+    cdef np.ndarray[float, ndim=2, mode="fortran"] input
+    for t in range(out.array.shape[4]):
+        input = np.asarray(a.array[0, : , :, 0, t])
+        out.array[0, 0, 0, 0, t] = la.norm(input, np.inf)
+
