@@ -7,7 +7,6 @@ from numpy import linalg as la
 class MatrixDeterminantNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_MatrixDeterminantNode"
     bl_label = "UMOG Matrix Determinant"
-    bl_width_min = 200
     
     def init(self, context):
         self.outputs.new("ScalarSocketType", "out")

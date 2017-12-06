@@ -7,7 +7,6 @@ from numpy import linalg as la
 class MatrixNormNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_MatrixNormNode"
     bl_label = "UMOG Matrix Norm"
-    bl_width_min = 200
                                          
     norms = bpy.props.EnumProperty(items=
                                             (('0', 'Frobenius Norm', 'F-norm'),

@@ -6,7 +6,6 @@ import numpy as np
 class MatrixTransposeNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_MatrixTransposeNode"
     bl_label = "UMOG Matrix Transpose"
-    bl_width_min = 200
     
     def init(self, context):
         self.inputs.new("ArraySocketType", "a")

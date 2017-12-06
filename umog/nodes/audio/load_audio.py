@@ -8,7 +8,7 @@ import numpy as np
 import wave
 import array
 
-class LoadAudioNode(bpy.types.Node, UMOGOutputNode):
+class LoadAudioNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_LoadAudioNode"
     bl_label = "Load Audio Node"
 

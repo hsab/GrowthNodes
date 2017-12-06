@@ -6,6 +6,7 @@ from libc.stdio cimport printf
 from data cimport *
 from array cimport *
 
+import numpy as np
 cimport numpy as np
 from numpy import linalg as la
 
