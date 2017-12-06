@@ -1,4 +1,4 @@
-from ..packages.cymem.cymem cimport Pool
+from ...packages.cymem.cymem cimport Pool
 from vector cimport *
 from data cimport *
 from array cimport Array

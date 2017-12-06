@@ -6,7 +6,7 @@ from libc.math cimport atan2, asin, acos, fmin, fmax, M_PI
 from libc.stdlib cimport qsort
 from libc.stdlib cimport malloc, free
 
-from ..packages.cymem.cymem cimport Pool
+from ...packages.cymem.cymem cimport Pool
 
 from data cimport *
 from array cimport *

@@ -2,7 +2,7 @@ import numpy as np
 cimport numpy as np
 import cython
 from cython.parallel import prange
-from ..packages.cymem.cymem cimport Pool
+from ...packages.cymem.cymem cimport Pool
 from libc.string cimport memset, memcpy
 from libc.math cimport fmod
 from data cimport *

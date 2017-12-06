@@ -1,4 +1,4 @@
-from ..packages.cymem.cymem cimport Pool
+from ...packages.cymem.cymem cimport Pool
 from data cimport *
 
 cdef class Array(Data):

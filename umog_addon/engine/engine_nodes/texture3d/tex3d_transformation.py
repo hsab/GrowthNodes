@@ -5,7 +5,7 @@ import sys
 import bpy
 import copy
 import numpy as np
-from ...packages import transformations
+from ....packages import transformations
 
 class EngineTexture3TransformNode(bpy.types.Node, EngineNode):
     bl_idname = "engine_Texture3TransformNode"

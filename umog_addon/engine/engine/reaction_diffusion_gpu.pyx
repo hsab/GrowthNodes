@@ -15,8 +15,8 @@ from impls import pyglet_cr_sphere_impl
 from impls import pyglet_sg_impl
 from impls import pyglet_tr_impl
 from impls import pyglet_3dRD_impl
-from ..packages import transformations
-from ..packages import mcubes
+from ...packages import transformations
+from ...packages import mcubes
 
 import copy
 

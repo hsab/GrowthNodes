@@ -19,10 +19,10 @@ def OffScreenRender(args, test=False):
             import pyglet_helper
             import numpy as np
         else:
-            from ... packages import pyglet_helper
-            from ... packages import osr_runner
-            from ... packages import pyglet
-            from ...packages.pyglet import gl
+            from .... packages import pyglet_helper
+            from .... packages import osr_runner
+            from .... packages import pyglet
+            from ....packages.pyglet import gl
             import ctypes
             import numpy as np
     except:
