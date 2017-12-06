@@ -56,7 +56,7 @@ menus = OrderedDict([
             ("engine_Texture_Muxer_Node", "Mux Channels"),
         ]
     }),
-    (" ", "separator"),
+    ("  ", "separator"),
     ("math_menu", {
         "bl_idname": "engine_math_menu",
         "bl_label": "Math Menu",
