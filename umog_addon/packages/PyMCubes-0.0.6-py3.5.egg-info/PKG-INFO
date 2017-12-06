@@ -1,0 +1,26 @@
+Metadata-Version: 1.1
+Name: PyMCubes
+Version: 0.0.6
+Summary: Marching cubes for Python
+Home-page: https://github.com/pmneila/PyMCubes
+Author: Pablo Márquez Neila
+Author-email: pablo.marquezneila@epfl.ch
+License: BSD 3-clause
+Description: 
+            Marching cubes for Python
+            
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: C++
+Classifier: Programming Language :: Python
+Classifier: Topic :: Multimedia :: Graphics :: 3D Modeling
+Classifier: Topic :: Scientific/Engineering :: Image Recognition
+Requires: numpy
+Requires: Cython
+Requires: PyCollada
