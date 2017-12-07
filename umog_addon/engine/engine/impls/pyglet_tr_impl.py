@@ -54,7 +54,7 @@ def OffScreenRender(args, test=False):
         
         
         void main() {
-        color = texture3D(A, (transform*vec4(vTexCoord, 1.0)).xyz).r;				
+        color = texture(A, (transform*vec4(vTexCoord, 1.0)).xyz).r;				
         }
         """
         

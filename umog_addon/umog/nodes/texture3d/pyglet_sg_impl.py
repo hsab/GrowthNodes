@@ -56,8 +56,8 @@ def OffScreenRender(args, test=False):
         
         void main() {
         
-        float oldA = texture3D(A, vTexCoord).r;				
-        float oldB = texture3D(B, vTexCoord).r;	
+        float oldA = texture(A, vTexCoord).r;				
+        float oldB = texture(B, vTexCoord).r;	
         if(abs(oldA -oldB) < threshold)
         {
             color = 1.0;
@@ -83,8 +83,8 @@ def OffScreenRender(args, test=False):
         
         void main() {
         
-        float oldA = texture3D(A, vTexCoord).r;				
-        float oldB = texture3D(B, vTexCoord).r;	
+        float oldA = texture(A, vTexCoord).r;				
+        float oldB = texture(B, vTexCoord).r;	
         if((oldA > threshold) && (oldB > threshold))
         {
             color = mix(oldA,oldB, 0.5);
@@ -110,8 +110,8 @@ def OffScreenRender(args, test=False):
         
         void main() {
         
-        float oldA = texture3D(A, vTexCoord).r;				
-        float oldB = texture3D(B, vTexCoord).r;	
+        float oldA = texture(A, vTexCoord).r;				
+        float oldB = texture(B, vTexCoord).r;	
 
         color = max(oldA,oldB);
         
@@ -131,8 +131,8 @@ def OffScreenRender(args, test=False):
         
         void main() {
         
-        float oldA = texture3D(A, vTexCoord).r;				
-        float oldB = texture3D(B, vTexCoord).r;	
+        float oldA = texture(A, vTexCoord).r;				
+        float oldB = texture(B, vTexCoord).r;	
 
         if(oldB > threshold)
         {

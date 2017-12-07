@@ -59,7 +59,7 @@ def OffScreenRender(args, test=False):
         vec3 n = cross((p2-p1), (p1-vTexCoord));
         float dist = length(n);
         
-        color = texture2D(A, vec2(vTexCoord.y,dist)).r;
+        color = texture(A, vec2(vTexCoord.y,dist)).r;
         
         }
         """
