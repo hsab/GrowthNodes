@@ -50,7 +50,6 @@ Or, if using more than one display::
         # ...
 
 '''
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'

@@ -33,12 +33,8 @@
 # ----------------------------------------------------------------------------
 '''Run list encoding utilities.
 
-.. versionadded:: 1.1
+:since: pyglet 1.1
 '''
-from builtins import str
-from builtins import zip
-from builtins import next
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -395,7 +391,7 @@ class ZipRunIterator(AbstractRunIterator):
 
     def ranges(self, start, end):
         iterators = [i.ranges(start, end) for i in self.range_iterators]
-        starts, ends, values = zip(*[next(i) for i in iterators])
+        starts, ends, values = list(zip(*[next(i) for i in iterators]))
         starts = list(starts)
         ends = list(ends)
         values = list(values)

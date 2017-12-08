@@ -55,7 +55,6 @@ each GLUInfo::
 Note that GLUInfo only returns meaningful information if a context has been
 created.
 '''
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'

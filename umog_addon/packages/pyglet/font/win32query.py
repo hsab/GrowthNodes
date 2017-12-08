@@ -71,8 +71,6 @@ appropriate typeface name and create the font using CreateFont or
 CreateFontIndirect.
 
 """
-from __future__ import print_function
-from builtins import object
 DEBUG = False
 
 __all__ = ['have_font', 'font_list']
@@ -159,7 +157,7 @@ VIETNAMESE_CHARSET = 163
 
 # build lookup dictionary to get charset name from its code
 CHARSET_NAMES = {}
-for (name, value) in locals().copy().items():
+for (name, value) in list(locals().copy().items()):
   if name.endswith('_CHARSET'):
     CHARSET_NAMES[value] = name
 

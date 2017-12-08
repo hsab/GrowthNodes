@@ -34,8 +34,6 @@
 
 '''
 '''
-from __future__ import division
-from builtins import chr
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -172,7 +170,7 @@ class Win32Window(BaseWindow):
             white = _gdi32.GetStockObject(WHITE_BRUSH)
             black = _gdi32.GetStockObject(BLACK_BRUSH)
             self._window_class = WNDCLASS()
-            self._window_class.lpszClassName = u'GenericAppClass%d' % id(self)
+            self._window_class.lpszClassName = 'GenericAppClass%d' % id(self)
             self._window_class.lpfnWndProc = WNDPROC(
                 self._get_window_proc(self._event_handlers))
             self._window_class.style = CS_VREDRAW | CS_HREDRAW
@@ -186,7 +184,7 @@ class Win32Window(BaseWindow):
 
             self._view_window_class = WNDCLASS()
             self._view_window_class.lpszClassName = \
-                u'GenericViewClass%d' % id(self)
+                'GenericViewClass%d' % id(self)
             self._view_window_class.lpfnWndProc = WNDPROC(
                 self._get_window_proc(self._view_event_handlers))
             self._view_window_class.style = 0
@@ -202,7 +200,7 @@ class Win32Window(BaseWindow):
             self._hwnd = _user32.CreateWindowExW(
                 self._ex_ws_style,
                 self._window_class.lpszClassName,
-                u'',
+                '',
                 self._ws_style,
                 CW_USEDEFAULT,
                 CW_USEDEFAULT,
@@ -216,7 +214,7 @@ class Win32Window(BaseWindow):
             self._view_hwnd = _user32.CreateWindowExW(
                 0,
                 self._view_window_class.lpszClassName,
-                u'',
+                '',
                 WS_CHILD | WS_VISIBLE,
                 0, 0, 0, 0,
                 self._hwnd,
@@ -272,9 +270,9 @@ class Win32Window(BaseWindow):
 
         if self._visible:
             self.set_visible()
+            self.dispatch_event('on_expose')
             # Might need resize event if going from fullscreen to fullscreen
             self.dispatch_event('on_resize', self._width, self._height)
-            self.dispatch_event('on_expose')
 
     def _update_view_location(self, width, height):
         if self._fullscreen:
@@ -286,22 +284,15 @@ class Win32Window(BaseWindow):
             x, y, width, height, SWP_NOZORDER | SWP_NOOWNERZORDER)
 
     def close(self):
+        super(Win32Window, self).close()
         if not self._hwnd:
-            super(Win32Window, self).close()
             return
-
         _user32.DestroyWindow(self._hwnd)
         _user32.UnregisterClassW(self._window_class.lpszClassName, 0)
-        
-        self._window_class = None
-        self._view_window_class = None
-        self._view_event_handlers.clear()
-        self._event_handlers.clear()
         self.set_mouse_platform_visible(True)
         self._hwnd = None
         self._dc = None
         self._wgl_context = None
-        super(Win32Window, self).close()
 
     def _get_vsync(self):
         return self.context.get_vsync()
@@ -364,9 +355,9 @@ class Win32Window(BaseWindow):
             insertAfter = HWND_TOPMOST if self._fullscreen else HWND_TOP
             _user32.SetWindowPos(self._hwnd, insertAfter, 0, 0, 0, 0,
                 SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW)
-            self.dispatch_event('on_resize', self._width, self._height)
-            self.activate()
             self.dispatch_event('on_show')
+            self.activate()
+            self.dispatch_event('on_resize', self._width, self._height)
         else:
             _user32.ShowWindow(self._hwnd, SW_HIDE)
             self.dispatch_event('on_hide')
@@ -545,7 +536,6 @@ class Win32Window(BaseWindow):
                 byref(dataptr), None, 0)
             _user32.ReleaseDC(None, hdc)
 
-            image = image.get_image_data()
             data = image.get_data(format, pitch)
             memmove(dataptr, data, len(data))
 
@@ -566,13 +556,13 @@ class Win32Window(BaseWindow):
         image = best_image(_user32.GetSystemMetrics(SM_CXICON),
                            _user32.GetSystemMetrics(SM_CYICON))
         icon = get_icon(image)
-        _user32.SetClassLongPtrW(self._hwnd, GCL_HICON, icon)
+        _user32.SetClassLongW(self._hwnd, GCL_HICON, icon)
 
         # Set small icon
         image = best_image(_user32.GetSystemMetrics(SM_CXSMICON),
                            _user32.GetSystemMetrics(SM_CYSMICON))
         icon = get_icon(image)
-        _user32.SetClassLongPtrW(self._hwnd, GCL_HICONSM, icon)
+        _user32.SetClassLongW(self._hwnd, GCL_HICONSM, icon)
 
     # Private util
 

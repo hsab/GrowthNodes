@@ -34,7 +34,6 @@
 
 '''
 '''
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: lib_glx.py 597 2007-02-03 16:13:07Z Alex.Holkner $'
@@ -68,18 +67,8 @@ try:
 except AttributeError:
     _have_get_proc_address = False
 
-class_slots = ['name', 'requires', 'suggestions', 'ftype','func']
-
-def makeWGLFunction(func):
-    class WGLFunction(object):
-        __slots__ = class_slots
-        __call__ = func
-        
-    return WGLFunction
-
 class WGLFunctionProxy(object):
-    __slots__ = class_slots
-
+    __slots__ = ['name', 'requires', 'suggestions', 'ftype', 'func']
     def __init__(self, name, ftype, requires, suggestions):
         assert _have_get_proc_address
         self.name = name
@@ -89,6 +78,9 @@ class WGLFunctionProxy(object):
         self.func = None
 
     def __call__(self, *args, **kwargs):
+        if self.func:
+            return self.func(*args, **kwargs)
+
         from pyglet.gl import current_context
         if not current_context:
             raise Exception(
@@ -100,10 +92,8 @@ class WGLFunctionProxy(object):
         else:
             self.func = missing_function(
                 self.name, self.requires, self.suggestions)
-
-        self.__class__ = makeWGLFunction(self.func)
-        
-        return self.func(*args, **kwargs)
+        result = self.func(*args, **kwargs) 
+        return result
 
 def link_GL(name, restype, argtypes, requires=None, suggestions=None):
     try:

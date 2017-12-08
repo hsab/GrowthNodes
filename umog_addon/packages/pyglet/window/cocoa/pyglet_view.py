@@ -1,4 +1,3 @@
-from builtins import object
 from pyglet.window import key, mouse
 from pyglet.libs.darwin.quartzkey import keymap, charmap
 

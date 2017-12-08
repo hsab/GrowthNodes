@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # $Id:$
 
-from __future__ import absolute_import
-from builtins import zip
 from pyglet.canvas.win32 import Win32Canvas
 from .base import Config, CanvasConfig, Context
 

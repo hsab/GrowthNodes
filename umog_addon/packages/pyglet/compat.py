@@ -55,7 +55,7 @@ if sys.version_info[0] == 2:
             fillers = itertools.repeat(fillvalue)
             iters = [itertools.chain(it, sentinel(), fillers) for it in args]
             try:
-                for tup in itertools.izip(*iters):
+                for tup in zip(*iters):
                     yield tup
             except IndexError:
                 pass
@@ -83,8 +83,6 @@ if sys.version_info[0] >= 3:
             return s.encode(encoding=sys.getfilesystemencoding())
     
     def asstr(s):
-        if s is None:
-            return ''
         if isinstance(s, str):
             return s
         return s.decode("utf-8")
@@ -92,10 +90,10 @@ if sys.version_info[0] >= 3:
     bytes_type = bytes
     BytesIO = io.BytesIO
 else:
-    import StringIO
+    import io
     
     asbytes = str
     asbytes_filename = str
     asstr = str
     bytes_type = str
-    BytesIO = StringIO.StringIO
+    BytesIO = io.StringIO

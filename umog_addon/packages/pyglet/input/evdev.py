@@ -2,9 +2,6 @@
 
 '''
 '''
-from __future__ import absolute_import
-from builtins import hex
-from builtins import range
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
@@ -18,7 +15,7 @@ from pyglet.app.xlib import XlibSelectDevice
 from .base import Device, Control, RelativeAxis, AbsoluteAxis, Button, Joystick
 from .base import DeviceOpenException
 from .evdev_constants import *
-
+from .evdev_constants import _rel_raw_names, _abs_raw_names, _key_raw_names
 
 c = pyglet.lib.load_library('c')
 
@@ -150,24 +147,24 @@ _rel_names = {
 }
 def _create_control(fileno, event_type, event_code):
     if event_type == EV_ABS:
-        raw_name = abs_raw_names.get(event_code, 'EV_ABS(%x)' % event_code)
+        raw_name = _abs_raw_names.get(event_code, 'EV_ABS(%x)' % event_code)
         name = _abs_names.get(event_code)
         absinfo = EVIOCGABS(fileno, event_code)
         value = absinfo.value
         min = absinfo.minimum
         max = absinfo.maximum
         control = AbsoluteAxis(name, min, max, raw_name)
-        control.value = value
+        control._set_value(value)
 
         if name == 'hat_y':
             control.inverted = True
     elif event_type == EV_REL:
-        raw_name = rel_raw_names.get(event_code, 'EV_REL(%x)' % event_code)
+        raw_name = _rel_raw_names.get(event_code, 'EV_REL(%x)' % event_code)
         name = _rel_names.get(event_code)
         # TODO min/max?
         control = RelativeAxis(name, raw_name)
     elif event_type == EV_KEY:
-        raw_name = key_raw_names.get(event_code, 'EV_KEY(%x)' % event_code)
+        raw_name = _key_raw_names.get(event_code, 'EV_KEY(%x)' % event_code)
         name = None
         control = Button(name, raw_name)
     else:
@@ -304,7 +301,7 @@ class EvdevDevice(XlibSelectDevice, Device):
         for event in events[:n_events]:
             try:
                 control = self.control_map[(event.type, event.code)]
-                control.value = event.value
+                control._set_value(event.value)
             except KeyError:
                 pass
 
@@ -325,9 +322,4 @@ def get_devices(display=None):
     return list(_devices.values())
 
 def get_joysticks(display=None):
-    return [joystick
-            for joystick
-            in [_create_joystick(device)
-                for device
-                in get_devices(display)]
-            if joystick is not None]
+    return [_f for _f in [_create_joystick(d) for d in get_devices(display)] if _f]

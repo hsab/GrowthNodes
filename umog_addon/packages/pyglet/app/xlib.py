@@ -34,7 +34,6 @@
 
 '''
 '''
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'

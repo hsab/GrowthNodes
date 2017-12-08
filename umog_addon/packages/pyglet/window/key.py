@@ -32,7 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-"""Key constants and utilities for pyglet.window.
+'''Key constants and utilities for pyglet.window.
 
 Usage::
 
@@ -58,17 +58,13 @@ Usage::
         # Modifiers:
         if modifiers & key.MOD_CTRL:
 
-"""
-from builtins import str
-
-from pyglet import compat_platform
+'''
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
-
 class KeyStateHandler(dict):
-    """Simple handler that tracks the state of keys on the keyboard. If a
+    '''Simple handler that tracks the state of keys on the keyboard. If a
     key is pressed then this handler holds a True value for it.
 
     For example::
@@ -84,19 +80,16 @@ class KeyStateHandler(dict):
         >>> keyboard[key.DOWN]
         False
 
-    """
+    '''
     def on_key_press(self, symbol, modifiers):
         self[symbol] = True
-
     def on_key_release(self, symbol, modifiers):
         self[symbol] = False
-
     def __getitem__(self, key):
         return self.get(key, False)
 
-
 def modifiers_string(modifiers):
-    """Return a string describing a set of modifiers.
+    '''Return a string describing a set of modifiers.
 
     Example::
 
@@ -108,7 +101,7 @@ def modifiers_string(modifiers):
             Bitwise combination of modifier constants.
 
     :rtype: str
-    """
+    '''
     mod_names = []
     if modifiers & MOD_SHIFT:
         mod_names.append('MOD_SHIFT')
@@ -130,9 +123,8 @@ def modifiers_string(modifiers):
         mod_names.append('MOD_FUNCTION')
     return '|'.join(mod_names)
 
-
 def symbol_string(symbol):
-    """Return a string describing a key symbol.
+    '''Return a string describing a key symbol.
 
     Example::
 
@@ -144,19 +136,18 @@ def symbol_string(symbol):
             Symbolic key constant.
 
     :rtype: str
-    """
+    '''
     if symbol < 1 << 32:
         return _key_names.get(symbol, str(symbol))
     else:
         return 'user_key(%x)' % (symbol >> 32)
 
-
 def motion_string(motion):
-    """Return a string describing a text motion.
+    '''Return a string describing a text motion.
 
     Example::
 
-        >>> motion_string(MOTION_NEXT_WORD)
+        >>> motion_string(MOTION_NEXT_WORD):
         'MOTION_NEXT_WORD'
 
     :Parameters:
@@ -164,12 +155,11 @@ def motion_string(motion):
             Text motion constant.
 
     :rtype: str
-    """
+    '''
     return _motion_names.get(motion, str(motion))
 
-
 def user_key(scancode):
-    """Return a key symbol for a key not supported by pyglet.
+    '''Return a key symbol for a key not supported by pyglet.
 
     This can be used to map virtual keys or scancodes from unsupported
     keyboard layouts into a machine-specific symbol.  The symbol will
@@ -177,7 +167,7 @@ def user_key(scancode):
 
     Applications should use user-keys only when user explicitly binds them
     (for example, mapping keys to actions in a game options screen).
-    """
+    '''
     assert scancode > 0
     return scancode << 32
 
@@ -195,9 +185,10 @@ MOD_FUNCTION    = 1 << 9
 
 #: Accelerator modifier.  On Windows and Linux, this is ``MOD_CTRL``, on
 #: Mac OS X it's ``MOD_COMMAND``.
-MOD_ACCEL = MOD_CTRL
+MOD_ACCEL       = MOD_CTRL
+from pyglet import compat_platform
 if compat_platform == 'darwin':
-    MOD_ACCEL = MOD_COMMAND
+    MOD_ACCEL   = MOD_COMMAND
 
 
 # Key symbol constants
@@ -414,7 +405,7 @@ ASCIITILDE    = 0x07e
 
 _key_names = {}
 _motion_names = {}
-for _name, _value in locals().copy().items():
+for _name, _value in list(locals().copy().items()):
     if _name[:2] != '__' and _name.upper() == _name and \
        not _name.startswith('MOD_'):
         if _name.startswith('MOTION_'):

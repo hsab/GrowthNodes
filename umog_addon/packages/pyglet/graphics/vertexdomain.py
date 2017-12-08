@@ -46,18 +46,15 @@ containing vertex indices.  This buffer is grown separately and has no size
 relation to the attribute buffers.
 
 Applications can create vertices (and optionally, indices) within a domain
-with the :py:meth:`VertexDomain.create` method.  This returns a
-:py:class:`VertexList` representing the list of vertices created.  The vertex
-attribute data within the group can be modified, and the changes will be made
-to the underlying buffers automatically.
+with the `VertexDomain.create` method.  This returns a `VertexList`
+representing the list of vertices created.  The vertex attribute data within
+the group can be modified, and the changes will be made to the underlying
+buffers automatically.
 
 The entire domain can be efficiently drawn in one step with the
-:py:meth:`VertexDomain.draw` method, assuming all the vertices comprise
-primitives of the same OpenGL primitive mode.
+`VertexDomain.draw` method, assuming all the vertices comprise primitives of
+the same OpenGL primitive mode.
 '''
-from builtins import zip
-from builtins import range
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -127,11 +124,11 @@ def create_attribute_usage(format):
 
 def create_domain(*attribute_usage_formats):
     '''Create a vertex domain covering the given attribute usage formats.
-    See documentation for :py:func:`create_attribute_usage` and
-    :py:func:`pyglet.graphics.vertexattribute.create_attribute` for the grammar
-    of these format strings.
+    See documentation for `create_attribute_usage` and
+    `pyglet.graphics.vertexattribute.create_attribute` for the grammar of
+    these format strings.
 
-    :rtype: :py:class:`VertexDomain`
+    :rtype: `VertexDomain`
     '''
     attribute_usages = [create_attribute_usage(f) \
                         for f in attribute_usage_formats]
@@ -139,11 +136,11 @@ def create_domain(*attribute_usage_formats):
 
 def create_indexed_domain(*attribute_usage_formats):
     '''Create an indexed vertex domain covering the given attribute usage
-    formats.  See documentation for :py:class:`create_attribute_usage` and
-    :py:func:`pyglet.graphics.vertexattribute.create_attribute` for the grammar
-    of these format strings.
+    formats.  See documentation for `create_attribute_usage` and
+    `pyglet.graphics.vertexattribute.create_attribute` for the grammar of
+    these format strings.
 
-    :rtype: :py:class:`VertexDomain`
+    :rtype: `VertexDomain`
     '''
     attribute_usages = [create_attribute_usage(f) \
                         for f in attribute_usage_formats]
@@ -152,8 +149,8 @@ def create_indexed_domain(*attribute_usage_formats):
 class VertexDomain(object):
     '''Management of a set of vertex lists.
 
-    Construction of a vertex domain is usually done with the
-    :py:func:`create_domain` function.
+    Construction of a vertex domain is usually done with the `create_domain`
+    function.
     '''
     _version = 0
     _initial_count = 16
@@ -268,13 +265,13 @@ class VertexDomain(object):
             return self.allocator.realloc(start, count, new_count)
 
     def create(self, count):
-        '''Create a :py:class:`VertexList` in this domain.
+        '''Create a `VertexList` in this domain.
 
         :Parameters:
             `count` : int
                 Number of vertices to create.
 
-        :rtype: :py:class:`VertexList`
+        :rtype: `VertexList`
         '''
         start = self._safe_alloc(count)
         return VertexList(self, start, count)
@@ -285,13 +282,13 @@ class VertexDomain(object):
         If `vertex_list` is not specified, all vertices in the domain are
         drawn.  This is the most efficient way to render primitives.
 
-        If `vertex_list` specifies a :py:class:`VertexList`, only primitives in
-        that list will be drawn.
+        If `vertex_list` specifies a `VertexList`, only primitives in that
+        list will be drawn.
 
         :Parameters:
             `mode` : int
                 OpenGL drawing mode, e.g. ``GL_POINTS``, ``GL_LINES``, etc.
-            `vertex_list` : `~pyglet.graphics.vertexdomain.VertexList`
+            `vertex_list` : `VertexList`
                 Vertex list to draw, or ``None`` for all lists in this domain.
 
         '''
@@ -334,8 +331,8 @@ class VertexDomain(object):
                                self.allocator)
 
 class VertexList(object):
-    '''A list of vertices within a :py:class:`VertexDomain`.  Use
-    :py:meth:`VertexDomain.create` to construct this list.
+    '''A list of vertices within a `VertexDomain`.  Use
+    `VertexDomain.create` to construct this list.
     '''
 
     def __init__(self, domain, start, count):
@@ -354,7 +351,7 @@ class VertexList(object):
     def get_domain(self):
         '''Get the domain this vertex list belongs to.
 
-        :rtype: :py:class:`VertexDomain`
+        :rtype: `VertexDomain`
         '''
         return self.domain
 
@@ -415,7 +412,7 @@ class VertexList(object):
             list(self.domain.attribute_names.keys()), 'Domain attributes must match.'
 
         new_start = domain._safe_alloc(self.count)
-        for key, old_attribute in self.domain.attribute_names.items():
+        for key, old_attribute in list(self.domain.attribute_names.items()):
             old = old_attribute.get_region(old_attribute.buffer,
                                            self.start, self.count)
             new_attribute = domain.attribute_names[key]
@@ -679,7 +676,7 @@ class IndexedVertexDomain(VertexDomain):
             return self.index_allocator.realloc(start, count, new_count)
 
     def create(self, count, index_count):
-        '''Create an :py:class:`IndexedVertexList` in this domain.
+        '''Create an `IndexedVertexList` in this domain.
 
         :Parameters:
             `count` : int
@@ -714,8 +711,8 @@ class IndexedVertexDomain(VertexDomain):
         If `vertex_list` is not specified, all vertices in the domain are
         drawn.  This is the most efficient way to render primitives.
 
-        If `vertex_list` specifies a :py:class:`VertexList`, only primitives in
-        that list will be drawn.
+        If `vertex_list` specifies a `VertexList`, only primitives in that
+        list will be drawn.
 
         :Parameters:
             `mode` : int
@@ -765,8 +762,8 @@ class IndexedVertexDomain(VertexDomain):
         glPopClientAttrib()
 
 class IndexedVertexList(VertexList):
-    '''A list of vertices within an :py:class:`IndexedVertexDomain` that are
-    indexed. Use :py:meth:`IndexedVertexDomain.create` to construct this list.
+    '''A list of vertices within an `IndexedVertexDomain` that are indexed.
+    Use `IndexedVertexDomain.create` to construct this list.
     '''
     def __init__(self, domain, start, count, index_start, index_count):
         super(IndexedVertexList, self).__init__(domain, start, count)
@@ -813,43 +810,6 @@ class IndexedVertexList(VertexList):
         '''Delete this group.'''
         super(IndexedVertexList, self).delete()
         self.domain.index_allocator.dealloc(self.index_start, self.index_count)
-        
-    def migrate(self, domain):
-        '''Move this group from its current indexed domain and add to the 
-        specified one.  Attributes on domains must match.  (In practice, used 
-        to change parent state of some vertices).
-
-        :Parameters:
-            `domain` : `IndexedVertexDomain`
-                Indexed domain to migrate this vertex list to.
-
-        '''
-        old_start = self.start
-        old_domain = self.domain
-        super(IndexedVertexList, self).migrate(domain)
-
-        # Note: this code renumber the indices of the *original* domain
-        # because the vertices are in a new position in the new domain
-        if old_start != self.start:
-            diff = self.start - old_start
-            region = old_domain.get_index_region(self.index_start, 
-                                self.index_count)
-            old_indices = region.array
-            old_indices[:] = [i + diff for i in old_indices]
-            region.invalidate()
-                                                
-        # copy indices to new domain
-        old = old_domain.get_index_region(self.index_start, self.index_count)
-        # must delloc before calling safe_index_alloc or else problems when same
-        # batch is migrated to because index_start changes after dealloc
-        old_domain.index_allocator.dealloc(self.index_start, self.index_count)
-        new_start = self.domain._safe_index_alloc(self.index_count)
-        new = self.domain.get_index_region(new_start, self.index_count)
-        new.array[:] = old.array[:]
-        new.invalidate()
-        
-        self.index_start = new_start
-        self._indices_cache_version = None
 
     def _set_index_data(self, data):
         # TODO without region

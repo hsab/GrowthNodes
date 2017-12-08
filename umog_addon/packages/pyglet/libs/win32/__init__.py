@@ -1,9 +1,6 @@
 #!/usr/bin/python
 # $Id: $
 
-from __future__ import print_function
-from __future__ import absolute_import
-from builtins import object
 import struct
 from ctypes import *
 

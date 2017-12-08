@@ -35,10 +35,6 @@
 
 These extend and correct ctypes functions.
 '''
-from __future__ import print_function
-from builtins import str
-from builtins import object
-from past.builtins import basestring
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -103,6 +99,8 @@ if _is_epydoc:
 
 
 class LibraryLoader(object):
+    darwin_not_found_error = "image not found"
+    linux_not_found_error  = "No such file or directory"
     def load_library(self, *names, **kwargs):
         '''Find and load a library.  
         
@@ -121,7 +119,7 @@ class LibraryLoader(object):
             raise ImportError("No library name specified")
         
         platform_names = kwargs.get(self.platform, [])
-        if isinstance(platform_names, basestring):
+        if type(platform_names) in (str, str):
             platform_names = [platform_names]
         elif type(platform_names) is tuple:
             platform_names = list(platform_names)
@@ -141,7 +139,11 @@ class LibraryLoader(object):
                     lib = _TraceLibrary(lib)
                 return lib
             except OSError as o:
-                if self.platform == "win32" and o.winerror != 126:
+                if ((self.platform == "win32" and o.winerror != 126) or
+                    (self.platform.startswith("linux") and
+                     self.linux_not_found_error not in o.args[0]) or
+                    (self.platform == "darwin" and
+                     self.darwin_not_found_error not in o.args[0])):
                     print("Unexpected error loading library %s: %s" % (name, str(o)))
                     raise
                 path = self.find_library(name)

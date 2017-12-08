@@ -60,9 +60,18 @@ default policy is to wait until all windows are closed)::
     def on_window_close(window):
         event_loop.exit()
 
-.. versionadded:: 1.1
+:since: pyglet 1.1
+
+
+:attr:`event_loop` is the global event loop.  Applications can replace this
+with their own subclass of :class:`EventLoop` before calling 
+:meth:`EventLoop.run`.
+
+:attr:`platform_event_loop` is the platform-dependent event loop. 
+Applications must not subclass or replace this :class:`PlatformEventLoop` 
+object.
+
 '''
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
@@ -89,15 +98,10 @@ class WeakSet(object):
         self._dict[value] = True
 
     def remove(self, value):
-        # Value might be removed already if this is during __del__ of the item.
-        self._dict.pop(value, None)
-
-    def pop(self):
-        value, _ = self._dict.popitem()
-        return value
+        del self._dict[value]
 
     def __iter__(self):
-        for key in self._dict.keys():
+        for key in list(self._dict.keys()):
             yield key
 
     def __contains__(self, other):
@@ -105,6 +109,7 @@ class WeakSet(object):
 
     def __len__(self):
         return len(self._dict)
+
 
 
 displays = WeakSet()
@@ -169,14 +174,7 @@ else:
 
 
 
-#: The global event loop.  Applications can replace this
-#: with their own subclass of :class:`EventLoop` before calling 
-#: :meth:`EventLoop.run`.
 event_loop = EventLoop()
 
 platform_event_loop = PlatformEventLoop()
 
-"""The platform-dependent event loop. 
-Applications must not subclass or replace this :class:`PlatformEventLoop` 
-object.
-"""

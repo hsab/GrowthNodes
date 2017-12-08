@@ -2,7 +2,6 @@
 
 '''
 '''
-from __future__ import absolute_import
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -18,12 +17,11 @@ from pyglet.gl import glxext_arb
 from pyglet.gl import glx_info
 from pyglet.gl import glxext_mesa
 
-
 class XlibConfig(Config):
     def match(self, canvas):
         if not isinstance(canvas, XlibCanvas):
-            raise RuntimeError('Canvas must be an instance of XlibCanvas')
-
+            raise RuntimeError('Canvas must be instance of XlibCanvas')
+        
         x_display = canvas.display._display
         x_screen = canvas.display.x_screen
 
@@ -36,7 +34,7 @@ class XlibConfig(Config):
                 config_class = XlibCanvasConfig10ATI
             else:
                 config_class = XlibCanvasConfig10
-
+        
         # Construct array of attributes
         attrs = []
         for name, value in self.get_gl_attributes():
@@ -58,18 +56,18 @@ class XlibConfig(Config):
         if have_13:
             elements = c_int()
             configs = glx.glXChooseFBConfig(x_display, x_screen,
-                                            attrib_list, byref(elements))
+                attrib_list, byref(elements))
             if not configs:
                 return []
 
-            configs = cast(configs,
+            configs = cast(configs, 
                            POINTER(glx.GLXFBConfig * elements.value)).contents
 
             result = [config_class(canvas, info, c, self) for c in configs]
 
             # Can't free array until all XlibGLConfig13's are GC'd.  Too much
             # hassle, live with leak. XXX
-            # xlib.XFree(configs)
+            #xlib.XFree(configs)
 
             return result
         else:
@@ -78,13 +76,12 @@ class XlibConfig(Config):
             except gl.ContextException:
                 return []
 
-
 class BaseXlibCanvasConfig(CanvasConfig):
     # Common code shared between GLX 1.0 and GLX 1.3 configs.
 
     attribute_ids = {
         'buffer_size': glx.GLX_BUFFER_SIZE,
-        'level': glx.GLX_LEVEL,  # Not supported
+        'level': glx.GLX_LEVEL,     # Not supported
         'double_buffer': glx.GLX_DOUBLEBUFFER,
         'stereo': glx.GLX_STEREO,
         'aux_buffers': glx.GLX_AUX_BUFFERS,
@@ -117,7 +114,6 @@ class BaseXlibCanvasConfig(CanvasConfig):
     def get_visual_info(self):
         raise NotImplementedError('abstract')
 
-
 class XlibCanvasConfig10(BaseXlibCanvasConfig):
     def __init__(self, canvas, glx_info, attrib_list, config):
         super(XlibCanvasConfig10, self).__init__(canvas, glx_info, config)
@@ -129,7 +125,7 @@ class XlibCanvasConfig10(BaseXlibCanvasConfig):
         if not self._visual_info:
             raise gl.ContextException('No conforming visual exists')
 
-        for name, attr in self.attribute_ids.items():
+        for name, attr in list(self.attribute_ids.items()):
             value = c_int()
             result = glx.glXGetConfig(
                 x_display, self._visual_info, attr, byref(value))
@@ -144,12 +140,10 @@ class XlibCanvasConfig10(BaseXlibCanvasConfig):
     def create_context(self, share):
         return XlibContext10(self, share)
 
-
 class XlibCanvasConfig10ATI(XlibCanvasConfig10):
     attribute_ids = BaseXlibCanvasConfig.attribute_ids.copy()
     del attribute_ids['stereo']
     stereo = False
-
 
 class XlibCanvasConfig13(BaseXlibCanvasConfig):
     attribute_ids = BaseXlibCanvasConfig.attribute_ids.copy()
@@ -176,22 +170,22 @@ class XlibCanvasConfig13(BaseXlibCanvasConfig):
         x_display = canvas.display._display
 
         self._fbconfig = fbconfig
-        for name, attr in self.attribute_ids.items():
+        for name, attr in list(self.attribute_ids.items()):
             value = c_int()
             result = glx.glXGetFBConfigAttrib(
-                x_display, self._fbconfig, attr, byref(value))
+               x_display, self._fbconfig, attr, byref(value))
             if result >= 0:
                 setattr(self, name, value.value)
 
     def get_visual_info(self):
-        return glx.glXGetVisualFromFBConfig(self.canvas.display._display, self._fbconfig).contents
+        return glx.glXGetVisualFromFBConfig(
+            self.canvas.display._display, self._fbconfig).contents
 
     def create_context(self, share):
         if self.glx_info.have_extension('GLX_ARB_create_context'):
             return XlibContextARB(self, share)
         else:
             return XlibContext13(self, share)
-
 
 class BaseXlibContext(Context):
     def __init__(self, config, share):
@@ -204,9 +198,12 @@ class BaseXlibContext(Context):
             # TODO: Check Xlib error generated
             raise gl.ContextException('Could not create GL context')
 
-        self._have_SGI_video_sync = config.glx_info.have_extension('GLX_SGI_video_sync')
-        self._have_SGI_swap_control = config.glx_info.have_extension('GLX_SGI_swap_control')
-        self._have_MESA_swap_control = config.glx_info.have_extension('GLX_MESA_swap_control')
+        self._have_SGI_video_sync = \
+            config.glx_info.have_extension('GLX_SGI_video_sync')
+        self._have_SGI_swap_control = \
+            config.glx_info.have_extension('GLX_SGI_swap_control')
+        self._have_MESA_swap_control = \
+            config.glx_info.have_extension('GLX_MESA_swap_control')
 
         # In order of preference:
         # 1. GLX_MESA_swap_control (more likely to work where video_sync will
@@ -214,8 +211,9 @@ class BaseXlibContext(Context):
         # 2. GLX_SGI_video_sync (does not work on Intel 945GM, but that has
         #    MESA)
         # 3. GLX_SGI_swap_control (cannot be disabled once enabled).
-        self._use_video_sync = (self._have_SGI_video_sync and not self._have_MESA_swap_control)
-
+        self._use_video_sync = (self._have_SGI_video_sync and 
+                                not self._have_MESA_swap_control)
+        
         # XXX mandate that vsync defaults on across all platforms.
         self._vsync = True
 
@@ -224,11 +222,13 @@ class BaseXlibContext(Context):
 
     def set_vsync(self, vsync=True):
         self._vsync = vsync
-        interval = vsync and 1 or 0
-        if not self._use_video_sync and self._have_MESA_swap_control:
-            glxext_mesa.glXSwapIntervalMESA(interval)
-        elif self._have_SGI_swap_control:
-            glxext_arb.glXSwapIntervalSGI(interval)
+        if not self._use_video_sync:
+            interval = vsync and 1 or 0
+            if self._have_MESA_swap_control:
+                glxext_mesa.glXSwapIntervalMESA(interval)
+            elif self._have_SGI_swap_control and interval:
+                # SGI_swap_control interval cannot be set to 0
+                glxext_arb.glXSwapIntervalSGI(interval)
 
     def get_vsync(self):
         return self._vsync
@@ -237,8 +237,8 @@ class BaseXlibContext(Context):
         if self._vsync and self._have_SGI_video_sync and self._use_video_sync:
             count = c_uint()
             glxext_arb.glXGetVideoSyncSGI(byref(count))
-            glxext_arb.glXWaitVideoSyncSGI(2, (count.value + 1) % 2, byref(count))
-
+            glxext_arb.glXWaitVideoSyncSGI(
+                2, (count.value + 1) % 2, byref(count))
 
 class XlibContext10(BaseXlibContext):
     def __init__(self, config, share):
@@ -255,8 +255,8 @@ class XlibContext10(BaseXlibContext):
         else:
             share_context = None
 
-        return glx.glXCreateContext(self.config.canvas.display._display,
-                                    self.config._visual_info, share_context, True)
+        return glx.glXCreateContext(self.config.canvas.display._display, 
+            self.config._visual_info, share_context, True)
 
     def attach(self, canvas):
         super(XlibContext10, self).attach(canvas)
@@ -264,7 +264,7 @@ class XlibContext10(BaseXlibContext):
         self.set_current()
 
     def set_current(self):
-        glx.glXMakeCurrent(self.x_display, self.canvas.x_window,
+        glx.glXMakeCurrent(self.x_display, self.canvas.x_window, 
                            self.glx_context)
         super(XlibContext10, self).set_current()
 
@@ -291,7 +291,6 @@ class XlibContext10(BaseXlibContext):
             self._wait_vsync()
         glx.glXSwapBuffers(self.x_display, self.canvas.x_window)
 
-
 class XlibContext13(BaseXlibContext):
     def __init__(self, config, share):
         super(XlibContext13, self).__init__(config, share)
@@ -308,12 +307,11 @@ class XlibContext13(BaseXlibContext):
         else:
             share_context = None
 
-        return glx.glXCreateNewContext(self.config.canvas.display._display,
-                                       self.config._fbconfig, glx.GLX_RGBA_TYPE, share_context,
-                                       True)
+        return glx.glXCreateNewContext(self.config.canvas.display._display, 
+            self.config._fbconfig, glx.GLX_RGBA_TYPE, share_context, True)
 
     def attach(self, canvas):
-        if canvas is self.canvas:  # XXX do this for carbon too?
+        if canvas is self.canvas: # XXX do this for carbon too?
             return
 
         super(XlibContext13, self).attach(canvas)
@@ -326,13 +324,13 @@ class XlibContext13(BaseXlibContext):
         glx.glXMakeContextCurrent(
             self.x_display, self.glx_window, self.glx_window, self.glx_context)
         super(XlibContext13, self).set_current()
-
+        
     def detach(self):
         if not self.canvas:
             return
 
         self.set_current()
-        gl.glFlush()  # needs to be in try/except?
+        gl.glFlush() # needs to be in try/except?
 
         super(XlibContext13, self).detach()
 
@@ -358,7 +356,6 @@ class XlibContext13(BaseXlibContext):
             self._wait_vsync()
         glx.glXSwapBuffers(self.x_display, self.glx_window)
 
-
 class XlibContextARB(XlibContext13):
     def _create_glx_context(self, share):
         if share:
@@ -371,7 +368,7 @@ class XlibContextARB(XlibContext13):
             attribs.extend([glxext_arb.GLX_CONTEXT_MAJOR_VERSION_ARB,
                             self.config.major_version])
         if self.config.minor_version is not None:
-            attribs.extend([glxext_arb.GLX_CONTEXT_MINOR_VERSION_ARB,
+            attribs.extend([glxext_arb.GLX_CONTEXT_MINOR_VERSION_ARB, 
                             self.config.minor_version])
         flags = 0
         if self.config.forward_compatible:
@@ -381,7 +378,7 @@ class XlibContextARB(XlibContext13):
         if flags:
             attribs.extend([glxext_arb.GLX_CONTEXT_FLAGS_ARB, flags])
         attribs.append(0)
-        attribs = (c_int * len(attribs))(*attribs)
+        attribs = (c_int * len(attribs))(*attribs) 
 
         return glxext_arb.glXCreateContextAttribsARB(
             self.config.canvas.display._display,

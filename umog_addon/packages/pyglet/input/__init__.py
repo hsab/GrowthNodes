@@ -32,21 +32,20 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-"""Joystick, tablet and USB HID device support.
+'''Joystick, tablet and USB HID device support.
 
 This module provides a unified interface to almost any input device, besides
-the regular mouse and keyboard support provided by
-:py:class:`~pyglet.window.Window`.  At the lowest
-level, :py:func:`get_devices` can be used to retrieve a list of all supported
-devices, including joysticks, tablets, space controllers, wheels, pedals, remote
+the regular mouse and keyboard support provided by `Window`.  At the lowest
+level, `get_devices` can be used to retrieve a list of all supported devices,
+including joysticks, tablets, space controllers, wheels, pedals, remote
 controls, keyboards and mice.  The set of returned devices varies greatly
 depending on the operating system (and, of course, what's plugged in).  
 
 At this level pyglet does not try to interpret *what* a particular device is,
-merely what controls it provides.  A :py:class:`Control` can be either a button,
-whose value is either ``True`` or ``False``, or a relative or absolute-valued
-axis, whose value is a float.  Sometimes the name of a control can be provided
-(for example, ``x``, representing the horizontal axis of a joystick), but often
+merely what controls it provides.  A `Control` can be either a button, whose
+value is either ``True`` or ``False``, or a relative or absolute-valued axis,
+whose value is a float.  Sometimes the name of a control can be provided (for
+example, ``x``, representing the horizontal axis of a joystick), but often
 not.  In these cases the device API may still be useful -- the user will have
 to be asked to press each button in turn or move each axis separately to
 identify them.
@@ -58,84 +57,81 @@ interface.
 
 To use an input device:
 
-1. Call :py:func:`get_devices`, :py:func:`get_apple_remote` or
-   :py:func:`get_joysticks`
+1. Call `get_devices`, `get_apple_remote` or `get_joysticks`
    to retrieve and identify the device.
-2. For low-level devices (retrieved by :py:func:`get_devices`), query the
-   devices list of controls and determine which ones you are interested in. For
+2. For low-level devices (retrieved by `get_devices`), query the devices
+   list of controls and determine which ones you are interested in.  For
    high-level interfaces the set of controls is provided by the interface.
 3. Optionally attach event handlers to controls on the device.
-4. Call :py:meth:`Device.open` to begin receiving events on the device.  You can
+4. Call `Device.open` to begin receiving events on the device.  You can
    begin querying the control values after this time; they will be updated
    asynchronously.
-5. Call :py:meth:`Device.close` when you are finished with the device (not
-   needed if your application quits at this time).
+5. Call `Device.close` when you are finished with the device (not needed
+   if your application quits at this time).
 
-To use a tablet, follow the procedure above using :py:func:`get_tablets`, but
-note that no control list is available; instead, calling :py:meth:`Tablet.open`
-returns a :py:class:`TabletCanvas` onto which you should set your event
-handlers.
+To use a tablet, follow the procedure above using `get_tablets`, but note that
+no control list is available; instead, calling `Tablet.open` returns a
+`TabletCanvas` onto which you should set your event handlers.
 
-.. versionadded:: 1.2
+:since: pyglet 1.2
 
-"""
-from __future__ import absolute_import
+'''
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
 import sys
 
-from .base import Device, Control, RelativeAxis, AbsoluteAxis, Button
-from .base import Joystick, AppleRemote, Tablet
+from .base import Device, Control, RelativeAxis, AbsoluteAxis, \
+                 Button, Joystick, AppleRemote, Tablet
 from .base import DeviceException, DeviceOpenException, DeviceExclusiveException
 
 _is_epydoc = hasattr(sys, 'is_epydoc') and sys.is_epydoc
 
-
 def get_apple_remote(display=None):
-    """Get the Apple remote control device.
+    '''Get the Apple remote control device.
     
     The Apple remote is the small white 6-button remote control that
     accompanies most recent Apple desktops and laptops.  The remote can only
     be used with Mac OS X.
 
     :Parameters:
-        display : `~pyglet.canvas.Display`
+        `display` : `Display`
             Currently ignored.
 
-    :rtype: AppleRemote
-    :return: The remote device, or `None` if the computer does not support it.
-    """
+    :rtype: `AppleRemote`
+    :return: The remote device, or ``None`` if the computer does not support
+        it.
+    '''
     return None
 
 if _is_epydoc:
     def get_devices(display=None):
-        """Get a list of all attached input devices.
+        '''Get a list of all attached input devices.
 
         :Parameters:
-            display : `~pyglet.canvas.Display`
+            `display` : `Display`
                 The display device to query for input devices.  Ignored on Mac
                 OS X and Windows.  On Linux, defaults to the default display
                 device.
 
-        :rtype: list of :py:class:`Device`
-        """
+        :rtype: list of `Device`
+        '''
 
     def get_joysticks(display=None):
-        """Get a list of attached joysticks.
+        '''Get a list of attached joysticks.
 
         :Parameters:
-            display : `~pyglet.canvas.Display`
+            `display` : `Display`
                 The display device to query for input devices.  Ignored on Mac
                 OS X and Windows.  On Linux, defaults to the default display
                 device.
 
-        :rtype: list of :py:class:`Joystick`
-        """
+        :rtype: list of `Joystick`
+        '''
 
     def get_tablets(display=None):
-        """Get a list of tablets.
+        '''Get a list of tablets.
 
         This function may return a valid tablet device even if one is not
         attached (for example, it is not possible on Mac OS X to determine if
@@ -144,14 +140,13 @@ if _is_epydoc:
         is undefined if more than one is attached.
 
         :Parameters:
-            display : `~pyglet.canvas.Display`
+            `display` : `Display`
                 The display device to query for input devices.  Ignored on Mac
                 OS X and Windows.  On Linux, defaults to the default display
                 device.
 
-        :rtype: list of :py:class:`Tablet`
-        """
-
+        :rtype: list of `Tablet`
+        '''
 else:
     def get_tablets(display=None):
         return []

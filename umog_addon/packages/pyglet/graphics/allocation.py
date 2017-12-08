@@ -37,7 +37,7 @@
 
 The region allocator is used to allocate vertex indices within a vertex
 domain's  multiple buffers.  ("Buffer" refers to any abstract buffer presented
-by :py:mod:`pyglet.graphics.vertexbuffer`.
+by `pyglet.graphics.vertexbuffer`.
  
 The allocator will at times request more space from the buffers. The current
 policy is to double the buffer size when there is not enough room to fulfil an
@@ -46,11 +46,6 @@ allocation.  The buffer is never resized smaller.
 The allocator maintains references to free space only; it is the caller's
 responsibility to maintain the allocated regions.
 '''
-from __future__ import print_function
-from __future__ import division
-from builtins import str
-from builtins import zip
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'

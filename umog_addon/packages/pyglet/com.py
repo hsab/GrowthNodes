@@ -31,6 +31,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
+# $Id:$
 
 '''Minimal Windows COM interface.
 
@@ -67,14 +68,9 @@ the return value.
 Don't forget to manually manage memory... call Release() when you're done with
 an interface.
 '''
-from builtins import object
 
 import ctypes
 import sys
-
-from pyglet.debug import debug_print
-
-_debug_com = debug_print('debug_com')
 
 if sys.platform != 'win32':
     raise ImportError('pyglet.com requires a Windows build of Python')
@@ -125,14 +121,8 @@ class COMMethodInstance(object):
 
     def __get__(self, obj, tp):
         if obj is not None:
-            def _call(*args):
-                assert _debug_com('COM: IN {}({}, {})'.format(self.name, obj.__class__.__name__, args))
-                ret = self.method.get_field()(self.i, self.name)(obj, *args)
-                assert _debug_com('COM: OUT {}({}, {})'.format(self.name, obj.__class__.__name__, args))
-                assert _debug_com('COM: RETURN {}'.format(ret))
-                return ret
-            return _call
-
+            return lambda *args: \
+                self.method.get_field()(self.i, self.name)(obj, *args)
         raise AttributeError()
 
 class COMInterface(ctypes.Structure):
@@ -156,11 +146,8 @@ class InterfaceMetaclass(type(ctypes.POINTER(COMInterface))):
 
         return super(InterfaceMetaclass, cls).__new__(cls, name, bases, dct)
 
-# future.utils.with_metaclass does not work here, as the base class is from _ctypes.lib
-# See https://wiki.python.org/moin/PortingToPy3k/BilingualQuickRef
-Interface = InterfaceMetaclass(str('Interface'), (ctypes.POINTER(COMInterface),), {
-    '__doc__': 'Base COM interface pointer.',
-    })
+class Interface(ctypes.POINTER(COMInterface), metaclass=InterfaceMetaclass):
+    '''Base COM interface pointer.'''
 
 class IUnknown(Interface):
     _methods_ = [

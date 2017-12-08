@@ -90,9 +90,6 @@ by default:
 The information modules are provided for convenience, and are documented
 below.
 '''
-from __future__ import print_function
-from __future__ import absolute_import
-from builtins import range
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
@@ -113,7 +110,7 @@ _is_epydoc = hasattr(_sys, 'is_epydoc') and _sys.is_epydoc
 #:
 #: :type: `Context`
 #:
-#: .. versionadded:: 1.1
+#: :since: pyglet 1.1
 current_context = None
 
 def get_current_context():

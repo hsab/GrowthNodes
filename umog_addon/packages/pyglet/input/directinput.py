@@ -1,4 +1,3 @@
-from builtins import zip
 #!/usr/bin/python
 # $Id:$
 
@@ -160,7 +159,7 @@ class DirectInputDevice(base.Device):
                                    0)
         for event in events[:n_events.value]:
             index = event.dwOfs // 4
-            self.controls[index].value = event.dwData
+            self.controls[index]._set_value(event.dwData)
 
 _i_dinput = None
 
@@ -195,15 +194,9 @@ def get_devices(display=None):
     return _devices
 
 def _create_joystick(device):
-    if device._type in (dinput.DI8DEVTYPE_JOYSTICK,
-                        dinput.DI8DEVTYPE_1STPERSON,
+    if device._type in (dinput.DI8DEVTYPE_JOYSTICK, 
                         dinput.DI8DEVTYPE_GAMEPAD):
         return base.Joystick(device)
 
 def get_joysticks(display=None):
-    return [joystick 
-            for joystick 
-            in [_create_joystick(device) 
-                for device
-                in get_devices(display)] 
-            if joystick is not None]
+    return [_f for _f in [_create_joystick(d) for d in get_devices(display)] if _f]

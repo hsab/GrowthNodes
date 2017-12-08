@@ -34,8 +34,6 @@
 
 '''
 '''
-from builtins import map
-from builtins import str
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -163,7 +161,7 @@ class QuartzFont(base.Font):
         if traits in fonts:
             return fonts[traits]
         # Otherwise try to find a font with some of the traits.
-        for (t, f) in fonts.items():
+        for (t, f) in list(fonts.items()):
             if traits & t:
                 return f
         # Otherwise try to return a regular font.
@@ -223,14 +221,10 @@ class QuartzFont(base.Font):
             descriptor = self._create_font_descriptor(name, traits)
             self.ctFont = c_void_p(ct.CTFontCreateWithFontDescriptor(descriptor, size, None))
 
-            cf.CFRelease(descriptor)
             assert self.ctFont, "Couldn't load font: " + name
 
         self.ascent = int(math.ceil(ct.CTFontGetAscent(self.ctFont)))
         self.descent = -int(math.ceil(ct.CTFontGetDescent(self.ctFont)))
-
-    def __del__(self):
-        cf.CFRelease(self.ctFont)
 
     @classmethod
     def have_font(cls, name):

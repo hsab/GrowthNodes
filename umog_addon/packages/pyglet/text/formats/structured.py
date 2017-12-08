@@ -34,9 +34,6 @@
 
 '''Base class for structured (hierarchical) document formats.
 '''
-from __future__ import division
-from builtins import range
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -82,7 +79,7 @@ def _int_to_roman(input):
     nums = ('M',  'CM', 'D', 'CD','C', 'XC','L','XL','X','IX','V','IV','I')
     result = ""
     for i in range(len(ints)):
-        count = int(input // ints[i])
+        count = int(input / ints[i])
         result += nums[i] * count
         input -= ints[i] * count
     return result
@@ -231,7 +228,7 @@ class StructuredTextDecoder(pyglet.text.DocumentDecoder):
 
     def push_style(self, key, styles):
         old_styles = {}
-        for name in styles.keys():
+        for name in list(styles.keys()):
             old_styles[name] = self.current_style.get(name)
         self.stack.append((key, old_styles))
         self.current_style.update(styles)

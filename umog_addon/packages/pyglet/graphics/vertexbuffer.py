@@ -35,17 +35,14 @@
 
 '''Byte abstractions of Vertex Buffer Objects and vertex arrays.
 
-Use :py:func:`create_buffer` or :py:func:`create_mappable_buffer` to create a
-Vertex Buffer Object, or a vertex array if VBOs are not supported by the
-current context.
+Use `create_buffer` or `create_mappable_buffer` to create a Vertex Buffer
+Object, or a vertex array if VBOs are not supported by the current context.
 
 Buffers can optionally be created "mappable" (incorporating the
-:py:class:`AbstractMappable` mix-in).  In this case the buffer provides a
-:py:meth:`~AbstractMappable.get_region` method which provides the most
-efficient path for updating partial data within the buffer.
+`AbstractMappable` mix-in).  In this case the buffer provides a ``get_region``
+method which provides the most efficient path for updating partial data within
+the buffer.
 '''
-from builtins import range
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -106,10 +103,10 @@ def create_mappable_buffer(size,
         `usage` : int
             OpenGL usage constant
         `vbo` : bool
-            True if a :py:class:`VertexBufferObject` should be created if the driver
-            supports it; otherwise only a :py:class:`VertexArray` is created.
+            True if a `VertexBufferObject` should be created if the driver
+            supports it; otherwise only a `VertexArray` is created.
 
-    :rtype: :py:class:`AbstractBuffer` with :py:class:`AbstractMappable`
+    :rtype: `AbstractBuffer` with `AbstractMappable`
     '''
     from pyglet import gl
     if (vbo and
@@ -218,7 +215,7 @@ class AbstractMappable(object):
         will map bytes 0 to 80 of the buffer to an array of 20 ints.
 
         Changes to the array may not be recognised until the region's
-        :py:meth:`AbstractBufferRegion.invalidate` method is called.
+        `AbstractBufferRegion.invalidate` method is called.
 
         :Parameters:
             `start` : int
@@ -228,19 +225,18 @@ class AbstractMappable(object):
             `ptr_type` : ctypes pointer type
                 Pointer type describing the array format to create
 
-        :rtype: :py:class:`AbstractBufferRegion`
+        :rtype: `AbstractBufferRegion`
         '''
         raise NotImplementedError('abstract')
 
 class VertexArray(AbstractBuffer, AbstractMappable):
     '''A ctypes implementation of a vertex array.
 
-    Many of the methods on this class are effectively no-op's, such as
-    :py:meth:`bind`, :py:meth:`unbind`, :py:meth:`map`, :py:meth:`unmap` and
-    :py:meth:`delete`; they exist in order to present
-    a consistent interface with :py:class:`VertexBufferObject`.
+    Many of the methods on this class are effectively no-op's, such as `bind`,
+    `unbind`, `map`, `unmap` and `delete`; they exist in order to present
+    a consistent interface with `VertexBufferObject`.
 
-    This buffer type is also mappable, and so :py:meth:`get_region` can be used.
+    This buffer type is also mappable, and so `get_region` can be used.
     '''
 
     def __init__(self, size):
@@ -289,10 +285,9 @@ class VertexBufferObject(AbstractBuffer):
     is done so by the video driver).  While this can improve memory usage and
     possibly performance, updates to the buffer are relatively slow.
 
-    This class does not implement :py:class:`AbstractMappable`, and so has no
-    :py:meth:`~AbstractMappable.get_region` method.  See 
-    :py:class:`MappableVertexBufferObject` for a VBO class
-    that does implement :py:meth:`~AbstractMappable.get_region`.
+    This class does not implement `AbstractMappable`, and so has no
+    ``get_region`` method.  See `MappableVertexBufferObject` for a VBO class
+    that does implement ``get_region``.
     '''
 
     def __init__(self, size, target, usage):
@@ -375,14 +370,13 @@ class VertexBufferObject(AbstractBuffer):
 class MappableVertexBufferObject(VertexBufferObject, AbstractMappable):
     '''A VBO with system-memory backed store.
 
-    Updates to the data via :py:meth:`set_data`, :py:meth:`set_data_region` and
-    :py:meth:`map` will be held in local memory until :py:meth:`bind` is
-    called.  The advantage is that fewer OpenGL calls are needed, increasing
-    performance.
+    Updates to the data via `set_data`, `set_data_region` and `map` will be
+    held in local memory until `bind` is called.  The advantage is that fewer
+    OpenGL calls are needed, increasing performance.
 
     There may also be less performance penalty for resizing this buffer.
 
-    Updates to data via :py:meth:`map` are committed immediately.
+    Updates to data via `map` are committed immediately.
     '''
     def __init__(self, size, target, usage):
         super(MappableVertexBufferObject, self).__init__(size, target, usage)
@@ -445,12 +439,11 @@ class MappableVertexBufferObject(VertexBufferObject, AbstractMappable):
 class AbstractBufferRegion(object):
     '''A mapped region of a buffer.
 
-    Buffer regions are obtained using :py:meth:`~AbstractMappable.get_region`.
+    Buffer regions are obtained using `AbstractMappable.get_region`.
 
     :Ivariables:
         `array` : ctypes array
-            Array of data, of the type and count requested by
-            :py:meth:`~AbstractMappable.get_region`.
+            Array of data, of the type and count requested by ``get_region``.
 
     '''
     def invalidate(self):
@@ -478,9 +471,8 @@ class VertexBufferObjectRegion(AbstractBufferRegion):
 class VertexArrayRegion(AbstractBufferRegion):
     '''A mapped region of a vertex array.
 
-    The :py:meth:`~AbstractBufferRegion.invalidate` method is a no-op but is
-    provided in order to present a consistent interface with
-    :py:meth:`VertexBufferObjectRegion`.
+    The `invalidate` method is a no-op but is provided in order to present
+    a consistent interface with `VertexBufferObjectRegion`.
     '''
     def __init__(self, array):
         self.array = array

@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from builtins import object
 from pyglet.libs.darwin.cocoapy import *
 from .systemcursor import SystemCursor
 

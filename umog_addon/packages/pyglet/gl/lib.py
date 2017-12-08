@@ -34,7 +34,6 @@
 
 '''
 '''
-from __future__ import print_function
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'

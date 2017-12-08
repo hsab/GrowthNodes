@@ -45,9 +45,8 @@ Example usage::
     my_caret = caret.Caret(my_layout)
     my_window.push_handlers(my_caret)
 
-.. versionadded:: 1.1
+:since: pyglet 1.1
 '''
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -110,9 +109,9 @@ class Caret(object):
         be drawn explicitly.
 
         :Parameters:
-            `layout` : `~pyglet.text.layout.TextLayout`
+            `layout` : `TextLayout`
                 Layout to control.
-            `batch` : `~pyglet.graphics.Batch`
+            `batch` : `Batch`
                 Graphics batch to add vertices to.
             `color` : (int, int, int)
                 RGB tuple with components in range [0, 255].

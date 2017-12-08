@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from builtins import object
 # Uses the HID API introduced in Mac OS X version 10.5
 # http://developer.apple.com/library/mac/#technotes/tn2007/tn2187.html
 
@@ -203,7 +200,7 @@ HIDDeviceValueCallback = CFUNCTYPE(None, c_void_p, c_int, c_void_p, c_void_p)
 _device_lookup = {}  # IOHIDDeviceRef to python HIDDevice object  
 _element_lookup = {} # IOHIDElementRef to python HIDDeviceElement object
 
-class HIDValue(object):
+class HIDValue:
     def __init__(self, valueRef):
         # Check that this is a valid IOHIDValue.
         assert(valueRef)
@@ -221,7 +218,7 @@ class HIDValue(object):
         elementRef = c_void_p(iokit.IOHIDValueGetElement(valueRef))
         self.element = HIDDeviceElement.get_element(elementRef)
 
-class HIDDevice(object):
+class HIDDevice:
     @classmethod
     def get_device(cls, deviceRef):
         # deviceRef is a c_void_p pointing to an IOHIDDeviceRef
@@ -321,7 +318,7 @@ class HIDDevice(object):
         # Remove self from device lookup table.
         del _device_lookup[sender]
         # Remove device elements from lookup table.
-        for key, value in _element_lookup.items():
+        for key, value in list(_element_lookup.items()):
             if value in self.elements:
                 del _element_lookup[key]
 
@@ -362,7 +359,7 @@ class HIDDevice(object):
             return None
 
 
-class HIDDeviceElement(object):
+class HIDDeviceElement:
     @classmethod
     def get_element(cls, elementRef):
         # elementRef is a c_void_p pointing to an IOHIDDeviceElementRef
@@ -406,7 +403,7 @@ class HIDDeviceElement(object):
         self.physicalMax = iokit.IOHIDElementGetPhysicalMax(elementRef)
 
 
-class HIDManager(object):
+class HIDManager:
     def __init__(self):
         # Create the HID Manager.
         self.managerRef = c_void_p(iokit.IOHIDManagerCreate(None, kIOHIDOptionsTypeNone))
@@ -554,7 +551,7 @@ class PygletDevice(Device):
     def device_value_changed(self, hid_device, hid_value):
         # Called by device when input value changes.
         control = self._controls[hid_value.element.cookie]
-        control.value = hid_value.intvalue
+        control._set_value(hid_value.intvalue)
 
     def _create_controls(self):
         self._controls = {}
@@ -583,7 +580,7 @@ class PygletDevice(Device):
                 control = self._controls[element.cookie]
                 hid_value = self.device.get_value(element)
                 if hid_value:
-                    control.value = hid_value.intvalue
+                    control._set_value(hid_value.intvalue)
 
 ######################################################################
 

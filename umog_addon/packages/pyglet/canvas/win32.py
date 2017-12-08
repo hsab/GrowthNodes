@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # $Id:$
 
-from __future__ import absolute_import
 from .base import Display, Screen, ScreenMode, Canvas
 
 from pyglet.libs.win32 import _kernel32, _user32, types, constants

@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 # ----------------------------------------------------------------------------
 # pyglet
 # Copyright (c) 2006-2008 Alex Holkner
@@ -91,9 +90,10 @@ class Win32EventLoop(PlatformEventLoop):
             (HANDLE * self._wait_objects_n)(*[o for o, f in self._wait_objects])
 
     def start(self):
-        if _kernel32.GetCurrentThreadId() != self._event_thread:
-            raise RuntimeError('EventLoop.run() must be called from the same ' +
-                               'thread that imports pyglet.app')
+        #might be safe no events are used
+        #if _kernel32.GetCurrentThreadId() != self._event_thread:
+        #    raise RuntimeError('EventLoop.run() must be called from the same ' +
+        #                       'thread that imports pyglet.app')
 
         self._timer_func = None
         self._polling = False

@@ -34,8 +34,6 @@
 
 '''
 '''
-from __future__ import division
-from builtins import str
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
@@ -655,7 +653,7 @@ class CarbonWindow(BaseWindow):
                 self.dispatch_event('on_text_motion_select', motion)
             else:
                 self.dispatch_event('on_text_motion', motion)
-        elif ((unicodedata.category(text[0]) != 'Cc' or text == u'\r') and
+        elif ((unicodedata.category(text[0]) != 'Cc' or text == '\r') and
             not (modifiers & key.MOD_COMMAND)):
             self.dispatch_event('on_text', text)
         return noErr
@@ -690,7 +688,7 @@ class CarbonWindow(BaseWindow):
             wchar = None
         # If the unicode char is within charmap keys (ascii value), then we use
         # the corresponding symbol.
-        if wchar in charmap.keys():
+        if wchar in list(charmap.keys()):
             symbol = charmap[wchar]
         else:
             sym = c_uint32()

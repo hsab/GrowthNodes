@@ -1,4 +1,3 @@
-from builtins import object
 from pyglet.libs.darwin.cocoapy import *
 
 class PygletWindow_Implementation(object):

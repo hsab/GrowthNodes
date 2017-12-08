@@ -163,7 +163,7 @@ def fix2float(value):
 
 def create_atsu_style(attributes):
     # attributes is a dict of ATSUAttributeTag => ctypes value
-    tags, values = zip(*attributes.items())
+    tags, values = list(zip(*list(attributes.items())))
     tags = (c_int * len(tags))(*tags)
     sizes = (c_uint * len(values))(*[sizeof(v) for v in values])
     values = (c_void_p * len(values))(*[cast(pointer(v), c_void_p) \
@@ -177,7 +177,7 @@ def create_atsu_style(attributes):
 def set_layout_attributes(layout, attributes):
     if attributes:
         # attributes is a dict of ATSUAttributeTag => ctypes value
-        tags, values = zip(*attributes.items())
+        tags, values = list(zip(*list(attributes.items())))
         tags = (c_int * len(tags))(*tags)
         sizes = (c_uint * len(values))(*[sizeof(v) for v in values])
         values = (c_void_p * len(values))(*[cast(pointer(v), c_void_p) \
@@ -306,7 +306,7 @@ class CarbonGlyphRenderer(base.GlyphRenderer):
         advance = int(round(advance))
 
         # Fix advance for zero-width space
-        if text == u'\u200b':
+        if text == '\u200b':
             advance = 0
 
         # A negative pitch is required, but it is much faster to load the

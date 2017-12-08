@@ -38,11 +38,6 @@ These classes should not be constructed directly.  Instead, use the functions
 in `pyglet.font` to obtain platform-specific instances.  You can use these
 classes as a documented interface to the concrete classes.
 '''
-from builtins import chr
-from builtins import str
-from builtins import map
-from builtins import range
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
@@ -62,8 +57,8 @@ _logical_order_exception = \
 _grapheme_extend = lambda c, cc: \
     cc in ('Me', 'Mn') or c in _other_grapheme_extend
 
-_CR = u'\u000d'
-_LF = u'\u000a'
+_CR = '\u000d'
+_LF = '\u000a'
 _control = lambda c, cc: cc in ('ZI', 'Zp', 'Cc', 'Cf') and not \
     c in list(map(chr, [0x000d, 0x000a, 0x200c, 0x200d]))
 _extend = lambda c, cc: _grapheme_extend(c, cc) or \
@@ -120,7 +115,7 @@ def get_grapheme_clusters(text):
         `text` : unicode
             String to cluster.
 
-    .. versionadded:: 1.1.2
+    :since: pyglet 1.1.2
 
     :rtype: List of `unicode`
     :return: List of Unicode grapheme clusters
@@ -134,7 +129,7 @@ def get_grapheme_clusters(text):
             cluster = ''
         elif cluster:
             # Add a zero-width space to keep len(clusters) == len(text)
-            clusters.append(u'\u200b')
+            clusters.append('\u200b')
         cluster += right
         left = right
 
@@ -270,7 +265,7 @@ class FontException(Exception):
 class Font(object):
     '''Abstract font class able to produce glyphs.
 
-    To construct a font, use :py:func:`pyglet.font.load`, which will instantiate the
+    To construct a font, use `pyglet.font.load`, which will instantiate the
     platform-specific font class.
 
     Internally, this class is used by the platform classes to manage the set
@@ -307,7 +302,7 @@ class Font(object):
         the font registry.
 
         There is no way to instantiate a font given the data directly, you
-        must use :py:func:`pyglet.font.load` specifying the font name.
+        must use `pyglet.font.load` specifying the font name.
         '''
         pass
 
@@ -436,7 +431,7 @@ class Font(object):
                 break
 
             # If a valid breakpoint, commit holding buffer
-            if c in u'\u0020\u200b':
+            if c in '\u0020\u200b':
                 glyphs += glyph_buffer
                 glyph_buffer = []
 

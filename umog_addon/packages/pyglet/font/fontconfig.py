@@ -34,7 +34,6 @@
 """
 Wrapper around the Linux FontConfig library. Used to find available fonts.
 """
-from builtins import object
 
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
@@ -52,7 +51,7 @@ from pyglet.font.base import FontException
  FcResultNoMatch,
  FcResultTypeMismatch,
  FcResultNoId,
- FcResultOutOfMemory) = range(5)
+ FcResultOutOfMemory) = list(range(5))
 FcResult = c_int
 
 FC_FAMILY = asbytes('family')
@@ -76,11 +75,11 @@ FC_SLANT_ITALIC = 100
  FcTypeMatrix,
  FcTypeCharSet,
  FcTypeFTFace,
- FcTypeLangSet) = range(9)
+ FcTypeLangSet) = list(range(9))
 FcType = c_int
 
 (FcMatchPattern,
- FcMatchFont) = range(2)
+ FcMatchFont) = list(range(2))
 FcMatchKind = c_int
 
 
@@ -136,21 +135,10 @@ class FontConfig(object):
 
         result = search_pattern.match()
         self._add_to_search_cache(search_pattern, result)
-        search_pattern.dispose()
         return result
 
-    def have_font(self, name):
-        result = self.find_font(name)
-        if result:
-            # Check the name matches, fontconfig can return a default
-            if name and result.name and result.name.lower() != name.lower():
-                return False
-            return True
-        else:
-            return False
-
-    def char_index(self, ft_face, character):
-        return self._fontconfig.FcFreeTypeCharIndex(ft_face, ord(character))
+    def char_index(self, face, character):
+        return self._fontconfig.FcFreeTypeCharIndex(byref(face), ord(character))
 
     def _add_to_search_cache(self, search_pattern, result_pattern):
         self._search_cache[(search_pattern.name,
@@ -228,7 +216,8 @@ class FontConfigPattern(object):
         if not value:
             return
 
-        value = value.encode('utf8')
+        if isinstance(value, str):
+            value  = value.encode('utf8')
 
         self._fontconfig.FcPatternAddString(self._pattern, name, asbytes(value))
 
@@ -342,9 +331,6 @@ class FontConfigSearchPattern(FontConfigPattern):
             return match_pattern
         else:
             return None
-
-    def dispose(self):
-        self._destroy()
 
 
 class FontConfigSearchResult(FontConfigPattern):
