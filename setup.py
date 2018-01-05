@@ -32,6 +32,7 @@ import sys
 import shutil
 import traceback
 import numpy
+import platform
 from os.path import abspath, dirname, join, relpath
 
 addonName = "umog_addon"
@@ -150,7 +151,11 @@ def compileCythonFiles():
     sys.argv = [sys.argv[0], "build_ext", "--inplace"]
 
     extensions = cythonize(getPathsToCythonFiles(), compiler_directives={'cdivision': True, 'cdivision_warnings': False})
-    setup(name = 'umog_addon', ext_modules = extensions, include_dirs=[numpy.get_include()])
+    if platform.system() == "Linux":
+        setup(name = 'umog_addon', ext_modules = extensions, include_dirs=[numpy.get_include(), "/usr/include/OpenEXR/"])
+    else:
+        #TODO: maybe do something better on windows
+        setup(name = 'umog_addon', ext_modules = extensions, include_dirs=[numpy.get_include()])
     print("Compilation Successful.")
 
     sys.argv = [sys.argv[0], "clean"]
