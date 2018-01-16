@@ -1,9 +1,0 @@
-../mcubes/__init__.py
-../mcubes/exporter.py
-../mcubes/__pycache__/__init__.cpython-35.pyc
-../mcubes/__pycache__/exporter.cpython-35.pyc
-../mcubes/_mcubes.cpython-35m-darwin.so
-dependency_links.txt
-PKG-INFO
-SOURCES.txt
-top_level.txt
