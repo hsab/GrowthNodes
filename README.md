@@ -18,7 +18,7 @@ Simulation is stored as a series of shapekeys which allows fine grain control ov
 
 ## Video Overview
 
-[![Watch video](https://raw.githubusercontent.com/hsab/GrowthNodes/gifs/gifs/playvid.gif)](https://youtu.be/1hB9QrABK30)
+<a href="https://youtu.be/1hB9QrABK30" rel="nofollow" target="_blank"><img src="https://raw.githubusercontent.com/hsab/GrowthNodes/gifs/gifs/playvid.gif" alt="Watch video" style="max-width:100%;"></a>
 
 ## Background
 
