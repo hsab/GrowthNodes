@@ -63,56 +63,56 @@ if getBlenderVersion() < (2, 76, 0):
         "Please download the latest official release.")
     raise Exception(message)
 
-if not os.path.isfile(compilationInfoPath):
-    message = ("\n\n"
-        "This is just the source code of UMOG, not a compiled or dynamic build.\n"
-        "Please download a build for your operating system instead or run setup.py with --pyximport command.\n"
-        "If you download a build from releases, don't forget to remove this copy first.")
-    raise Exception(message)
+# if not os.path.isfile(compilationInfoPath):
+#     message = ("\n\n"
+#         "This is just the source code of UMOG, not a compiled or dynamic build.\n"
+#         "Please download a build for your operating system instead or run setup.py with --pyximport command.\n"
+#         "If you download a build from releases, don't forget to remove this copy first.")
+#     raise Exception(message)
 
-import json
-with open(compilationInfoPath) as f:
-    compilation_info = json.load(f)
+# import json
+# with open(compilationInfoPath) as f:
+#     compilation_info = json.load(f)
 
-if "sys.pyximport" in compilation_info:
-    try:
-        import pyximport
-    except:
-        pass
-    if "pyximport" not in globals():
-        message = ("\n\n"
-            "UMOG's pyximport is enabled.\n\n"
-            "This is for development purposes and is not intended for production.\n"
-            "Your python does not include the pyximport library.\n\n"
-            "Please download a compiled build for you operating system,\nor follow development guides on wiki.")
-        raise Exception(message)
+# if "sys.pyximport" in compilation_info:
+#     try:
+#         import pyximport
+#     except:
+#         pass
+#     if "pyximport" not in globals():
+#         message = ("\n\n"
+#             "UMOG's pyximport is enabled.\n\n"
+#             "This is for development purposes and is not intended for production.\n"
+#             "Your python does not include the pyximport library.\n\n"
+#             "Please download a compiled build for you operating system,\nor follow development guides on wiki.")
+#         raise Exception(message)
 
-elif compilation_info["sys.platform"] != sys.platform:
-    message = ("\n\n"
-        "This UMOG build is for another OS.\n\n"
-        "You are using: {}\n"
-        "This build is for: {}\n\n"
-        "Please download a build for your operating system."
-        ).format(sys.platform, compilation_info["sys.platform"])
-    raise Exception(message)
+# elif compilation_info["sys.platform"] != sys.platform:
+#     message = ("\n\n"
+#         "This UMOG build is for another OS.\n\n"
+#         "You are using: {}\n"
+#         "This build is for: {}\n\n"
+#         "Please download a build for your operating system."
+#         ).format(sys.platform, compilation_info["sys.platform"])
+#     raise Exception(message)
 
-else:
-    currentPythonVersion = tuple(sys.version_info[:3])
-    addonPythonVersion = tuple(compilation_info["sys.version_info"][:3])
+# else:
+#     currentPythonVersion = tuple(sys.version_info[:3])
+#     addonPythonVersion = tuple(compilation_info["sys.version_info"][:3])
 
-    if currentPythonVersion[:2] != addonPythonVersion[:2]:
-        message = ("\n\n"
-                   "There is a Python version mismatch.\n\n"
-                   "Your Blender build uses: {}\n"
-                   "UMOG has been compiled for: {}\n\n"
-                   "You have three options:\n"
-                   "  1. Try make Blender use another Python version.\n"
-                   "     (Blender 2.78/2.79 officially uses Python 3.5.x)\n"
-                   "  2. Compile UMOG yourself using the correct Python version.\n"
-                   "     (Look in the developer manual for more information)\n"
-                   "  3. Create an issue on Github and ask if someone can create a build for you."
-                   ).format(currentPythonVersion, addonPythonVersion)
-        raise Exception(message)
+#     if currentPythonVersion[:2] != addonPythonVersion[:2]:
+#         message = ("\n\n"
+#                    "There is a Python version mismatch.\n\n"
+#                    "Your Blender build uses: {}\n"
+#                    "UMOG has been compiled for: {}\n\n"
+#                    "You have three options:\n"
+#                    "  1. Try make Blender use another Python version.\n"
+#                    "     (Blender 2.78/2.79 officially uses Python 3.5.x)\n"
+#                    "  2. Compile UMOG yourself using the correct Python version.\n"
+#                    "     (Look in the developer manual for more information)\n"
+#                    "  3. Create an issue on Github and ask if someone can create a build for you."
+#                    ).format(currentPythonVersion, addonPythonVersion)
+#         raise Exception(message)
 
 # Load all submodules
 ##################################
