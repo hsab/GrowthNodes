@@ -20,8 +20,16 @@ class ScriptNode(bpy.types.Node, UMOGNode):
         print("in script node create")
         self.assignedType = "Variable"
         self.width = 270
+        self.newInput("Boolean", "Execute Per Frame", value = False)
+
 
     def draw(self, layout):
+        row = layout.row(align = True)
+        self.invokeFunction(row, "newOutVariable",
+            text = "New Output Variable",
+            description = "Create a new output variable socket",
+            icon = "TRACKING_REFINE_FORWARDS")
+
         layout.prop(self, "scriptName", text = "", icon = "GROUP_VERTEX")
         row = layout.row(align = True)
         self.invokeFunction(row, "removeUnlinkedInputs",
@@ -33,12 +41,12 @@ class ScriptNode(bpy.types.Node, UMOGNode):
         self.invokeFunction(row, "run",
             text = "Run Script",
             description = "Runs the selected script text block",
-            confirm = True,
+            confirm = False,
             icon = "PLAY")
 
         row = layout.row(align = True)
         if self.textBlockName is "":
-            self.invokeFunction(row, "createNewTextBlock", icon = "ZOOMIN")
+            self.invokeFunction(row, "createNewTextBlock", icon = "ZOOM_IN")
         # else:
         #     self.invokeSelector(row, "AREA", "viewTextBlockInArea",
         #         icon = "ZOOM_SELECTED")
@@ -46,19 +54,19 @@ class ScriptNode(bpy.types.Node, UMOGNode):
         row.prop_search(self, "textBlockName",  bpy.data, "texts", text = "")
         
         row = layout.row(align = True)
-        self.invokeFunction(row, "newVariable",
-            text = "newVariable",
-            description = "Create a new variable socket",
-            icon = "PLUS")
+        self.invokeFunction(row, "newInVariable",
+            text = "New Input Variable",
+            description = "Create a new input variable socket",
+            icon = "TRACKING_REFINE_BACKWARDS")
 
         self.drawTypeSpecifics(layout)
 
     def createNewTextBlock(self):
         textBlock = bpy.data.texts.new(name = self.scriptName)
-        textBlock.use_tabs_as_spaces = True
-        textBlock.write("#Variables are passed in as locals. Eg. {'varName':socket}")
+        textBlock.indentation = 'TABS'
+        textBlock.write("#Variables are passed in as locals. Eg. {'varName':socket}\n")
         textBlock.write("#def entry():\n")
-        textBlock.write("#	print(varName)")
+        textBlock.write("#	print(varInput)")
         self.textBlockName = textBlock.name
         # self.writeToTextBlock()
 
@@ -69,12 +77,25 @@ class ScriptNode(bpy.types.Node, UMOGNode):
         space.show_line_numbers = True
         space.show_syntax_highlight = True
 
-    def newVariable(self):
+    def newInVariable(self):
         socket = self.newInput(self.assignedType, "Variable")
         socket.textProps.editable = True
         socket.display.textInput = True
         socket.display.text = True
-        socket.text = "varName"
+        socket.text = "varInput" + str(len(self.inputs) - 1)
+        socket.removeable = True
+        socket.moveable = True
+        socket.defaultDrawType = "TEXT_PROPERTY"
+
+        self.updateOutputName()
+        return socket
+
+    def newOutVariable(self):
+        socket = self.newOutput(self.assignedType, "Variable")
+        socket.textProps.editable = True
+        socket.display.textInput = True
+        socket.display.text = True
+        socket.text = "varOutput" + str(len(self.outputs))
         socket.removeable = True
         socket.moveable = True
         socket.defaultDrawType = "TEXT_PROPERTY"
@@ -82,21 +103,35 @@ class ScriptNode(bpy.types.Node, UMOGNode):
         self.updateOutputName()
         return socket
     
+    def execute(self, refholder):
+        if self.inputs[0].value:
+            self.run()
+
     def run(self):
         scriptCode = bpy.data.texts[self.textBlockName].as_string()
         scriptLocals = {}
-        for socket in self.inputs:
-            scriptLocals[socket.text] = socket.getConnectedNode.getProperty()
+        scriptGlobals = {}
+        if len(self.inputs) > 1:
+            for socket in self.inputs[1:]:
+                if socket.isLinked:
+                    scriptLocals[socket.text] = socket.getFromSocket.value
+            for socket in self.outputs:
+                scriptLocals[socket.text] = None
 
-        comiledScript = compile(scriptCode, '<string>', 'exec')
-        exec(comiledScript, scriptLocals, scriptLocals)
-        a = scriptLocals['testthat']()
-        b = scriptLocals['testthat']()
-        c = scriptLocals['testthat']()
-        d = scriptLocals['testthat']()
-        print("hey",a,b,c,d)
-        # exec(textBlock.as_string())
-        # entry()
+            comiledScript = compile(scriptCode, '<string>', 'exec')
+            # exec(comiledScript)
+            exec(comiledScript, None, scriptLocals)
+
+            for socket in self.outputs:
+                socket.value = str(scriptLocals[socket.text])
+
+            print()
+            # b = scriptLocals['testthat']()
+            # c = scriptLocals['testthat']()
+            # d = scriptLocals['testthat']()
+            # print("hey",a,b,c,d)
+            # exec(scriptCode)
+            # entry()
 
     def updateOutputName(self):
         name = "List ({})".format(len(self.inputs) - 1)
@@ -104,7 +139,12 @@ class ScriptNode(bpy.types.Node, UMOGNode):
             self.outputs[0].name = name
 
     def removeUnlinkedInputs(self):
-        for socket in self.inputs:
+        if len(self.inputs) > 1:
+            for socket in self.inputs[1:]:
+                if not socket.is_linked:
+                    socket.remove()
+
+        for socket in self.outputs:
             if not socket.is_linked:
                 socket.remove()
 
@@ -122,7 +162,8 @@ class ScriptNode(bpy.types.Node, UMOGNode):
 
     def preExecute(self, refholder):
         # consider saving the result from this
-        self.outputs[0].integer_value = self.input_value
+        # self.outputs[0].integer_value = self.input_value
+        pass
 
     def addItem(self, path, index = -1):
         item = self.itemList.add()
@@ -141,8 +182,8 @@ class ScriptNode(bpy.types.Node, UMOGNode):
             self.addItem("rot")
             self.addItem("scale")
 
-        # DBG(type, TRACE = False)
+        DBG(type, TRACE = False)
 
     def removeItemFromList(self, strIndex):
-        # DBG(self.itemList[int(strIndex)], TRACE = False)
+        DBG(self.itemList[int(strIndex)], TRACE = False)
         self.itemList.remove(int(strIndex))

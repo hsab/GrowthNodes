@@ -58,27 +58,30 @@ class SharpFacesNode(bpy.types.Node, UMOGOutputNode):
         bm.faces.ensure_lookup_table()
 
         for f in bm.faces:
-            f.select = False
-            loc, rot, scale = obj.matrix_world.decompose()
-            zangle = Vector((0,0,1)).angle(rot * f.normal)
-            
-            top = self.inputs[3].value
-            bottom = self.inputs[4].value
-            angle = self.inputs[1].value
-            
-            zangle = math.degrees(zangle)   
-            posDir = zangle <= angle
-            negDir = zangle >= 180 - angle
-            
-            if top and not bottom:
-                if posDir:
-                    f.select = True
-            elif bottom and not top:
-                if negDir:
-                    f.select = True
-            elif top and bottom:
-                if posDir or negDir:
-                    f.select = True
+            try:
+                f.select = False
+                loc, rot, scale = obj.matrix_world.decompose()
+                zangle = Vector((0,0,1)).angle(rot @ f.normal)
+                
+                top = self.inputs[3].value
+                bottom = self.inputs[4].value
+                angle = self.inputs[1].value
+                
+                zangle = math.degrees(zangle)   
+                posDir = zangle <= angle
+                negDir = zangle >= 180 - angle
+                
+                if top and not bottom:
+                    if posDir:
+                        f.select = True
+                elif bottom and not top:
+                    if negDir:
+                        f.select = True
+                elif top and bottom:
+                    if posDir or negDir:
+                        f.select = True
+            except Exception as e:
+                pass
 
         bmesh.update_edit_mesh(obj.data)
         bm.free()

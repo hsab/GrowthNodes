@@ -102,13 +102,13 @@ class UMOGSocket:
                 else:
                     self.reverseName()
 
-                # DBG("SOCKET SUCCESSFULLY REFRESHED:",
-                #     "Type:   " + self.dataType,
-                #     "Name:   " + self.name,
-                #     "Path:   " + self.path_from_id(),
-                #     "Before: " + str(beforeValue),
-                #     "After:  " + str(afterValue),
-                #     trace=True)
+                DBG("SOCKET SUCCESSFULLY REFRESHED:",
+                    "Type:   " + self.dataType,
+                    "Name:   " + self.name,
+                    "Path:   " + self.path_from_id(),
+                    "Before: " + str(beforeValue),
+                    "After:  " + str(afterValue),
+                    trace=True)
             if self.isInput and self.isUnlinked:
                 self.reverseName()
                 

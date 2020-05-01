@@ -249,16 +249,18 @@ class UMOGNodeTree(NodeTree):
             self.update()
 
             for node in self.linearizedNodes:
-                try: node.packSockets()
-                except Exception as e:
-                    self.raiseAndView(node, 'Failed to pack data for node')
-                    return
+                node.packSockets()
+                # try: node.packSockets()
+                # except Exception as e:
+                #     self.raiseAndView(node, 'Failed to pack data for node')
+                #     return
 
             for node in self.linearizedNodes:
-                try: node.preExecute(refholder)
-                except Exception as e:
-                    self.raiseAndView(node, 'Pre-execution failed for node')
-                    return
+                node.preExecute(refholder)
+                # try: node.preExecute(refholder)
+                # except Exception as e:
+                #     self.raiseAndView(node, 'Pre-execution failed for node')
+                #     return
 
             self.executeInProgress = True
 
@@ -269,29 +271,33 @@ class UMOGNodeTree(NodeTree):
 
                 for sub_frame in range(0, self.properties.Substeps):
                     for node in self.linearizedNodes:
-                        try: node.refreshNode()
-                        except Exception as e:
-                            self.raiseAndView(node, 'Unable to refresh node')
-                            return
+                        node.refreshNode()
+                        # try: node.refreshNode()
+                        # except Exception as e:
+                        #     self.raiseAndView(node, 'Unable to refresh node')
+                        #     return
                         
-                        try: node.execute(refholder)
-                        except Exception as e:
-                            self.raiseAndView(node, 'Unable to execute node')
-                            return
+                        node.execute(refholder)
+                        # try: node.execute(refholder)
+                        # except Exception as e:
+                        #     self.raiseAndView(node, 'Unable to execute node')
+                        #     return
 
                 for node in self.linearizedNodes:
-                    try: node.postFrame(refholder)
-                    except Exception as e:
-                        self.raiseAndView(node, 'Post-execution failed for node')
-                        return
+                    node.postFrame(refholder)
+                    # try: node.postFrame(refholder)
+                    # except Exception as e:
+                    #     self.raiseAndView(node, 'Post-execution failed for node')
+                    #     return
 
             self.executeInProgress = False
 
             for node in self.linearizedNodes:
-                try: node.postBake(refholder)
-                except Exception as e:
-                    self.raiseAndView(node, 'Post-bake failed for node')
-                    return
+                node.postBake(refholder)
+                # try: node.postBake(refholder)
+                # except Exception as e:
+                #     self.raiseAndView(node, 'Post-bake failed for node')
+                #     return
 
             self.properties.bakeCount = self.properties.bakeCount + 1
         else:

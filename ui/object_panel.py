@@ -129,12 +129,12 @@ class UMOGObjectPanel:
                 col = row.column()
 
                 sub = col.column(align=True)
-                sub.operator("object.shape_key_add", icon='ZOOMIN', text="").from_mix = False
-                sub.operator("object.shape_key_remove", icon='ZOOMOUT', text="").all = False
+                sub.operator("object.shape_key_add", icon='ZOOM_IN', text="").from_mix = False
+                sub.operator("object.shape_key_remove", icon='ZOOM_OUT', text="").all = False
 
                 sub.operator("object.shape_key_move", icon='TRIA_UP', text="").type = 'UP'
                 sub.operator("object.shape_key_move", icon='TRIA_DOWN', text="").type = 'DOWN'
-                sub.menu("MESH_MT_shape_key_specials", icon='DOWNARROW_HLT', text="")
+                sub.menu("MESH_MT_shape_key_context_menu", icon='DOWNARROW_HLT', text="")
 
                 if kb:
                     box = layout.box()
@@ -198,8 +198,8 @@ class UMOGObjectPanel:
             if scn.props.ToggleVertexGroupList:
                     row.template_list("MESH_UL_vgroups", "", obj, "vertex_groups", obj.vertex_groups, "active_index", rows=rows)
                     col = row.column(align=True)
-                    col.operator("object.vertex_group_add", icon='ZOOMIN', text="")
-                    col.operator("object.vertex_group_remove", icon='ZOOMOUT', text="").all = False
+                    col.operator("object.vertex_group_add", icon='ZOOM_IN', text="")
+                    col.operator("object.vertex_group_remove", icon='ZOOM_OUT', text="").all = False
                     if group:
                         col.operator("object.vertex_group_move", icon='TRIA_UP', text="").direction = 'UP'
                         col.operator("object.vertex_group_move", icon='TRIA_DOWN', text="").direction = 'DOWN'

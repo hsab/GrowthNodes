@@ -16,6 +16,8 @@ class SubdivideNode(bpy.types.Node, UMOGOutputNode):
 
         self.newInput("Integer", "Cut Count", value = 1, minValue = 1, maxValue = 6)
         self.newInput("Float", "Smooth Factor", value = 0.0, minValue = 0.0, maxValue = 1.0)
+        self.newInput("Boolean", "Limit Faces", value = False)
+        self.newInput("Integer", "Face Limit", value = 16000, minValue = 1, maxValue = 999999999999)
         
         socket = self.newOutput(self.assignedType, "Object")
         socket.display.refreshableIcon = False
@@ -44,6 +46,13 @@ class SubdivideNode(bpy.types.Node, UMOGOutputNode):
         obj.data.update()
         self.resetNormals(obj.data)
         obj.data.update()
+
+        faceCount = len(obj.data.polygons)
+        limitFaces = self.inputs[4].value
+        faceLimit = self.inputs[5].value
+
+        if limitFaces and faceCount>=faceLimit:
+            return
 
         if self.inputs[1].value == '':
             self.inputs[0].setSelected()

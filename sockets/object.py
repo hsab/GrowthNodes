@@ -15,7 +15,7 @@ class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
     # Label for nice name display
     bl_label = 'Object Socket'
     dataType = "Object"
-    allowedInputTypes = ["Object"]
+    allowedInputTypes = ["Object", "Variable"]
 
     useIsUsedProperty = False
     defaultDrawType = "PREFER_PROPERTY"
@@ -49,12 +49,12 @@ class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
         self.setViewObjectMode()
         
         for obj in bpy.data.objects:
-            obj.select = False
+            obj.select_set(False)
 
         obj = self.getObject()
 
-        obj.select = True
-        bpy.context.scene.objects.active = obj
+        obj.select_set(True)
+        bpy.context.view_layer.objects.active = obj
 
     def getCustomContext(self):
         win = bpy.context.window
@@ -80,7 +80,7 @@ class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
         
         bpy.ops.object.mode_set(mode='EDIT')    
         if selectAll is not False:
-            bpy.ops.mesh.select_all(override, action=selectAll)
+            bpy.ops.mesh.select_all(action=selectAll)
             obj = self.getObject()
             obj.update_from_editmode()
         return override

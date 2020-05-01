@@ -4,7 +4,7 @@ import bpy
 from bpy.props import *
 
 currentFileDirectory = os.path.dirname(__file__)
-addonName = os.path.basename(os.path.dirname(currentFileDirectory))
+addonName = os.path.basename(os.path.dirname(__file__))
 
 class DeveloperProperties(bpy.types.PropertyGroup):
     bl_idname = "umog_DeveloperProperties"
@@ -29,7 +29,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
         col.prop(self.developer, "traceInfo")
 
 def getPreferences():
-    return bpy.context.user_preferences.addons[addonName].preferences
+    return bpy.context.preferences.addons[addonName].preferences
 
 def getDeveloperSettings():
     return getPreferences().developer

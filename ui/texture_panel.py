@@ -150,7 +150,7 @@ class UMOGTexturePanel:
             
             row = layoutMain.row()
             row.separator()
-            layoutMain.prop(scn.props, "ToggleRampSettings", toggle=True, icon="IPO", text="Ramp Settings")
+            layoutMain.prop(scn.props, "ToggleRampSettings", toggle=True, icon="IPO_BEZIER", text="Ramp Settings")
             if scn.props.ToggleRampSettings:
                 layout = layoutMain.box()
                 layout.prop(texture, "use_color_ramp", text="Ramp")

@@ -1,6 +1,6 @@
 import bpy
 
-bpy.types.Object.bakeCount : bpy.props.IntProperty(
+bpy.types.Object.bakeCount = bpy.props.IntProperty(
     name="BakeCount",
     description="BakeCount",
     default=1,
@@ -8,7 +8,7 @@ bpy.types.Object.bakeCount : bpy.props.IntProperty(
 
 bpy.types.Mesh.bakedKeys = {}
 
-bpy.types.Object.hasUMOGBaked : bpy.props.BoolProperty(
+bpy.types.Object.hasUMOGBaked = bpy.props.BoolProperty(
     name = "hasUMOGBaked", 
     description = "hasUMOGBaked",
     default = False)

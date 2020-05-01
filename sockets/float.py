@@ -21,7 +21,7 @@ class FloatSocket(bpy.types.NodeSocket, UMOGSocket):
     # Label for nice name display
     bl_label = 'Float Socket'
     dataType = "Float"
-    allowedInputTypes = ["Float", "Integer", "Boolean"]
+    allowedInputTypes = ["Float", "Integer", "Boolean", "Variable"]
 
     useIsUsedProperty = False
     defaultDrawType = "PREFER_PROPERTY"
@@ -47,6 +47,8 @@ class FloatSocket(bpy.types.NodeSocket, UMOGSocket):
     def setProperty(self, data):
         if type(data) is bool:
             self.value = int(data)
+        elif type(data) is str:
+            self.value = float(data)
         else:
             self.value = data
 

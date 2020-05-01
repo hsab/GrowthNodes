@@ -17,13 +17,13 @@ class UMOGTextureData(dict):
 
 class Texture2Socket(bpy.types.NodeSocket, UMOGSocket):
     # Description string
-    '''Custom Float socket type'''
+    '''Custom Texture socket type'''
     # Optional identifier string. If not explicitly defined, the python class name is used.
     bl_idname = 'umog_Texture2SocketType'
     # Label for nice name display
     bl_label = 'Texture2 Socket'
     dataType = "Texture2"
-    allowedInputTypes = ["Texture2"]
+    allowedInputTypes = ["Texture2", "Variable"]
 
     useIsUsedProperty = False
     defaultDrawType = "PREFER_PROPERTY"

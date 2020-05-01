@@ -12,7 +12,7 @@ class VariableSocket(bpy.types.NodeSocket, UMOGSocket):
     allowedInputTypes = ["All"]
 
 
-    text = "varName"
+    text = ""
     useIsUsedProperty = True
     defaultDrawType = "TEXT_PROPERTY"
 
@@ -21,7 +21,8 @@ class VariableSocket(bpy.types.NodeSocket, UMOGSocket):
     def textChanged(self, context):
         pass
 
-    text : StringProperty(default = "custom name", update = textChanged)
+    text : StringProperty(default = "", update = textChanged)
+    value : StringProperty(default = "", update = textChanged)
 
     socketCreationType : StringProperty(default = "")
 
@@ -36,3 +37,6 @@ class VariableSocket(bpy.types.NodeSocket, UMOGSocket):
     def addIntegerNode(self):
         node = newNodeAtCursor("umog_IntegerNode")
         self.linkWith(node.outputs[0])
+
+    def getProperty(self):
+        return self.value

@@ -22,7 +22,7 @@ def createMissingOperators(scene):
         description = missingDescriptions.pop()
         operator = createOperatorWithDescription(description)
         operatorsByDescription[description] = operator.bl_idname
-        # DBG(str(description), operator, operator.bl_idname, TRACE = False)
+        DBG(str(description), operator, operator.bl_idname, TRACE = False)
         bpy.utils.register_class(operator)
 
 def createOperatorWithDescription(description):
@@ -34,12 +34,15 @@ def createOperatorWithDescription(description):
         "bl_label" : "Are you sure?",
         "bl_description" : description,
         "invoke" : invoke_InvokeFunction,
-        "execute" : execute_InvokeFunction })
-    operator.callback : StringProperty()
-    operator.invokeWithData : BoolProperty(default = False)
-    operator.confirm : BoolProperty()
-    operator.data : StringProperty()
-    operator.passEvent : BoolProperty()
+        "execute" : execute_InvokeFunction,
+        "__annotations__" : {
+            "callback" : StringProperty(),
+            "invokeWithData" : BoolProperty(default = False),
+            "confirm" : BoolProperty(),
+            "data" : StringProperty(),
+            "passEvent" : BoolProperty()
+        }
+    })
 
     return operator
 
@@ -50,7 +53,7 @@ def invoke_InvokeFunction(self, context, event):
     return self.execute(context)
 
 def execute_InvokeFunction(self, context):
-    # DBG()
+    DBG()
     args = []
     if self.invokeWithData: args.append(self.data)
     if self.passEvent: args.append(self._event)

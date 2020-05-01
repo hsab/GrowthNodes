@@ -13,7 +13,7 @@ class BooleanSocket(bpy.types.NodeSocket, UMOGSocket):
     # Label for nice name display
     bl_label = 'Boolean Socket'
     dataType = "Boolean"
-    allowedInputTypes = ["Float", "Integer", "Boolean"]
+    allowedInputTypes = ["Float", "Integer", "Boolean", "Variable"]
 
     useIsUsedProperty = False
 
@@ -36,6 +36,8 @@ class BooleanSocket(bpy.types.NodeSocket, UMOGSocket):
     def setProperty(self, data):
         if type(data) is bool:
             self.value = data
+        elif type(data) is str:
+            self.value = int(data) > 0
         else:
             self.value = data > 0 
 

@@ -22,6 +22,8 @@ class SharpEdgesNode(bpy.types.Node, UMOGOutputNode):
         socket = self.newOutput("VertexGroup", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
+        self.newInput("Boolean", "Inverse Select", value = False)
+
 
         self.width = 200
 
@@ -59,6 +61,9 @@ class SharpEdgesNode(bpy.types.Node, UMOGOutputNode):
            faces = e.link_faces
            for f in faces:
                f.select = True
+
+        if self.inputs[3].value == True:
+            bpy.ops.mesh.select_all(action='INVERT')
 
         bmesh.update_edit_mesh(obj.data)
         # bm.free()

@@ -43,56 +43,56 @@ umogAddonChanged = False
 @persistent
 def sceneUpdatePostUMOG(scene):
     for handler in sceneUpdatePostUMOGHandlers:
-        # DBG(str(handler))
+        DBG(str(handler))
         handler(scene)
 
     global umogAddonChanged
     if umogAddonChanged:
         umogAddonChanged = False
         for handler in addonLoadPostUMOGHandlers:
-            # DBG(str(handler))
+            DBG(str(handler))
             handler()
 
 @persistent
 def savePreUMOG(scene):
     for handler in fileSavePreUMOGHandlers:
-        # DBG(str(handler))
+        DBG(str(handler))
         handler()
 
 @persistent
 def loadPostUMOG(scene):
     for handler in fileLoadPostUMOGHandlers:
-        # DBG(str(handler))
+        DBG(str(handler))
         handler()
 
 @persistent
 def renderPreUMOG(scene):
     for handler in renderPreUMOGHandlers:
-        # DBG(str(handler))
+        DBG(str(handler))
         handler()
 
 @persistent
 def frameChangedPostUMOG(scene):
     for handler in frameChangePostUMOGHandlers:
-        # DBG(str(handler))
+        DBG(str(handler))
         handler(scene)
 
 @persistent
 def renderInitializedUMOG(scene):
     for handler in renderInitUMOGHandlers:
-        # DBG(str(handler))
+        DBG(str(handler))
         handler()
 
 @persistent
 def renderCancelledUMOG(scene):
     for handler in renderCancelUMOGHandlers:
-        # DBG(str(handler))
+        DBG(str(handler))
         handler()
 
 @persistent
 def renderCompletedUMOG(scene):
     for handler in renderCancelUMOGHandlers:
-        # DBG(str(handler))
+        DBG(str(handler))
         handler()
 
 def register():

@@ -20,7 +20,7 @@ class IntegerSocket(bpy.types.NodeSocket, UMOGSocket):
     # Label for nice name display
     bl_label = 'Integer Socket'
     dataType = "Integer"
-    allowedInputTypes = ["Float", "Integer", "Boolean"]
+    allowedInputTypes = ["Float", "Integer", "Boolean", "Variable"]
 
     useIsUsedProperty = False
     defaultDrawType = "PREFER_PROPERTY"
@@ -49,6 +49,8 @@ class IntegerSocket(bpy.types.NodeSocket, UMOGSocket):
         if type(data) is bool:
             self.value = int(data)
         elif type(data) is float:
+            self.value = int(data)
+        elif type(data) is str:
             self.value = int(data)
         else:
             self.value = data
