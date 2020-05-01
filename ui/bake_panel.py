@@ -1,5 +1,6 @@
 import bpy
 import math
+from .. utils.nodes import getUMOGNodeTree
 
 class UMOGBakePanel:
     bl_label = "Bake Properties"
@@ -7,6 +8,8 @@ class UMOGBakePanel:
     @classmethod
     def poll(cls, context):
         try:
+            # pollFlag = len(getUMOGNodeTree())
+            # return pollFlag
             for window in bpy.context.window_manager.windows:
                 screen = window.screen
                 for area in screen.areas:
