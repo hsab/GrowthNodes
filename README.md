@@ -47,7 +47,7 @@ The master branch includes the following nodes and features:
 
 ![Created with master branch](https://raw.githubusercontent.com/hsab/GrowthNodes/gifs/gifs/plane1.gif)
 
-The experimental branch (UMOG) has many additional features that require compilation, external python modules and are not fully tested and are often hacky. However this branch deserves much attention as it offers many advanced and optimized features beyond what Blender could provide. These are:
+The experimental branch (GrowthNodes) has many additional features that require compilation, external python modules and are not fully tested and are often hacky. However this branch deserves much attention as it offers many advanced and optimized features beyond what Blender could provide. These are:
 
  - GPU computed [Gray-Scott Reaction Diffusion](https://mrob.com/pub/comp/xmorphia/)
  - Support for both 2D and 3D (solid) textures. 
