@@ -242,7 +242,7 @@ class UMOGNode:
             raise ValueError("Socket type does not exist: {}".format(repr(type)))
         if identifier is None:
             identifier = name
-        socket = self.inputs.new(idName, name, identifier + self.nodeTree.getNextUniqueID())
+        socket = self.inputs.new(idName, name, identifier = identifier + self.nodeTree.getNextUniqueID())
         socket.originalName = socket.name
         self._setAlternativeIdentifier(socket, alternativeIdentifier)
         self._setSocketProperties(socket, kwargs)
@@ -255,7 +255,7 @@ class UMOGNode:
             raise ValueError("Socket type does not exist: {}".format(repr(type)))
         if identifier is None:
             identifier = name
-        socket = self.outputs.new(idName, name, identifier + self.nodeTree.getNextUniqueID())
+        socket = self.outputs.new(idName, name, identifier = identifier + self.nodeTree.getNextUniqueID())
         socket.originalName = socket.name
         self._setAlternativeIdentifier(socket, alternativeIdentifier)
         self._setSocketProperties(socket, kwargs)
@@ -294,7 +294,7 @@ class UMOGNode:
                     self.invokeFunction(layout, "enablePreview",
                         text = "Enable Preview",
                         description = "Disables the preview instance in GrowthNodes panel",
-                        icon = "IMAGE_COL")
+                        icon = "IMAGE")
         except:
             pass
 

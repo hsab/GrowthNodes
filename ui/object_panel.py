@@ -138,7 +138,7 @@ class UMOGObjectPanel:
 
                 if kb:
                     box = layout.box()
-                    split = box.split(percentage=0.4)
+                    split = box.split(factor=0.4)
                     row = split.row()
                     row.enabled = enable_edit
                     row.prop(key, "use_relative")

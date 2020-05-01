@@ -180,7 +180,7 @@ class UMOGSocket:
                 subrow.prop(self.display, "isPackedInfo",
                             text="", icon=icon)
             else:
-                icon = "LOAD_FACTORY"
+                icon = "UGLYPACKAGE"
                 subrow.prop(self.display, "notPackedInfo",
                             text="", icon=icon)
 
@@ -209,11 +209,11 @@ class UMOGSocket:
                 subrow.prop(self, "isUsed", text="", icon=icon)
             if self.is_linked and not self.isUsed:
                 if self.isInput:
-                    subrow.label("", icon="QUESTION")
-                    subrow.label("", icon="TRIA_RIGHT")
+                    subrow.label(text="", icon="QUESTION")
+                    subrow.label(text="", icon="TRIA_RIGHT")
                 else:
-                    subrow.label("", icon="TRIA_RIGHT")
-                    subrow.label("", icon="QUESTION")
+                    subrow.label(text="", icon="TRIA_RIGHT")
+                    subrow.label(text="", icon="QUESTION")
             if self.isInput:
                 subrow.prop(self, "isUsed", text="", icon=icon)
 
@@ -253,7 +253,7 @@ class UMOGSocket:
                 else:
                     self.drawRefreshContain(leftSubrow)
                 if self.drawLabel:
-                    middleSubrow.label(displayText)
+                    middleSubrow.label(text=displayText)
 
         if self.isInput:
             subrow = rightSubrow
@@ -290,12 +290,12 @@ class UMOGSocket:
             if self.hasProperty():
                 self.drawProperty(context, layout, layoutParent, text, node)
             else:
-                layout.label(text)
+                layout.label(text=text)
         elif drawType == "PROPERTY_ONLY":
             if self.hasProperty():
                 self.drawProperty(context, layout, layoutParent, text="", node=node)
         elif drawType == "TEXT_ONLY":
-            layout.label(text)
+            layout.label(text=text)
 
     def getDisplayedName(self):
         if self.display.text or (self.textProps.editable and self.display.textInput):

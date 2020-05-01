@@ -5,7 +5,7 @@ from ... utils.events import propUpdate
 
 class IntegerNode(bpy.types.Node, UMOGNode):
     bl_idname = "umog_IntegerNode"
-    bl_label = "GrowthNodes Integer"
+    bl_label = "Integer"
     assignedType = "Integer"
 
     input_value : bpy.props.IntProperty(update=propUpdate)

@@ -23,7 +23,7 @@ class DissolveLimitedNode(bpy.types.Node, UMOGOutputNode):
         options = {"ENUM_FLAG"})
 
     def draw(self, layout):
-        layout.prop(self, "delimitOptions", "Delimit Operation")
+        layout.prop(self, "delimitOptions", text="Delimit Operation")
 
     def create(self):
         self.newInput(self.assignedType, "Object")

@@ -53,4 +53,4 @@ class FloatCompareNode(bpy.types.Node, UMOGNode):
         self.outputs[0].name = str(self.outputs[0].value)
 
     def draw(self, layout):
-        layout.prop(self, "fixed_items", 'Operation')
+        layout.prop(self, "fixed_items", text='Operation')

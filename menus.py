@@ -7,7 +7,7 @@ menus = OrderedDict([
         "bl_label": "Develop Menu",
         "text": "Develop",
         "bl_description": "Lorem Ipsum",
-        "icon": "RECOVER_AUTO",
+        "icon": "SETTINGS",
         "nodes": [
             ("umog_ScriptNode", "Script Node")
         ]

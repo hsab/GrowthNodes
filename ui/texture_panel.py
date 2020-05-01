@@ -102,11 +102,11 @@ class UMOGTexturePanel:
             col = row.column(align=True)
             col.operator("umog.texture_action", icon='TRIA_UP', text="").action = 'UP'
             col.operator("umog.texture_action", icon='TRIA_DOWN', text="").action = 'DOWN'
-            col.prop(scn.props, "TexturePreviewInPanel", toggle=True, icon="IMAGE_COL", text="")
+            col.prop(scn.props, "TexturePreviewInPanel", toggle=True, icon="IMAGE", text="")
             row = layout.row()
 
             row = layout.row()
-            row.prop(scn.props, "TexturePreviewInPanel", toggle=True, icon="IMAGE_COL", text="Toggle Preview")
+            row.prop(scn.props, "TexturePreviewInPanel", toggle=True, icon="IMAGE", text="Toggle Preview")
             row = layout.row()
         
         if scn.props.TexturePreviewInPanel and len(scn.textures) > 0:

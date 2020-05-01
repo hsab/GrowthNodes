@@ -44,11 +44,11 @@ class UMOGBakePanel:
                 if props.ShowFrameSettings:
                     box = layout.box()
                     col = box.column(align=True)
-                    row = col.row(align=True).split(percentage=1/6, align=True)
+                    row = col.row(align=True).split(factor=1/6, align=True)
                     scol = row.column(align=True)
                     scol.scale_y = 2
                     scol.operator("umog.frame_range", text="", icon='KEYTYPE_MOVING_HOLD_VEC').position = 'start'
-                    row = row.split(percentage=5/6, align=True)
+                    row = row.split(factor=5/6, align=True)
                     scol = row.column(align=True)
                     scol.scale_y = 1
                     scol.prop(props, 'StartFrame', text="Bake Start")
@@ -77,37 +77,37 @@ class UMOGBakePanel:
                     #===================
                     #Total Frames
                     row = box.row(align=True)
-                    split = row.split(percentage=0.7)
+                    split = row.split(factor=0.7)
                     left_side = split.column(align=True)
-                    left_side.label("Total Frames:", icon='PHYSICS')
+                    left_side.label(text="Total Frames:", icon='PHYSICS')
                     right_side = split.column()
                     right_side.alignment = 'RIGHT'
-                    right_side.label(str(totalFrames))
+                    right_side.label(text=str(totalFrames))
                     #===================
                     #FPS
                     row = box.row(align=True)
-                    split = row.split(percentage=0.7)
+                    split = row.split(factor=0.7)
                     left_side = split.column(align=True)
-                    left_side.label("FPS:", icon='SEQUENCE')
+                    left_side.label(text="FPS:", icon='SEQUENCE')
                     right_side = split.column()
                     right_side.alignment = 'RIGHT'
-                    right_side.label(str(scene.render.fps))
+                    right_side.label(text=str(scene.render.fps))
                     #===================
                     #Total Time
                     row = box.row(align=True)
-                    split = row.split(percentage=0.7)
+                    split = row.split(factor=0.7)
                     left_side = split.column(align=True)
-                    left_side.label("Total Seconds:", icon='TIME')
+                    left_side.label(text="Total Seconds:", icon='TIME')
                     right_side = split.column()
                     right_side.alignment = 'RIGHT'
-                    right_side.label(str(totalFrames / scene.render.fps))
+                    right_side.label(text=str(totalFrames / scene.render.fps))
                     #===================
                     #Texture Resolution
                     row = box.row(align=True)
                     # row = col.row(align=True).split(align=True)
-                    # split = row.split(percentage=0.7)
+                    # split = row.split(factor=0.7)
                     # left_side = split.column(align=True)
-                    row.label("Texture Resolution:", icon='RENDER_REGION')
+                    row.label(text="Texture Resolution:", icon='RENDER_REGION')
                     row = box.row(align=True)
                     row.prop(props, 'TextureResolution', text="")
                 
@@ -116,7 +116,7 @@ class UMOGBakePanel:
 
 class UMOGBakePanelNodeEditor(bpy.types.Panel, UMOGBakePanel):
     bl_idname = "UMOG_PT_NodePanel"
-    bl_category = "Node Tree"
+    bl_category = "GrowthNodes"
     bl_space_type = "NODE_EDITOR"
     bl_region_type = "UI"
 
