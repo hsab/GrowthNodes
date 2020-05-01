@@ -65,8 +65,8 @@ class ScriptNode(bpy.types.Node, UMOGNode):
         textBlock = bpy.data.texts.new(name = self.scriptName)
         textBlock.indentation = 'TABS'
         textBlock.write("#Variables are passed in as locals. Eg. {'varName':socket}\n")
-        textBlock.write("#def entry():\n")
-        textBlock.write("#	print(varInput)")
+        textBlock.write("#varOutput1 = varInput1 * 10\n")
+        textBlock.write("#print(varInput1, varOutput1)")
         self.textBlockName = textBlock.name
         # self.writeToTextBlock()
 
@@ -110,7 +110,6 @@ class ScriptNode(bpy.types.Node, UMOGNode):
     def run(self):
         scriptCode = bpy.data.texts[self.textBlockName].as_string()
         scriptLocals = {}
-        scriptGlobals = {}
         if len(self.inputs) > 1:
             for socket in self.inputs[1:]:
                 if socket.isLinked:
@@ -119,19 +118,12 @@ class ScriptNode(bpy.types.Node, UMOGNode):
                 scriptLocals[socket.text] = None
 
             comiledScript = compile(scriptCode, '<string>', 'exec')
-            # exec(comiledScript)
+
             exec(comiledScript, None, scriptLocals)
 
             for socket in self.outputs:
                 socket.value = str(scriptLocals[socket.text])
 
-            print()
-            # b = scriptLocals['testthat']()
-            # c = scriptLocals['testthat']()
-            # d = scriptLocals['testthat']()
-            # print("hey",a,b,c,d)
-            # exec(scriptCode)
-            # entry()
 
     def updateOutputName(self):
         name = "List ({})".format(len(self.inputs) - 1)
