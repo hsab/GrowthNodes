@@ -16,10 +16,8 @@ import sys
 import traceback
 from os.path import dirname, join, abspath, basename
 
-addonDirectoryName = "umog_addon"
 currentDirectory = dirname(abspath(__file__))
 addonsDirectory = dirname(currentDirectory)
-currentDirectory = join(currentDirectory, addonDirectoryName)
 compilationInfoPath = join(currentDirectory, "compilation_info.json")
 addonName = basename(currentDirectory)
 

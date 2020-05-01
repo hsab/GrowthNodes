@@ -3,8 +3,12 @@ from __future__ import unicode_literals
 
 import sys
 import os
+from os.path import dirname, join, abspath, basename
 
 from ..preferences import getDeveloperSettings
+
+currentDirectory = dirname(abspath(__file__))
+addonName = basename(os.path.dirname(currentDirectory))
 
 def DBG(*messages, **options):
     try:
@@ -80,7 +84,7 @@ def getFunctionInfo(frameNumber):
 
     functionObject = {
         "frame": frame,
-        "path": str(frame.f_code.co_filename).split("umog_addon")[1],
+        "path": str(frame.f_code.co_filename).split(addonName)[1],
         "name": str(frame.f_code.co_name),
         "executedLine": '@'+str(frame.f_lineno),
         "firstLine": '#'+str(frame.f_code.co_firstlineno)
