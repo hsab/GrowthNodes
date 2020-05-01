@@ -1,6 +1,7 @@
 import bpy
 from .handlers import eventUMOGHandler
 from . debug import *
+from . nodes import getUMOGNodeTree
 
 @eventUMOGHandler("FILE_LOAD_POST")
 def updateOnLoad():
@@ -24,6 +25,9 @@ def propUpdate(self = None, context = None):
         if node in node.nodeTree.linearizedNodes:
             node.nodeTree.updateFrom(node)
 
+
+    enableUseFakeUser()
+    
     if context is not None:
         #  Property changed from socket
         if hasattr(self, 'isUMOGNodeSocket'):
@@ -43,3 +47,8 @@ def propUpdate(self = None, context = None):
         elif hasattr(self, 'isUMOGNode'):
             if self.isUMOGNode:
                 nodeTreeUpdateFrom(self)
+
+def enableUseFakeUser():
+    # Make sure the node trees will not be removed when closing the file.
+    for tree in getUMOGNodeTree():
+        tree.use_fake_user = True
