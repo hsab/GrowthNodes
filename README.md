@@ -62,7 +62,8 @@ The experimental branch has many additional features that require compilation, e
 
 ## Usage
 
-GrowthNodes uses Blender's PyNodes API to facilitate user interaction. Functions and data blocks are represented as self-contained nodes. Such an approach allows for scalable and customized node systems that surpass all static GUI implementation. 
+GrowthNodes uses Blender's PyNodes API to facilitate user interaction. Functions and data blocks are represented as self-contained nodes. Such an approach allows for scalable and user centric design.
+
  ![enter image description here](https://raw.githubusercontent.com/hsab/GrowthNodes/gifs/gifs/nodes.gif)
 
 ## Targeted Geometry
