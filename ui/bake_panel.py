@@ -35,7 +35,8 @@ class UMOGBakePanel:
 
                 row = layout.row()
                 row.scale_y = 1.5
-                row.operator("umog.bake", icon='FORCE_LENNARDJONES', text="Bake Nodetree")
+                bakeOP = row.operator("umog.bake", icon='FORCE_LENNARDJONES', text="Bake Nodetree")
+                bakeOP.tree = tree.name
                 row = layout.row()
                 row.template_ID(snode, "node_tree", new="node.new_node_tree")
                 row = layout.row()

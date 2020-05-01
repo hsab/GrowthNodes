@@ -9,8 +9,11 @@ class UMOGBakeOp(bpy.types.Operator):
     bl_label = 'Bake Mesh(es)'
     bl_options = {"REGISTER", "UNDO"}
 
+    tree : bpy.props.StringProperty()
+
     def execute(self, context):
-        node_tree = context.space_data.edit_tree
+        # test = self.tree
+        node_tree = bpy.data.node_groups[self.tree]
         
         start_time = time.time()
 
