@@ -107,7 +107,7 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
         if vertexGroup != '':
             mod.vertex_group = vertexGroup
 
-        bpy.ops.object.modifier_apply(modifier = oname, apply_as = "SHAPE")
+        bpy.ops.object.modifier_apply_as_shapekey(modifier = oname)
 
         if shapeKeys is None:
             shapeKeys = objData.shape_keys.key_blocks
