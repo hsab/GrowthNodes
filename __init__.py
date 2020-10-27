@@ -1,7 +1,7 @@
 bl_info = {
     "name": "GrowthNodes",
     "author": "Hirad Sab",
-    "version": (1, 0, 0),
+    "version": (1, 0, 1),
     "blender": (2, 80, 0),
     "location": "GrowthNodes Editor",
     "description": "Surface Growth Simulation Nodes",
