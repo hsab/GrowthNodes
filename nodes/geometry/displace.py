@@ -33,7 +33,7 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
         socket = self.newOutput("VertexGroup", "Vertex Group")
         socket.display.refreshableIcon = False
         socket.display.packedIcon = False
-        self.newInput("Boolean", "Use Shape Keys", value = True)
+        # self.newInput("Boolean", "Use Shape Keys", value = True)
 
 
     def refresh(self):
@@ -58,7 +58,7 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
         texture = self.inputs[2].getTexture()
         midLevel = self.inputs[3].value
         strength = self.inputs[4].value
-        isAdditive = self.inputs[5].value
+        # isAdditive = self.inputs[5].value
 
         # Is Object and Texture are Linked
         inputIsCorrect = self.inputs[0].is_linked and self.inputs[2].value != ''
@@ -71,14 +71,6 @@ class DisplaceNode(bpy.types.Node, UMOGOutputNode):
         # objData.calc_normals_split()
         shapeKeys = None
         hasShapes = objData.shape_keys is not None
-
-        if isAdditive == False:
-            shapeKeys = objData.shape_keys.key_blocks
-            bpy.ops.object.shape_key_add(from_mix = True)
-
-            while len(shapeKeys) > 0:
-                currShape = shapeKeys[0]
-                obj.shape_key_remove(currShape)
 
         if hasShapes:
             shapeKeys = objData.shape_keys.key_blocks
