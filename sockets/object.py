@@ -57,10 +57,12 @@ class ObjectSocket(bpy.types.NodeSocket, UMOGSocket):
         bpy.context.view_layer.objects.active = obj
 
     def getCustomContext(self):
-        win = bpy.context.window
-        scr = win.screen
-        areas3d = [area for area in scr.areas if area.type == 'VIEW_3D']
-        region = [region for region in areas3d[0].regions if region.type == 'WINDOW']
+        for win in bpy.context.window_manager.windows:
+            scr = win.screen
+            areas3d = [area for area in scr.areas if area.type == 'VIEW_3D']
+            region = [region for region in areas3d[0].regions if region.type == 'WINDOW']
+            if len(areas3d) > 0 or len(region) > 0:
+                break
 
         if len(areas3d) is 0:
             raise Exception("Execution requires a 3D View region")
