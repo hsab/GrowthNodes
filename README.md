@@ -1,7 +1,7 @@
 
 # GrowthNodes
 
-### An Iterative Approach to Simulation of Organic Growth on Surfaces Using Displacement and Procedural Textures
+### An iterative approach to simulation of organic growth on polygonal surfaces using displacement and procedural textures
 
 GrowthNodes is a Blender plugin for generative content creation and simulation of organic growth processes on polygonal surfaces. It is based on an iterative approach to simulation of organic growth on surfaces using displacement and procedural textures.
 
