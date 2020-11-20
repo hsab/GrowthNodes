@@ -5,8 +5,8 @@
 
 GrowthNodes is a Blender plugin for generative content creation and simulation of organic growth processes on polygonal surfaces. It is based on an iterative approach to simulation of organic growth on surfaces using displacement and procedural textures.
 
-<b>[Download 2.8](https://github.com/hsab/GrowthNodes/archive/master.zip)</b>   
-<b>[Download 2.7](https://github.com/hsab/GrowthNodes/archive/2.7.zip)</b>
+<b>[Download for Blender 2.8](https://github.com/hsab/GrowthNodes/archive/master.zip)</b>   
+<b>[Download for Blender 2.7](https://github.com/hsab/GrowthNodes/archive/2.7.zip)</b>
 
 ![Compilation](https://raw.githubusercontent.com/hsab/GrowthNodes/gifs/gifs/compil.gif)
 
